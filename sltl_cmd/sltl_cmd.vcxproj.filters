@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\gtlt_cmd.cpp">
+    <ClCompile Include="src\sltl_cmd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
