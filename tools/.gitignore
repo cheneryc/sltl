@@ -1,0 +1,4 @@
+# Allow lib and pdb files to be tracked 
+
+!*.lib
+!*.pdb
