@@ -14,6 +14,7 @@ namespace
   }
 }
 
+//TODO: should be in a shader_test.cpp file
 TEST(scalar, empty)
 {
   auto test_shader = []()

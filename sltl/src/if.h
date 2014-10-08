@@ -12,7 +12,7 @@ namespace sltl
   {
   public:
     template<typename Fn>
-    void make_else(Fn fn)
+    void else_(Fn fn)
     {
       syntax::get_current_block().add(std::make_unique<syntax::conditional>(language::id_else));
 
@@ -22,12 +22,10 @@ namespace sltl
       }
     }
 
-    //TODO: should accept a scalar_ref/proxy instead?
     template<typename Fn>
-    else_statement make_else_if(const scalar<bool>& condition, Fn fn)
+    else_statement else_if(scalar<bool>::proxy condition, Fn fn)
     {
-      auto n = std::make_unique<syntax::variable_reference>(condition.get_declaration());
-      syntax::get_current_block().add(std::make_unique<syntax::conditional>(language::id_else, std::move(n)));
+      syntax::get_current_block().add(std::make_unique<syntax::conditional>(language::id_else, condition.move()));
 
       {
         scope s(scope::block);
@@ -38,12 +36,10 @@ namespace sltl
     }
   };
 
-  //TODO: should accept a scalar_ref/proxy instead?
   template<typename Fn>
-  else_statement make_if(const scalar<bool>& condition, Fn fn)
+  else_statement if_(scalar<bool>::proxy condition, Fn fn)
   {
-    auto n = std::make_unique<syntax::variable_reference>(condition.get_declaration());
-    syntax::get_current_block().add(std::make_unique<syntax::conditional>(language::id_if, std::move(n)));
+    syntax::get_current_block().add(std::make_unique<syntax::conditional>(language::id_if, condition.move()));
 
     {
       scope s(scope::block);

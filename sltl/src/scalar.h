@@ -31,12 +31,6 @@ namespace sltl
 
   class variable : public element
   {
-  public:
-    const syntax::variable_declaration& get_declaration() const
-    {
-      return *_vd;
-    }
-
   protected:
     variable(language::type_id id) : _vd(nullptr)
     {
@@ -48,6 +42,7 @@ namespace sltl
     //TODO: check for duplicate names being declared in the same scope?
     //void set_name(const std::wstring& name);
 
+    //TODO: change this to a reference rather than a pointer?
     syntax::variable_declaration* _vd;
   };
 
@@ -62,6 +57,13 @@ namespace sltl
   //eg.
   // shader::const_scalar<float> my_const = 1.0f;
   // my_const += /*expression*/; // Error, this is not allowed
+  //
+  // alternatively:
+  // sltl::scalar<const float> my_const = 1.0f;
+  //
+  // this would:
+  //1. //use partial template specialization to remove non-const operators etc.
+  //2. require a 'specifier' field adding to variable declaration etc.
 
   template<typename T>
   struct scalar_id
@@ -108,13 +110,12 @@ namespace sltl
     class proxy
     {
     public:
-      //TODO: have all the constructors call the proxy(syntax::node::ptr&& n) version, rather than set _n themselves
-      proxy(T t) : _n(std::make_unique<syntax::constant_declaration<T>>(t)) {}
-      proxy(proxy&& p) : _n(std::move(p.n)) {}
+      proxy(T t) : proxy(std::make_unique<syntax::constant_declaration<T>>(t)) {}
+      proxy(proxy&& p) : proxy(std::move(p.n)) {}
       proxy(syntax::node::ptr&& n) : _n(std::move(n)) {}
-      proxy(const scalar& s) : _n(s.make_reference()) {}
+      proxy(const scalar& s) : proxy(s.make_reference()) {}
 
-      proxy(scalar&& s) : _n(syntax::get_current_block().remove(s._vd))
+      proxy(scalar&& s) : proxy(syntax::get_current_block().remove(s._vd))
       {
         s._vd->make_rvalue();
       }
@@ -127,8 +128,7 @@ namespace sltl
         }
       }
 
-      //TODO: rename this move?
-      syntax::node::ptr&& take()
+      syntax::node::ptr&& move()
       {
         return std::move(_n);
       }
@@ -146,12 +146,12 @@ namespace sltl
 
     scalar(proxy p) : scalar()
     {
-      _vd->add(p.take());
+      _vd->add(p.move());
     }
 
     proxy operator=(proxy p)
     {
-      return make_proxy<syntax::assignment_operator>(language::id_assignment, make_reference(), p.take());
+      return make_proxy<syntax::assignment_operator>(language::id_assignment, make_reference(), p.move());
     }
 
     proxy operator=(scalar&& s)
@@ -166,12 +166,12 @@ namespace sltl
 
     proxy operator+=(proxy p)
     {
-      return make_proxy<syntax::assignment_operator>(language::id_assignment_addition, make_reference(), p.take());
+      return make_proxy<syntax::assignment_operator>(language::id_assignment_addition, make_reference(), p.move());
     }
 
     friend proxy operator+(proxy lhs, proxy rhs)
     {
-      return make_proxy<syntax::binary_operator>(language::id_addition, lhs.take(), rhs.take());
+      return make_proxy<syntax::binary_operator>(language::id_addition, lhs.move(), rhs.move());
     }
 
   private:
