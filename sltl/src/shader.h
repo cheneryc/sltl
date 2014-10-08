@@ -19,13 +19,13 @@ namespace sltl
     shader(shader&& s) : _t(s._t), _tree(std::move(s._tree)) {}
     shader(type t, syntax::tree&& tree) : _t(t), _tree(std::move(tree)) {}
 
-    template<typename Fn>
-    std::wstring str() const
+    template<typename Fn, typename ...T>
+    std::wstring str(T&& ...t) const
     {
       static_assert(std::is_base_of<output, Fn>::value, "Template parameter Fn must derive from sltl::output");
       //TODO: static assert that the type Fn is callable? Something similar to std::is_function, but works for functors & lambdas
 
-      Fn fn;
+      Fn fn(std::forward<T>(t)...);
       _tree.traverse(fn);
       return fn.str();
     }
@@ -35,6 +35,7 @@ namespace sltl
     syntax::tree _tree;
   };
 
+  //TODO: create a similar make_test function for use with unit test?
   template<typename Fn>
   shader make_shader(shader::type t, Fn fn)
   {

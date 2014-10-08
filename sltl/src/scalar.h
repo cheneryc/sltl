@@ -51,6 +51,7 @@ namespace sltl
     syntax::variable_declaration* _vd;
   };
 
+  //TODO: move type generic operators into this class (i.e. addition, assignment (might be tricky) etc.)?
   class basic : public variable
   {
   public:
@@ -107,7 +108,8 @@ namespace sltl
     class proxy
     {
     public:
-      proxy(T t) : _n(std::make_unique<syntax::constant_declaration>(t)) {}
+      //TODO: have all the constructors call the proxy(syntax::node::ptr&& n) version, rather than set _n themselves
+      proxy(T t) : _n(std::make_unique<syntax::constant_declaration<T>>(t)) {}
       proxy(proxy&& p) : _n(std::move(p.n)) {}
       proxy(syntax::node::ptr&& n) : _n(std::move(n)) {}
       proxy(const scalar& s) : _n(s.make_reference()) {}
@@ -125,6 +127,7 @@ namespace sltl
         }
       }
 
+      //TODO: rename this move?
       syntax::node::ptr&& take()
       {
         return std::move(_n);
@@ -138,20 +141,28 @@ namespace sltl
     };
 
     scalar() : basic(scalar_id<T>::value) {}
+    scalar(scalar&& s) : scalar(proxy(std::move(s))) {}
+    scalar(const scalar& s) : scalar(proxy(s)) {}
 
-    scalar(proxy p) : basic(scalar_id<T>::value)
+    scalar(proxy p) : scalar()
     {
       _vd->add(p.take());
     }
-
-    // Assignment operators (TODO: move to basic but can't inherit assignment operator easily?)
 
     proxy operator=(proxy p)
     {
       return make_proxy<syntax::assignment_operator>(language::id_assignment, make_reference(), p.take());
     }
 
-    // Arithmetic operators (TODO: move to basic?)
+    proxy operator=(scalar&& s)
+    {
+      return this->operator=(proxy(std::move(s)));
+    }
+
+    proxy operator=(const scalar& s)
+    {
+      return this->operator=(proxy(s));
+    }
 
     proxy operator+=(proxy p)
     {

@@ -23,7 +23,7 @@ namespace sltl
   class output
   {
   public:
-    output();
+    output(bool is_indent_tab = true);
 
     void operator()(const syntax::block& b, bool is_start = true);
     void operator()(const syntax::variable_declaration& vd, bool is_start = true);
@@ -55,5 +55,6 @@ namespace sltl
 
     size_t _indent_count;
     std::wstringstream _ss;
+    bool _is_indent_tab;
   };
 }

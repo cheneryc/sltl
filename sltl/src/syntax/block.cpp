@@ -48,7 +48,7 @@ bool ns::block::operator==(const block& rhs) const
 
 bool ns::block::operator!=(const block& rhs) const
 {
-  return this->operator==(rhs);
+  return !(this->operator==(rhs));
 }
 
 void ns::block::add(node::ptr&& node)
@@ -73,6 +73,7 @@ ns::node::ptr ns::block::remove(node* node)
     return (n.get() == node);
   });
 
+  //TODO: fix this - check if assert is valid or not
   //assert(it == _children.rbegin()); // This is not correct for the scalar(scalar&&) constructor as it has just created a new var - itself!
   assert(it != _children.rend());
 

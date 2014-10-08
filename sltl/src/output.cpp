@@ -13,17 +13,17 @@ namespace
 {
   namespace ns = sltl;
 
-  void output_indent(std::wstringstream& ss, const size_t indent_count)
+  void output_indent(std::wstringstream& ss, const size_t indent_count, const bool is_indent_tab)
   {
     //TODO: this should be precomputed when _indent_count is changed for performance reasons
     for(size_t i = 0; i < indent_count; ++i)
     {
-      ss << L'\t';//TODO: use spaces or tabs?
+      ss << (is_indent_tab ? L"\t" : L"  ");
     }
   }
 }
 
-ns::output::output() : _indent_count(0)
+ns::output::output(bool is_indent_tab) : _indent_count(0), _is_indent_tab(is_indent_tab)
 {
 }
 
@@ -39,12 +39,12 @@ void ns::output::operator()(const syntax::block& b, bool is_start)
 
   if(is_start)
   {
-    output_indent(_ss, _indent_count++);
+    output_indent(_ss, _indent_count++, _is_indent_tab);
     brace = L'{';
   }
   else
   {
-    output_indent(_ss, --_indent_count);
+    output_indent(_ss, --_indent_count, _is_indent_tab);
     brace = L'}';
   }
 
@@ -141,7 +141,7 @@ void ns::output::operator()(bool b)
 
 void ns::output::line_begin()
 {
-  output_indent(_ss, _indent_count);
+  output_indent(_ss, _indent_count, _is_indent_tab);
 }
 
 void ns::output::line_end()

@@ -3,6 +3,7 @@
 #include "block.h"
 #include "block_manager.h"
 
+#include "../output.h"
 #include "../language.h"
 
 

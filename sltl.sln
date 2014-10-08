@@ -1,12 +1,19 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual C++ Express 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2013 for Windows Desktop
+VisualStudioVersion = 12.0.30723.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sltl_cmd", "sltl_cmd\sltl_cmd.vcxproj", "{20672D73-AB7C-470D-81CC-939543D8163A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{53BA074C-FA2B-479A-9581-AE2FE3AC6A4C} = {53BA074C-FA2B-479A-9581-AE2FE3AC6A4C}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sltl", "sltl\sltl.vcxproj", "{53BA074C-FA2B-479A-9581-AE2FE3AC6A4C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sltl_test", "sltl_test\sltl_test.vcxproj", "{749A32ED-F6EA-4F5D-BEB9-8DEA7786C105}"
+	ProjectSection(ProjectDependencies) = postProject
+		{53BA074C-FA2B-479A-9581-AE2FE3AC6A4C} = {53BA074C-FA2B-479A-9581-AE2FE3AC6A4C}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,6 +29,10 @@ Global
 		{53BA074C-FA2B-479A-9581-AE2FE3AC6A4C}.Debug|Win32.Build.0 = Debug|Win32
 		{53BA074C-FA2B-479A-9581-AE2FE3AC6A4C}.Release|Win32.ActiveCfg = Release|Win32
 		{53BA074C-FA2B-479A-9581-AE2FE3AC6A4C}.Release|Win32.Build.0 = Release|Win32
+		{749A32ED-F6EA-4F5D-BEB9-8DEA7786C105}.Debug|Win32.ActiveCfg = Debug|Win32
+		{749A32ED-F6EA-4F5D-BEB9-8DEA7786C105}.Debug|Win32.Build.0 = Debug|Win32
+		{749A32ED-F6EA-4F5D-BEB9-8DEA7786C105}.Release|Win32.ActiveCfg = Release|Win32
+		{749A32ED-F6EA-4F5D-BEB9-8DEA7786C105}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
