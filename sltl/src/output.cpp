@@ -33,7 +33,7 @@ std::wstring ns::output::str() const
 }
 
 //TODO: interestingly we don't actually make use of the passed block object here!
-void ns::output::operator()(const syntax::block& b, bool is_start)
+void ns::output::operator()(const syntax::block&, bool is_start)
 {
   wchar_t brace;
 
@@ -137,6 +137,11 @@ void ns::output::operator()(unsigned int ui)
 void ns::output::operator()(bool b)
 {
   _ss << std::boolalpha << b;
+}
+
+void ns::output::comma()
+{
+  _ss << L", ";
 }
 
 void ns::output::line_begin()

@@ -1,7 +1,9 @@
 #pragma once
 
-#include "syntax/tree.h"
 #include "output.h"
+
+#include "syntax/tree.h"
+#include "syntax/block_manager.h"
 
 
 namespace sltl
@@ -41,7 +43,7 @@ namespace sltl
   {
     syntax::tree tree;
 
-    auto result = fn();//TODO: do something with the returned value?
+    /*auto result = */fn();//TODO: do something with the returned value?
 
     // Remove the root block from the block stack. The stack should be empty after this.
     syntax::block_manager::get().get_block().pop();

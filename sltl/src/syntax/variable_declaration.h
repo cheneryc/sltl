@@ -71,6 +71,8 @@ namespace syntax
   public:
     constant_declaration(T t) : _t(t) {}
 
+    constant_declaration& operator=(const constant_declaration&) = delete;
+
     virtual void traverse(output& out) const
     {
       out(*this);
@@ -85,6 +87,7 @@ namespace syntax
     variable_reference(const variable_declaration& vd) : _vd(vd) {}
 
     //TODO: need a virtual destructor?
+    variable_reference& operator=(const variable_reference&) = delete;
 
     virtual void traverse(output& out) const
     {

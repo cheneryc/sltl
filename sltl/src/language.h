@@ -9,10 +9,25 @@ namespace language
   {
     id_unknown,
     id_float,
+    id_float2,
+    id_float3,
+    id_float4,
     id_double,
+    id_double2,
+    id_double3,
+    id_double4,
     id_int,
+    id_int2,
+    id_int3,
+    id_int4,
     id_uint,
-    id_bool
+    id_uint2,
+    id_uint3,
+    id_uint4,
+    id_bool,
+    id_bool2,
+    id_bool3,
+    id_bool4
   };
 
   enum operator_id

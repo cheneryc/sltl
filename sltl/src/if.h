@@ -14,7 +14,7 @@ namespace sltl
     template<typename Fn>
     void else_(Fn fn)
     {
-      syntax::get_current_block().add(std::make_unique<syntax::conditional>(language::id_else));
+      syntax::get_current_block().add(syntax::make_node_ptr<syntax::conditional>(language::id_else));
 
       {
         scope s(scope::block);
@@ -23,9 +23,9 @@ namespace sltl
     }
 
     template<typename Fn>
-    else_statement else_if(scalar<bool>::proxy condition, Fn fn)
+    else_statement else_if(scalar<bool>::proxy&& condition, Fn fn)
     {
-      syntax::get_current_block().add(std::make_unique<syntax::conditional>(language::id_else, condition.move()));
+      syntax::get_current_block().add(syntax::make_node_ptr<syntax::conditional>(language::id_else, condition.move()));
 
       {
         scope s(scope::block);
@@ -37,9 +37,9 @@ namespace sltl
   };
 
   template<typename Fn>
-  else_statement if_(scalar<bool>::proxy condition, Fn fn)
+  else_statement if_(scalar<bool>::proxy&& condition, Fn fn)
   {
-    syntax::get_current_block().add(std::make_unique<syntax::conditional>(language::id_if, condition.move()));
+    syntax::get_current_block().add(syntax::make_node_ptr<syntax::conditional>(language::id_if, condition.move()));
 
     {
       scope s(scope::block);

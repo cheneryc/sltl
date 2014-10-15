@@ -1,6 +1,7 @@
 #pragma once
 
 #include "node.h"
+#include "../output.h"
 #include "../language.h"
 
 

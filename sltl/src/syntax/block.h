@@ -25,6 +25,8 @@ namespace syntax
     block(type t = local);
     block(block&& b);
 
+    block& operator=(const block&) = delete;
+
     bool operator==(const block& rhs) const;
     bool operator!=(const block& rhs) const;
 

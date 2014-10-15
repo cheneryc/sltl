@@ -14,6 +14,12 @@ const wchar_t* ns::to_type_string(type_id id)
   {
   case id_float:
     return L"float";
+  case id_float2:
+    return L"vec2";
+  case id_float3:
+    return L"vec3";
+  case id_float4:
+    return L"vec4";
   case id_double:
     return L"double";
   case id_int:
@@ -37,6 +43,10 @@ const wchar_t* ns::to_prefix_string(type_id id)
   {
   case id_float:
     return L"f";
+  case id_float2:
+  case id_float3:
+  case id_float4:
+    return L"v";
   case id_double:
     return L"d";
   case id_int:

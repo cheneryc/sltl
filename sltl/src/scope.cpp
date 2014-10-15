@@ -13,7 +13,7 @@ ns::scope::scope(type t) : _t(t)
   syntax::block_manager& bm = syntax::block_manager::get();
   syntax::block& b = bm.get_block();
 
-  b.add(std::make_unique<syntax::block>());
+  b.add(syntax::make_node_ptr<syntax::block>());
 }
 
 ns::scope::~scope()

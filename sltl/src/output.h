@@ -25,7 +25,7 @@ namespace sltl
   public:
     output(bool is_indent_tab = true);
 
-    void operator()(const syntax::block& b, bool is_start = true);
+    void operator()(const syntax::block&, bool is_start = true);
     void operator()(const syntax::variable_declaration& vd, bool is_start = true);
     void operator()(const syntax::variable_reference& vr);
     void operator()(const syntax::assignment_operator& op);
@@ -37,6 +37,8 @@ namespace sltl
     {
       (*this)(cd._t);
     }
+
+    void comma();
 
     void line_begin();
     void line_end();

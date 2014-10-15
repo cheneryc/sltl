@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\basic.h" />
     <ClInclude Include="src\element.h" />
     <ClInclude Include="src\if.h" />
     <ClInclude Include="src\language.h" />
@@ -21,10 +22,14 @@
     <ClInclude Include="src\syntax\block.h" />
     <ClInclude Include="src\syntax\block_manager.h" />
     <ClInclude Include="src\syntax\conditional.h" />
+    <ClInclude Include="src\syntax\expression_list.h" />
     <ClInclude Include="src\syntax\node.h" />
     <ClInclude Include="src\syntax\operator.h" />
     <ClInclude Include="src\syntax\tree.h" />
     <ClInclude Include="src\syntax\variable_declaration.h" />
+    <ClInclude Include="src\traits.h" />
+    <ClInclude Include="src\variable.h" />
+    <ClInclude Include="src\vector.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\element.cpp" />
@@ -33,6 +38,7 @@
     <ClCompile Include="src\scope.cpp" />
     <ClCompile Include="src\syntax\block.cpp" />
     <ClCompile Include="src\syntax\block_manager.cpp" />
+    <ClCompile Include="src\variable.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{53BA074C-FA2B-479A-9581-AE2FE3AC6A4C}</ProjectGuid>
