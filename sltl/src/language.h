@@ -50,7 +50,8 @@ namespace language
   enum conditional_id
   {
     id_if,
-    id_else
+    id_else,
+    id_else_if
   };
 
   const wchar_t* to_type_string(type_id id);

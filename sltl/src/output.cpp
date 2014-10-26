@@ -1,6 +1,8 @@
 #include "output.h"
 #include "syntax/block.h"
 #include "syntax/variable_declaration.h"
+#include "syntax/reference.h"
+#include "syntax/temporary.h"
 #include "syntax/operator.h"
 #include "syntax/conditional.h"
 #include "language.h"
@@ -32,7 +34,6 @@ std::wstring ns::output::str() const
   return _ss.str();
 }
 
-//TODO: interestingly we don't actually make use of the passed block object here!
 void ns::output::operator()(const syntax::block&, bool is_start)
 {
   wchar_t brace;
@@ -55,23 +56,42 @@ void ns::output::operator()(const syntax::variable_declaration& vd, bool is_star
 {
   if(is_start)
   {
-    _ss << language::to_type_string(vd._id);
+    line_begin();
 
-    if(!vd.is_rvalue())
+    _ss << language::to_type_string(vd._id) << L' ';
+    _ss << language::to_prefix_string(vd._id) << vd._name;
+
+    if(vd.has_initializer())
     {
-      _ss << " " << language::to_prefix_string(vd._id) << vd._name;
+      _ss << (vd.is_direct_initialized() ? L"(" : L" = ");
     }
   }
-  
-  if(vd.get_expression() || vd.is_rvalue())
+  else
   {
-    _ss << (is_start ? L'(' : L')');
+    if(vd.has_initializer() && vd.is_direct_initialized())
+    {
+      _ss << L')';
+    }
+
+    line_end();
   }
 }
 
-void ns::output::operator()(const syntax::variable_reference& vr)
+void ns::output::operator()(const syntax::reference& r)
 {
-  _ss << language::to_prefix_string(vr._vd._id) << vr._vd._name;
+  _ss << language::to_prefix_string(r._declaration._id) << r._declaration._name;
+}
+
+void ns::output::operator()(const syntax::temporary& t, bool is_start)
+{
+  if(is_start)
+  {
+    _ss << language::to_type_string(t._id) << L'(';
+  }
+  else
+  {
+    _ss << L')';
+  }
 }
 
 void ns::output::operator()(const syntax::assignment_operator& op)
@@ -88,10 +108,37 @@ void ns::output::operator()(const syntax::conditional& c, bool is_start)
 {
   if(is_start)
   {
+    line_begin();
     _ss << language::to_conditional_string(c._id);
   }
+  else
+  {
+    line_end(false);
+  }
+}
 
-  _ss << (is_start ? L'(' : L')');
+void ns::output::operator()(const syntax::expression_statement&, bool is_start)
+{
+  if(is_start)
+  {
+    line_begin();
+  }
+  else
+  {
+    line_end();
+  }
+}
+
+void ns::output::operator()(const syntax::parentheses&, bool is_start)
+{
+  if(is_start)
+  {
+    _ss << L'(';
+  }
+  else
+  {
+    _ss << L')';
+  }
 }
 
 void ns::output::operator()(float f)
@@ -149,17 +196,12 @@ void ns::output::line_begin()
   output_indent(_ss, _indent_count, _is_indent_tab);
 }
 
-void ns::output::line_end()
+void ns::output::line_end(bool has_semi_colon)
 {
-  _ss << L';' << std::endl;
-}
+  if(has_semi_colon)
+  {
+    _ss << L';';
+  }
 
-void ns::output::parentheses_begin()
-{
-  _ss << L'(';
-}
-
-void ns::output::parentheses_end()
-{
-  _ss << L')';
+  _ss << std::endl;
 }

@@ -62,13 +62,11 @@ namespace sltl
 
   public:
     scalar() : basic(scalar_id<T>::value) {}
+    //TODO: find out why changing this to an r-value reference breaks the unit test (possible copy elision issue?)
+    scalar(proxy&& p) : basic(scalar_id<T>::value, p.move()) {}
+
     scalar(scalar&& s) : scalar(proxy(std::move(s))) {}
     scalar(const scalar& s) : scalar(proxy(s)) {}
-
-    scalar(proxy&& p) : scalar()
-    {
-      _vd->add(p.move());
-    }
 
     //TODO: see if the assignment opertators can be moved into basic and
     //then used to mask the compiler defaults created for scalar/vector

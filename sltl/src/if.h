@@ -14,10 +14,10 @@ namespace sltl
     template<typename Fn>
     void else_(Fn fn)
     {
-      syntax::get_current_block().add(syntax::make_node_ptr<syntax::conditional>(language::id_else));
+      auto& selection = _c.add_else<syntax::conditional>(language::id_else);
 
       {
-        scope s(scope::block);
+        scope s(scope::block, selection);
         fn();
       }
     }
@@ -25,27 +25,37 @@ namespace sltl
     template<typename Fn>
     else_statement else_if(scalar<bool>::proxy&& condition, Fn fn)
     {
-      syntax::get_current_block().add(syntax::make_node_ptr<syntax::conditional>(language::id_else, condition.move()));
+      auto& selection = _c.add_else<syntax::conditional>(language::id_else_if, condition.move());
 
       {
-        scope s(scope::block);
+        scope s(scope::block, selection);
         fn();
       }
 
-      return else_statement();
+      return else_statement(selection);
     }
+
+    else_statement& operator=(const else_statement&) = delete;
+
+  private:
+    else_statement(syntax::conditional& c) : _c(c) {}
+
+    template<typename Fn>
+    friend else_statement if_(scalar<bool>::proxy&&, Fn);
+
+    syntax::conditional& _c;
   };
 
   template<typename Fn>
   else_statement if_(scalar<bool>::proxy&& condition, Fn fn)
   {
-    syntax::get_current_block().add(syntax::make_node_ptr<syntax::conditional>(language::id_if, condition.move()));
+    auto& selection = syntax::get_current_block().add<syntax::conditional>(language::id_if, condition.move());
 
     {
-      scope s(scope::block);
+      scope s(scope::block, selection);
       fn();
     }
 
-    return else_statement();
+    return else_statement(selection);
   }
 }

@@ -78,6 +78,30 @@
     <ClInclude Include="src\traits.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\syntax\statement.h">
+      <Filter>Header Files\syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="src\syntax\temporary.h">
+      <Filter>Header Files\syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="src\syntax\expression_statement.h">
+      <Filter>Header Files\syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="src\syntax\expression.h">
+      <Filter>Header Files\syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="src\syntax\literal.h">
+      <Filter>Header Files\syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="src\syntax\reference.h">
+      <Filter>Header Files\syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="src\syntax\declaration.h">
+      <Filter>Header Files\syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="src\syntax\parentheses.h">
+      <Filter>Header Files\syntax</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\scope.cpp">
@@ -100,6 +124,12 @@
     </ClCompile>
     <ClCompile Include="src\variable.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\syntax\expression_statement.cpp">
+      <Filter>Source Files\syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="src\syntax\reference.cpp">
+      <Filter>Source Files\syntax</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

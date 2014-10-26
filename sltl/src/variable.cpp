@@ -9,9 +9,5 @@ namespace
   namespace ns = sltl;
 }
 
-ns::variable::variable(language::type_id id) : _vd(nullptr)
-{
-  auto vd = std::make_unique<syntax::variable_declaration>(id);
-  _vd = vd.get();
-  syntax::get_current_block().add(std::move(vd));
-}
+ns::variable::variable(language::type_id id) : _declaration(syntax::get_current_block().add<syntax::variable_declaration>(id)) {}
+ns::variable::variable(language::type_id id, syntax::expression::ptr&& initializer) : _declaration(syntax::get_current_block().add<syntax::variable_declaration>(id, std::move(initializer))) {}

@@ -106,6 +106,8 @@ const wchar_t* ns::to_conditional_string(conditional_id id)
     return L"if";
   case id_else:
     return L"else";
+  case id_else_if:
+    return L"else if";
   }
 
   return nullptr;

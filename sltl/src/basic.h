@@ -3,7 +3,11 @@
 #include "traits.h"
 #include "variable.h"
 
+#include "syntax/literal.h"
 #include "syntax/operator.h"
+#include "syntax/reference.h"
+#include "syntax/temporary.h"
+#include "syntax/expression_statement.h"
 
 
 namespace sltl
@@ -11,44 +15,41 @@ namespace sltl
   template<template<typename, size_t> class V, typename T, size_t D>
   class basic : public variable
   {
-    typedef V<T, D> derived_t;
+    static_assert(is_scalar<T>::value, "sltl::basic: Type T is not a valid template parameter type");
 
   public:
-    static_assert(is_scalar<T>::value, "sltl::basic: Type T is not a valid template parameter type");
+    basic(const basic&) = delete;
+    basic& operator=(const basic&) = delete;
 
     class proxy
     {
     public:
+      proxy(syntax::expression::ptr&& e) : _expression(std::move(e)) {}
+
       //TODO: this is probably not suitable for vector?
-      proxy(T t) : proxy(syntax::make_node_ptr<syntax::constant_declaration<T>>(t)) {}
-
-      proxy(proxy&& p) : proxy(std::move(p.n)) {}
-      proxy(syntax::node::ptr&& n) : _n(std::move(n)) {}
-      proxy(const derived_t& d) : proxy(d.make_reference()) {}
-
-      proxy(derived_t&& d) : proxy(syntax::get_current_block().remove(d._vd))
-      {
-        d._vd->make_rvalue();
-      }
+      proxy(T t) : proxy(syntax::expression::make<syntax::literal<T>>(t)) {}
+      proxy(proxy&& p) : proxy(std::move(p._expression)) {}
+      proxy(V<T, D>&& v) : proxy(syntax::expression::make<syntax::temporary>(std::move(v._declaration))) {}
+      proxy(const V<T, D>& v) : proxy(v.make_reference()) {}
 
       ~proxy()
       {
-        if(_n)
+        if(_expression)
         {
-          syntax::get_current_block().add(std::move(_n));
+          syntax::get_current_block().add<syntax::expression_statement>(std::move(_expression));
         }
       }
 
-      syntax::node::ptr&& move()
+      syntax::expression::ptr&& move()
       {
-        return std::move(_n);
+        return std::move(_expression);
       }
 
       proxy(const proxy& p) = delete;
       proxy& operator=(const proxy&) = delete;
 
     private:
-      syntax::node::ptr _n;
+      syntax::expression::ptr _expression;
     };
 
     proxy operator+=(proxy&& p)
@@ -61,18 +62,29 @@ namespace sltl
       return make_proxy<syntax::binary_operator>(language::id_addition, lhs.move(), rhs.move());
     }
 
-    syntax::node::ptr make_reference() const
+    proxy operator-=(proxy&& p)
     {
-      return syntax::node::ptr(new syntax::variable_reference(*_vd));
+      return make_proxy<syntax::assignment_operator>(language::id_assignment_subtraction, make_reference(), p.move());
+    }
+
+    friend proxy operator-(proxy&& lhs, proxy&& rhs)
+    {
+      return make_proxy<syntax::binary_operator>(language::id_subtraction, lhs.move(), rhs.move());
+    }
+
+    syntax::expression::ptr make_reference() const
+    {
+      return syntax::expression::make<syntax::reference>(_declaration);
     }
 
   protected:
     basic(language::type_id id) : variable(id) {}
+    basic(language::type_id id, syntax::expression::ptr&& initializer) : variable(id, std::move(initializer)) {}
 
-    template<typename N, typename ...T>
-    static proxy make_proxy(T&& ...t)
+    template<typename T, typename ...A>
+    static proxy make_proxy(A&& ...a)
     {
-      return syntax::node::ptr(new N(std::forward<T>(t)...));
+      return proxy(syntax::expression::make<T>(std::forward<A>(a)...));
     }
   };
 }

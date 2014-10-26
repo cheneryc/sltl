@@ -1,6 +1,6 @@
 #pragma once
 
-#include "node.h"
+#include "statement.h"
 
 #include <string>
 #include <vector>
@@ -13,7 +13,7 @@ namespace sltl
 
 namespace syntax
 {
-  class block : public node
+  class block : public statement
   {
   public:
     enum type
@@ -25,20 +25,20 @@ namespace syntax
     block(type t = local);
     block(block&& b);
 
-    block& operator=(const block&) = delete;
-
     bool operator==(const block& rhs) const;
     bool operator!=(const block& rhs) const;
 
-    void add(node::ptr&& node);
-    void pop();
-
-    //TODO: slightly weird that this takes a raw pointer, maybe lookup via name instead?
-    //TODO: note that the user could use std::move so simply the presence of an r-value isn't enough to guarantee that
-    // this function can be used, we should also search the tree to see if it is referenced anywhere else.
-    node::ptr remove(node* node);
-
     std::wstring get_child_name();
+
+    template<typename T, typename ...A>
+    T& add(A&&... a)
+    {
+      _statements.emplace_back(new T(std::forward<A>(a)...));
+      return static_cast<T&>(*_statements.back());
+    }
+
+    void erase(const statement& s);
+    void pop();
 
     virtual void traverse(output& out) const;
 
@@ -48,7 +48,7 @@ namespace syntax
     size_t _current_child_id;
     const std::wstring _name;
 
-    std::vector<node::ptr> _children;
+    std::vector<statement::ptr> _statements;
   };
 }
 }

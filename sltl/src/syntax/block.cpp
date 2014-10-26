@@ -34,7 +34,7 @@ ns::block::block(type t) : _t(t), _current_child_id(0), _name(::create_name(bloc
   block_manager::get()._block_stack.emplace(*this);
 }
 
-ns::block::block(block&& b) : _t(b._t), _current_child_id(0), _name(::create_name(block_manager::get()._block_stack.empty())), _children(std::move(b._children))
+ns::block::block(block&& b) : _t(b._t), _current_child_id(0), _name(::create_name(block_manager::get()._block_stack.empty())), _statements(std::move(b._statements))
 {
   block_manager::get()._block_stack.emplace(*this);
 }
@@ -51,9 +51,21 @@ bool ns::block::operator!=(const block& rhs) const
   return !(this->operator==(rhs));
 }
 
-void ns::block::add(node::ptr&& node)
+//TODO: make this private and add temporary::temporary as a friend?
+void ns::block::erase(const statement& s)
 {
-  _children.push_back(std::move(node));
+  auto it = std::find_if(_statements.rbegin(), _statements.rend(), [&s](const statement::ptr& s_find)
+  {
+    return (s_find.get() == &s);
+  });
+
+  // The statement to be removed should be the most recently created (this
+  // function is only meant to be used by the syntax::temporary constructor)
+  assert(it == _statements.rbegin());
+  assert(it != _statements.rend());
+
+  // The call to std::next and base are required to convert the reverse_iterator back to a normal iterator
+  _statements.erase(std::next(it).base());
 }
 
 void ns::block::pop()
@@ -64,23 +76,6 @@ void ns::block::pop()
   assert(block_stack.top().get() == *this);
 
   block_stack.pop();
-}
-
-ns::node::ptr ns::block::remove(node* node)
-{
-  auto it = std::find_if(_children.rbegin(), _children.rend(), [node](const node::ptr& n)
-  {
-    return (n.get() == node);
-  });
-
-  //TODO: fix this - check if assert is valid or not
-  //assert(it == _children.rbegin()); // This is not correct for the scalar(scalar&&) constructor as it has just created a new var - itself!
-  assert(it != _children.rend());
-
-  node::ptr n = std::move(*it);
-  // The call to std::next and base are required to convert the reverse_iterator back to a normal iterator
-  _children.erase(std::next(it).base());
-  return std::move(n);
 }
 
 std::wstring ns::block::get_child_name()
@@ -101,22 +96,9 @@ void ns::block::traverse(sltl::output& out) const
 {
   out(*this);
 
-  std::for_each(_children.begin(), _children.end(), [&out](const node::ptr& node)
+  std::for_each(_statements.begin(), _statements.end(), [&out](const statement::ptr& s)
   {
-    // TODO: consider how to fix this hack, all this logic should be in the output object
-    const bool is_block = (dynamic_cast<block*>(node.get()) != nullptr);
-
-    if(!is_block)
-    {
-      out.line_begin();
-    }
-
-    node->traverse(out);
-    
-    if(!is_block)
-    {
-      out.line_end();
-    }
+    s->traverse(out);
   });
 
   out(*this, false);

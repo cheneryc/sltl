@@ -111,16 +111,13 @@ namespace sltl
   public:
     //TODO: sort out the double default constructor warning...
     vector() : basic(vector_id<T, D>::value) {}
+    vector(proxy&& p) : basic(vector_id<T, D>::value, p.move()) {}
+
     vector(vector&& v) : vector(proxy(std::move(v))) {}
     vector(const vector& v) : vector(proxy(v)) {}
 
-    vector(proxy&& p) : basic(vector_id<T, D>::value)
-    {
-      _vd->add(p.move());
-    }
-
     template<typename ...A>
-    vector(A&&... a) : vector(proxy(syntax::make_node_ptr<syntax::expression_list>(unpack<D>(std::forward<A>(a)...)))) {}
+    vector(A&&... a) : vector(proxy(syntax::expression::make<syntax::expression_list>(unpack<D>(std::forward<A>(a)...)))) {}
 
   private:
     template<int N, typename ...A>

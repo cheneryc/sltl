@@ -121,7 +121,7 @@ TEST(scalar, assignment_operator)
   f1 = f2;
   f1 = float();
   f1 = float(1.0f);
-  f1 = f2 = f1;
+  f1 = (f2 = f1);
 }
 )";
 
@@ -169,10 +169,10 @@ TEST(scalar, addition_operator)
   f1 + float();
   1.0f + f1;
   float() + f1;
-  f1 += f2 + 1.0f;
-  f1 += f2 + float();
-  f1 += f2 + f3;
-  f1 += (f2 + 1.0f) + f3;
+  f1 += (f2 + 1.0f);
+  f1 += (f2 + float());
+  f1 += (f2 + f3);
+  f1 += ((f2 + 1.0f) + f3);
 }
 )";
 

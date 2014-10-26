@@ -6,18 +6,21 @@
 
 namespace sltl
 {
+  // Forward declarations - sltl::syntax namespace
   namespace syntax
   {
-    // Foward declarations - sltl::syntax namespace
     class block;
     class variable_declaration;
-    class variable_reference;
+    class reference;
+    class temporary;
     class assignment_operator;
     class binary_operator;
     class conditional;
+    class expression_statement;
+    class parentheses;
 
     template<typename T>
-    class constant_declaration;
+    class literal;
   }
 
   class output
@@ -27,24 +30,21 @@ namespace sltl
 
     void operator()(const syntax::block&, bool is_start = true);
     void operator()(const syntax::variable_declaration& vd, bool is_start = true);
-    void operator()(const syntax::variable_reference& vr);
+    void operator()(const syntax::reference& r);
+    void operator()(const syntax::temporary& t, bool is_start = true);
     void operator()(const syntax::assignment_operator& op);
     void operator()(const syntax::binary_operator& op);
     void operator()(const syntax::conditional& c, bool is_start = true);
+    void operator()(const syntax::expression_statement& es, bool is_start = true);
+    void operator()(const syntax::parentheses& p, bool is_start = true);
 
     template<typename T>
-    void operator()(const syntax::constant_declaration<T>& cd)
+    void operator()(const syntax::literal<T>& cd)
     {
       (*this)(cd._t);
     }
 
     void comma();
-
-    void line_begin();
-    void line_end();
-
-    void parentheses_begin();
-    void parentheses_end();
 
     std::wstring str() const;
 
@@ -54,6 +54,9 @@ namespace sltl
     void operator()(int i);
     void operator()(unsigned int ui);
     void operator()(bool b);
+
+    void line_begin();
+    void line_end(bool has_semi_colon = true);
 
     size_t _indent_count;
     std::wstringstream _ss;

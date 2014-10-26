@@ -21,10 +21,6 @@ namespace
     sltl::vector<float, 3> vec4(vec, 1.0f);
     sltl::vector<float, 4> vec5(1.0f, 1.0f, 1.0f, 1.0f);
 
-    //vec2 += vec1;
-
-    //sclr_var++;//Is this normally defined for non-integral types (appears to work for all arithmetic types plus pointers)?
-
     return 0;
   }
 }

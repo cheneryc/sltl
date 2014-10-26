@@ -1,11 +1,9 @@
 #pragma once
 
-#include <memory>
-
 
 namespace sltl
 {
-  // Foward declaration - sltl namespace
+  // Forward declaration - sltl namespace
   class output;
 
 namespace syntax
@@ -13,19 +11,18 @@ namespace syntax
   class node
   {
   public:
-    typedef std::unique_ptr<node> ptr;
+    // Make sure all derived types are non-copyable
+    node(const node&) = delete;
+    node& operator=(const node&) = delete;
 
     virtual ~node()
     {
     }
     
     virtual void traverse(output& out) const = 0;
-  };
 
-  template<typename T, typename ...A>
-  node::ptr make_node_ptr(A&&... a)
-  {
-    return std::unique_ptr<node>(new T(std::forward<A>(a)...));
-  }
+  protected:
+    node() = default;
+  };
 }
 }
