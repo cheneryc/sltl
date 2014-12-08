@@ -178,3 +178,54 @@ TEST(scalar, addition_operator)
 
   ASSERT_EQ(result, expected);
 }
+
+TEST(scalar, subtraction_operator)
+{
+  auto test_shader = []()
+  {
+    sltl::scalar<float> test1, test2, test3;
+
+    test1 -= 1.0f;
+    test1 -= test2;
+    test1 -= sltl::scalar<float>();
+    test1 -= sltl::scalar<float>(1.0f);
+
+    test1 - 1.0f;
+    test1 - test2;
+    test1 - sltl::scalar<float>();
+
+    1.0f - test1;
+    sltl::scalar<float>() - test1;
+
+    test1 -= test2 - 1.0f;
+    test1 -= test2 - sltl::scalar<float>();
+    test1 -= test2 - test3;
+    test1 -= (test2 - 1.0f) - test3;
+
+    return 0;
+  };
+
+  const std::wstring result = ::to_string(sltl::make_shader(sltl::shader::vertex, test_shader));
+  const std::wstring expected = LR"(
+{
+  float f1;
+  float f2;
+  float f3;
+  f1 -= 1.0f;
+  f1 -= f2;
+  f1 -= float();
+  f1 -= float(1.0f);
+  f1 - 1.0f;
+  f1 - f2;
+  f1 - float();
+  1.0f - f1;
+  float() - f1;
+  f1 -= (f2 - 1.0f);
+  f1 -= (f2 - float());
+  f1 -= (f2 - f3);
+  f1 -= ((f2 - 1.0f) - f3);
+}
+)";
+
+  ASSERT_EQ(result, expected);
+}

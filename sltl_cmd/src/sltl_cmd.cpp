@@ -12,20 +12,11 @@ namespace
   //TODO: need to figure out what the return value should be
   int build_shader()
   {
-    using namespace sltl;
-
-    sltl::vector<float, 2> vec;
-    sltl::vector<float, 3> vec1;
-    sltl::vector<float, 3> vec2(sltl::vector<float, 2>(1.0f, 1.0f), 1.0f);
-    sltl::vector<float, 3> vec3(vec1);
-    sltl::vector<float, 3> vec4(vec, 1.0f);
-    sltl::vector<float, 4> vec5(1.0f, 1.0f, 1.0f, 1.0f);
-
     return 0;
   }
 }
 
-int main(/*int argc, wchar_t* argv[]*/)
+int main()
 {
   auto shader = sltl::make_shader(sltl::shader::vertex, &build_shader);
 

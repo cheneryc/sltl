@@ -21,7 +21,7 @@ namespace sltl
 
     // The extra T2 argument stops this conflicting with the default constructor
     template<typename T2, typename ...A>
-    vector(T2&& t, A&&... a) : vector(proxy(syntax::expression::make<syntax::expression_list>(unpack<D>(std::forward<T2>(t), std::forward<A>(a)...)))) {}
+    explicit vector(T2&& t, A&&... a) : vector(proxy(syntax::expression::make<syntax::expression_list>(unpack<D>(std::forward<T2>(t), std::forward<A>(a)...)))) {}
 
     proxy operator=(proxy&& p)
     {

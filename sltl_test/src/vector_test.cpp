@@ -170,3 +170,126 @@ TEST(vector, variable_naming)
 
   ASSERT_EQ(result, expected);
 }
+
+TEST(vector, assignment_operator)
+{
+  auto test_shader = []()
+  {
+    typedef sltl::vector<float, 2> vec2;
+
+    vec2 test1, test2;
+
+    test1 = test2;
+    test1 = vec2();
+    test1 = vec2(1.0f, 1.0f);
+    test1 = test2 = test1;
+
+    return 0;
+  };
+
+  const std::wstring result = ::to_string(sltl::make_shader(sltl::shader::vertex, test_shader));
+  const std::wstring expected = LR"(
+{
+  vec2 v1;
+  vec2 v2;
+  v1 = v2;
+  v1 = vec2();
+  v1 = vec2(1.0f, 1.0f);
+  v1 = (v2 = v1);
+}
+)";
+
+  ASSERT_EQ(result, expected);
+}
+
+TEST(vector, addition_operator)
+{
+  auto test_shader = []()
+  {
+    typedef sltl::vector<float, 2> vec2;
+
+    vec2 test1, test2, test3, test4;
+
+    test1 += test2;
+    test1 += vec2();
+    test1 += vec2(1.0f, 1.0f);
+
+    test1 + test2;
+    test1 + vec2();
+
+    vec2() + test1;
+
+    test1 += test2 + vec2();
+    test1 += test2 + test3;
+    test1 += (test2 + test3) + test4;
+
+    return 0;
+  };
+
+  const std::wstring result = ::to_string(sltl::make_shader(sltl::shader::vertex, test_shader));
+  const std::wstring expected = LR"(
+{
+  vec2 v1;
+  vec2 v2;
+  vec2 v3;
+  vec2 v4;
+  v1 += v2;
+  v1 += vec2();
+  v1 += vec2(1.0f, 1.0f);
+  v1 + v2;
+  v1 + vec2();
+  vec2() + v1;
+  v1 += (v2 + vec2());
+  v1 += (v2 + v3);
+  v1 += ((v2 + v3) + v4);
+}
+)";
+
+  ASSERT_EQ(result, expected);
+}
+
+TEST(vector, subtraction_operator)
+{
+  auto test_shader = []()
+  {
+    typedef sltl::vector<float, 2> vec2;
+
+    vec2 test1, test2, test3, test4;
+
+    test1 -= test2;
+    test1 -= vec2();
+    test1 -= vec2(1.0f, 1.0f);
+
+    test1 - test2;
+    test1 - vec2();
+
+    vec2() - test1;
+
+    test1 -= test2 - vec2();
+    test1 -= test2 - test3;
+    test1 -= (test2 - test3) - test4;
+
+    return 0;
+  };
+
+  const std::wstring result = ::to_string(sltl::make_shader(sltl::shader::vertex, test_shader));
+  const std::wstring expected = LR"(
+{
+  vec2 v1;
+  vec2 v2;
+  vec2 v3;
+  vec2 v4;
+  v1 -= v2;
+  v1 -= vec2();
+  v1 -= vec2(1.0f, 1.0f);
+  v1 - v2;
+  v1 - vec2();
+  vec2() - v1;
+  v1 -= (v2 - vec2());
+  v1 -= (v2 - v3);
+  v1 -= ((v2 - v3) - v4);
+}
+)";
+
+  ASSERT_EQ(result, expected);
+}
