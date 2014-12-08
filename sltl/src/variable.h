@@ -20,8 +20,8 @@ namespace sltl
     variable& operator=(const variable&) = delete;
 
   protected:
-    variable(language::type_id id);
-    variable(language::type_id id, syntax::expression::ptr&& initializer);
+    variable(const language::type& type);
+    variable(const language::type& type, syntax::expression::ptr&& initializer);
 
     //TODO: check for duplicate names being declared in the same scope?
     //void set_name(const std::wstring& name);

@@ -38,10 +38,10 @@ TEST(scalar, constructor)
     sltl::scalar<float> test_construct1;
     sltl::scalar<float> test_construct2(1.0f);
     sltl::scalar<float> test_construct3 = 1.0f;
-    sltl::scalar<float> test_construct4 = sltl::scalar<float>(1.0f);
+    sltl::scalar<float> test_construct4 = sltl::scalar<float>(1.0f);// Temporary object eliminated by copy elision optimisation
     sltl::scalar<float> test_construct5 = test_construct4;
     sltl::scalar<float> test_construct6(test_construct5);
-    sltl::scalar<float> test_construct7(sltl::scalar<float>(1.0f));
+    sltl::scalar<float> test_construct7(sltl::scalar<float>(1.0f));// Temporary object eliminated by copy elision optimisation
 
     return 0;
   };
@@ -52,10 +52,10 @@ TEST(scalar, constructor)
   float f1;
   float f2(1.0f);
   float f3(1.0f);
-  float f5(float(1.0f));
+  float f4(1.0f);
+  float f5(f4);
   float f6(f5);
-  float f7(f6);
-  float f9(float(1.0f));
+  float f7(1.0f);
 }
 )";
 

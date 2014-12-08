@@ -19,57 +19,18 @@ namespace sltl
   //1. //use partial template specialization to remove non-const operators etc.
   //2. require a 'specifier' field adding to variable declaration etc.
 
-  template<typename T>
-  struct scalar_id
-  {
-    static const language::type_id value = language::id_unknown;
-  };
-
-  template<>
-  struct scalar_id<float>
-  {
-    static const language::type_id value = language::id_float;
-  };
-
-  template<>
-  struct scalar_id<double>
-  {
-    static const language::type_id value = language::id_double;
-  };
-
-  template<>
-  struct scalar_id<int>
-  {
-    static const language::type_id value = language::id_int;
-  };
-
-  template<>
-  struct scalar_id<unsigned int>
-  {
-    static const language::type_id value = language::id_uint;
-  };
-
-  template<>
-  struct scalar_id<bool>
-  {
-    static const language::type_id value = language::id_bool;
-  };
-
   template<typename T, size_t D = 1>
   class scalar : public basic<sltl::scalar, T, D>
   {
     static_assert(D == 1, "sltl::scalar: template parameter D must be 1");
 
   public:
-    scalar() : basic(scalar_id<T>::value) {}
-    //TODO: find out why changing this to an r-value reference breaks the unit test (possible copy elision issue?)
-    scalar(proxy&& p) : basic(scalar_id<T>::value, p.move()) {}
+    scalar() : basic() {}
+    scalar(proxy&& p) : basic(p.move()) {}
 
     scalar(scalar&& s) : scalar(proxy(std::move(s))) {}
     scalar(const scalar& s) : scalar(proxy(s)) {}
 
-    //TODO: see if the assignment opertators can be moved into basic and
-    //then used to mask the compiler defaults created for scalar/vector
     proxy operator=(proxy&& p)
     {
       return make_proxy<syntax::assignment_operator>(language::id_assignment, make_reference(), p.move());

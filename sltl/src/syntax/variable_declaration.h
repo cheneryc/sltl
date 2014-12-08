@@ -16,8 +16,8 @@ namespace syntax
   class variable_declaration : public declaration
   {
   public:
-    variable_declaration(language::type_id id) : declaration(get_current_block().get_child_name()), _id(id), _initializer() {}
-    variable_declaration(language::type_id id, expression::ptr&& initializer) : declaration(get_current_block().get_child_name()), _id(id), _initializer(std::move(initializer)) {}
+    variable_declaration(const language::type& type) : declaration(get_current_block().get_child_name()), _type(type), _initializer() {}
+    variable_declaration(const language::type& type, expression::ptr&& initializer) : declaration(get_current_block().get_child_name()), _type(type), _initializer(std::move(initializer)) {}
 
     bool is_direct_initialized() const
     {
@@ -47,7 +47,7 @@ namespace syntax
       out(*this, false);
     }
 
-    const language::type_id _id;
+    const language::type _type;
 
   private:
     expression::ptr _initializer;//TODO: const (ptr or expression or both)?

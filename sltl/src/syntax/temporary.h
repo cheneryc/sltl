@@ -10,7 +10,7 @@ namespace syntax
   class temporary : public expression
   {
   public:
-    temporary(variable_declaration&& declaration) : expression(), _id(declaration._id), _initializer(declaration.move())
+    temporary(variable_declaration&& declaration) : expression(), _type(declaration._type), _initializer(declaration.move())
     {
       syntax::get_current_block().erase(declaration);
     }
@@ -27,7 +27,7 @@ namespace syntax
       out(*this, false);
     }
 
-    const language::type_id _id;
+    const language::type _type;
 
   private:
     expression::ptr _initializer;//TODO: const (ptr or expression or both)?

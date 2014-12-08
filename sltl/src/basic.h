@@ -21,18 +21,18 @@ namespace sltl
     basic(const basic&) = delete;
     basic& operator=(const basic&) = delete;
 
-    class proxy
+    class proxy_base
     {
     public:
-      proxy(syntax::expression::ptr&& e) : _expression(std::move(e)) {}
+      proxy_base(const proxy_base& p) = delete;
+      proxy_base& operator=(const proxy_base&) = delete;
 
-      //TODO: this is probably not suitable for vector?
-      proxy(T t) : proxy(syntax::expression::make<syntax::literal<T>>(t)) {}
-      proxy(proxy&& p) : proxy(std::move(p._expression)) {}
-      proxy(V<T, D>&& v) : proxy(syntax::expression::make<syntax::temporary>(std::move(v._declaration))) {}
-      proxy(const V<T, D>& v) : proxy(v.make_reference()) {}
+      syntax::expression::ptr&& move()
+      {
+        return std::move(_expression);
+      }
 
-      ~proxy()
+      ~proxy_base()
       {
         if(_expression)
         {
@@ -40,17 +40,38 @@ namespace sltl
         }
       }
 
-      syntax::expression::ptr&& move()
-      {
-        return std::move(_expression);
-      }
+    protected:
+      proxy_base(syntax::expression::ptr&& e) : _expression(std::move(e)) {}
 
-      proxy(const proxy& p) = delete;
-      proxy& operator=(const proxy&) = delete;
-
-    private:
       syntax::expression::ptr _expression;
     };
+
+    template<size_t D2 = D>
+    class proxy_t : public proxy_base
+    {
+    public:
+      proxy_t(syntax::expression::ptr&& e) : proxy_base(std::move(e)) {}
+
+      proxy_t(proxy_t&& p) : proxy_t(std::move(p._expression)) {}
+      proxy_t(V<T, D2>&& v) : proxy_t(syntax::expression::make<syntax::temporary>(std::move(v._declaration))) {}
+      proxy_t(const V<T, D2>& v) : proxy_t(v.make_reference()) {}
+    };
+
+    // Specialization for the one-dimensional case that allows
+    // a proxy to be constructed directly from an instance of T
+    template<>
+    class proxy_t<1> : public proxy_base
+    {
+    public:
+      proxy_t(syntax::expression::ptr&& e) : proxy_base(std::move(e)) {}
+
+      proxy_t(T t) : proxy_t(syntax::expression::make<syntax::literal<T>>(t)) {}
+      proxy_t(proxy_t&& p) : proxy_t(std::move(p._expression)) {}
+      proxy_t(V<T, 1>&& v) : proxy_t(syntax::expression::make<syntax::temporary>(std::move(v._declaration))) {}
+      proxy_t(const V<T, 1>& v) : proxy_t(v.make_reference()) {}
+    };
+
+    typedef proxy_t<D> proxy;
 
     proxy operator+=(proxy&& p)
     {
@@ -78,8 +99,8 @@ namespace sltl
     }
 
   protected:
-    basic(language::type_id id) : variable(id) {}
-    basic(language::type_id id, syntax::expression::ptr&& initializer) : variable(id, std::move(initializer)) {}
+    basic() : variable(language::type_helper<T, D>()) {}
+    basic(syntax::expression::ptr&& initializer) : variable(language::type_helper<T, D>(), std::move(initializer)) {}
 
     template<typename T, typename ...A>
     static proxy make_proxy(A&& ...a)

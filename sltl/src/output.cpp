@@ -58,8 +58,8 @@ void ns::output::operator()(const syntax::variable_declaration& vd, bool is_star
   {
     line_begin();
 
-    _ss << language::to_type_string(vd._id) << L' ';
-    _ss << language::to_prefix_string(vd._id) << vd._name;
+    _ss << language::to_type_string(vd._type) << L' ';
+    _ss << language::to_prefix_string(vd._type) << vd._name;
 
     if(vd.has_initializer())
     {
@@ -79,14 +79,14 @@ void ns::output::operator()(const syntax::variable_declaration& vd, bool is_star
 
 void ns::output::operator()(const syntax::reference& r)
 {
-  _ss << language::to_prefix_string(r._declaration._id) << r._declaration._name;
+  _ss << language::to_prefix_string(r._declaration._type) << r._declaration._name;
 }
 
 void ns::output::operator()(const syntax::temporary& t, bool is_start)
 {
   if(is_start)
   {
-    _ss << language::to_type_string(t._id) << L'(';
+    _ss << language::to_type_string(t._type) << L'(';
   }
   else
   {

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 
 namespace sltl
 {
@@ -9,25 +11,62 @@ namespace language
   {
     id_unknown,
     id_float,
-    id_float2,
-    id_float3,
-    id_float4,
     id_double,
-    id_double2,
-    id_double3,
-    id_double4,
     id_int,
-    id_int2,
-    id_int3,
-    id_int4,
     id_uint,
-    id_uint2,
-    id_uint3,
-    id_uint4,
     id_bool,
-    id_bool2,
-    id_bool3,
-    id_bool4
+  };
+
+  template<typename T>
+  struct type_id_helper
+  {
+    static const language::type_id value = language::id_unknown;
+  };
+
+  template<>
+  struct type_id_helper<float>
+  {
+    static const language::type_id value = language::id_float;
+  };
+
+  template<>
+  struct type_id_helper<double>
+  {
+    static const language::type_id value = language::id_double;
+  };
+
+  template<>
+  struct type_id_helper<int>
+  {
+    static const language::type_id value = language::id_int;
+  };
+
+  template<>
+  struct type_id_helper<unsigned int>
+  {
+    static const language::type_id value = language::id_uint;
+  };
+
+  template<>
+  struct type_id_helper<bool>
+  {
+    static const language::type_id value = language::id_bool;
+  };
+
+  struct type
+  {
+    type(type_id id, size_t components) : _components(components), _id(id) {}
+
+    const size_t _components;
+    const type_id _id;
+
+    type& operator=(const type&) = delete;
+  };
+
+  template<typename T, size_t D>
+  struct type_helper : public type
+  {
+    type_helper() : type(type_id_helper<T>::value, D) {}
   };
 
   enum operator_id
@@ -54,8 +93,9 @@ namespace language
     id_else_if
   };
 
-  const wchar_t* to_type_string(type_id id);
-  const wchar_t* to_prefix_string(type_id id);
+  std::wstring to_type_string(const type& t);
+  std::wstring to_prefix_string(const type& t);
+
   const wchar_t* to_operator_string(operator_id id);
   const wchar_t* to_assignment_operator_string(assignment_operator_id id);
   const wchar_t* to_conditional_string(conditional_id id);
