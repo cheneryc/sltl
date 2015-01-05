@@ -9,8 +9,10 @@
 
 namespace
 {
+  using namespace sltl;
+
   //TODO: need to figure out what the return value should be
-  int build_shader()
+  int build_shader(shader::tag<shader::vertex>)
   {
     return 0;
   }
@@ -18,7 +20,8 @@ namespace
 
 int main()
 {
-  auto shader = sltl::make_shader(sltl::shader::vertex, &build_shader);
+  auto shader = sltl::make_shader(&build_shader);
+  //auto shader = sltl::make_shader([](shader::tag<shader::vertex>){});
 
   std::wstring shader_txt = shader.str<sltl::output>();
   std::wcout << shader_txt.c_str() << std::endl;

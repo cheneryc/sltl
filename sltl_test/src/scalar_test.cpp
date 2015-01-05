@@ -17,12 +17,12 @@ namespace
 //TODO: should be in a shader_test.cpp file
 TEST(scalar, empty)
 {
-  auto test_shader = []()
+  auto test_shader = [](sltl::shader_tag_vertex)
   {
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_shader(sltl::shader::vertex, test_shader));
+  const std::wstring result = ::to_string(sltl::make_shader(test_shader));
   const std::wstring expected = LR"(
 {
 }
@@ -33,7 +33,7 @@ TEST(scalar, empty)
 
 TEST(scalar, constructor)
 {
-  auto test_shader = []()
+  auto test_shader = [](sltl::shader_tag_vertex)
   {
     sltl::scalar<float> test_construct1;
     sltl::scalar<float> test_construct2(1.0f);
@@ -46,7 +46,7 @@ TEST(scalar, constructor)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_shader(sltl::shader::vertex, test_shader));
+  const std::wstring result = ::to_string(sltl::make_shader(test_shader));
   const std::wstring expected = LR"(
 {
   float f1;
@@ -64,7 +64,7 @@ TEST(scalar, constructor)
 
 TEST(scalar, variable_naming)
 {
-  auto test_shader = []()
+  auto test_shader = [](sltl::shader_tag_vertex)
   {
     sltl::scalar<float> test_flt;
     sltl::scalar<double> test_dbl;
@@ -80,7 +80,7 @@ TEST(scalar, variable_naming)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_shader(sltl::shader::vertex, test_shader));
+  const std::wstring result = ::to_string(sltl::make_shader(test_shader));
   const std::wstring expected = LR"(
 {
   float f1;
@@ -99,7 +99,7 @@ TEST(scalar, variable_naming)
 
 TEST(scalar, assignment_operator)
 {
-  auto test_shader = []()
+  auto test_shader = [](sltl::shader_tag_vertex)
   {
     sltl::scalar<float> test1, test2;
 
@@ -112,7 +112,7 @@ TEST(scalar, assignment_operator)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_shader(sltl::shader::vertex, test_shader));
+  const std::wstring result = ::to_string(sltl::make_shader(test_shader));
   const std::wstring expected = LR"(
 {
   float f1;
@@ -130,7 +130,7 @@ TEST(scalar, assignment_operator)
 
 TEST(scalar, addition_operator)
 {
-  auto test_shader = []()
+  auto test_shader = [](sltl::shader_tag_vertex)
   {
     sltl::scalar<float> test1, test2, test3;
 
@@ -154,7 +154,7 @@ TEST(scalar, addition_operator)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_shader(sltl::shader::vertex, test_shader));
+  const std::wstring result = ::to_string(sltl::make_shader(test_shader));
   const std::wstring expected = LR"(
 {
   float f1;
@@ -181,7 +181,7 @@ TEST(scalar, addition_operator)
 
 TEST(scalar, subtraction_operator)
 {
-  auto test_shader = []()
+  auto test_shader = [](sltl::shader_tag_vertex)
   {
     sltl::scalar<float> test1, test2, test3;
 
@@ -205,7 +205,7 @@ TEST(scalar, subtraction_operator)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_shader(sltl::shader::vertex, test_shader));
+  const std::wstring result = ::to_string(sltl::make_shader(test_shader));
   const std::wstring expected = LR"(
 {
   float f1;
