@@ -17,7 +17,7 @@ namespace sltl
       auto& selection = _c.add_else<syntax::conditional>(language::id_else);
 
       {
-        scope s(scope::block, selection);
+        scope s(selection);
         fn();
       }
     }
@@ -28,7 +28,7 @@ namespace sltl
       auto& selection = _c.add_else<syntax::conditional>(language::id_else_if, condition.move());
 
       {
-        scope s(scope::block, selection);
+        scope s(selection);
         fn();
       }
 
@@ -52,7 +52,7 @@ namespace sltl
     auto& selection = syntax::get_current_block().add<syntax::conditional>(language::id_if, condition.move());
 
     {
-      scope s(scope::block, selection);
+      scope s(selection);
       fn();
     }
 

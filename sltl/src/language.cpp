@@ -34,7 +34,7 @@ std::wstring ns::to_type_string(const type& t)
       type_string = L"bvec";
       break;
     default:
-      assert(t._id != id_unknown);
+      assert((t._id != id_unknown) && (t._id != id_void));
     }
 
     type_string += std::to_wstring(t._components);
@@ -45,6 +45,9 @@ std::wstring ns::to_type_string(const type& t)
 
     switch(t._id)
     {
+    case id_void:
+      type_string = L"void";
+      break;
     case id_float:
       type_string = L"float";
       break;
@@ -75,10 +78,15 @@ std::wstring ns::to_prefix_string(const type& t)
 
   if(t._components > 1)
   {
+    assert(t._id != id_void);
+    assert(t._id != id_unknown);
+
     prefix_string = L'v';
   }
   else
   {
+    assert(t._components != 0);
+
     switch(t._id)
     {
     case id_float:
@@ -97,10 +105,8 @@ std::wstring ns::to_prefix_string(const type& t)
       prefix_string = L'b';
       break;
     default:
-      assert(t._id != id_unknown);
+      assert((t._id != id_unknown) && (t._id != id_void));
     }
-
-    assert(t._components != 0);
   }
 
   return std::move(prefix_string);
@@ -152,6 +158,17 @@ const wchar_t* ns::to_conditional_string(conditional_id id)
     return L"else";
   case id_else_if:
     return L"else if";
+  }
+
+  return nullptr;
+}
+
+const wchar_t* ns::to_keyword_string(keyword_id id)
+{
+  switch(id)
+  {
+  case id_return:
+    return L"return";
   }
 
   return nullptr;

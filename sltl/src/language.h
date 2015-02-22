@@ -10,6 +10,7 @@ namespace language
   enum type_id
   {
     id_unknown,
+    id_void,
     id_float,
     id_double,
     id_int,
@@ -21,6 +22,12 @@ namespace language
   struct type_id_helper
   {
     static const language::type_id value = language::id_unknown;
+  };
+
+  template<>
+  struct type_id_helper<void>
+  {
+    static const language::type_id value = language::id_void;
   };
 
   template<>
@@ -63,8 +70,31 @@ namespace language
     type& operator=(const type&) = delete;
   };
 
-  template<typename T, size_t D>
+  template<typename T, size_t D = 1>
   struct type_helper : public type
+  {
+    type_helper() : type(type_id_helper<T>::value, D) {}
+  };
+
+  // Specialization for void type, stops vectors of void type being defined
+  template<size_t D>
+  struct type_helper<void, D> : public type
+  {
+    static_assert(D == 1, "sltl::language::type_helper: invalid template parameter D for type void, this parameter must be 1");
+
+    type_helper() : type(type_id_helper<void>::value, D) {}
+  };
+
+  // Specialization for scalar types derived from sltl::basic
+  template<template<typename> class V, typename T>
+  struct type_helper<V<T>> : public type
+  {
+    type_helper() : type(type_id_helper<T>::value, 1) {}
+  };
+
+  // Specialization for vector types derived from sltl::basic
+  template<template<typename, size_t> class V, typename T, size_t D>
+  struct type_helper<V<T, D>> : public type
   {
     type_helper() : type(type_id_helper<T>::value, D) {}
   };
@@ -93,11 +123,17 @@ namespace language
     id_else_if
   };
 
+  enum keyword_id
+  {
+    id_return
+  };
+
   std::wstring to_type_string(const type& t);
   std::wstring to_prefix_string(const type& t);
 
   const wchar_t* to_operator_string(operator_id id);
   const wchar_t* to_assignment_operator_string(assignment_operator_id id);
   const wchar_t* to_conditional_string(conditional_id id);
+  const wchar_t* to_keyword_string(keyword_id id);
 }
 }

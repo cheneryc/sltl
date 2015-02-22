@@ -19,10 +19,8 @@ namespace syntax
     block& get_block();
 
   private:
-    // The constructors and destructor of the block class are
-    // defined as friends so they can access the _block_stack
+    // These members of the block class are friends so they can directly access the _block_stack
     friend block::block(block::type);
-    friend block::block(block&&);
     friend void block::pop();
 
     std::stack<std::reference_wrapper<block>> _block_stack;

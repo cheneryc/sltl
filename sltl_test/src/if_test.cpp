@@ -15,7 +15,7 @@ namespace
 
 TEST(if_, if_empty)
 {
-  auto test_shader = [](sltl::shader_tag_vertex)
+  auto test_shader = []()
   {
     sltl::if_(true, []()
     {
@@ -24,7 +24,7 @@ TEST(if_, if_empty)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring result = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
   if(true)
@@ -38,7 +38,7 @@ TEST(if_, if_empty)
 
 TEST(if_, if_else_empty)
 {
-  auto test_shader = [](sltl::shader_tag_vertex)
+  auto test_shader = []()
   {
     sltl::if_(true, []()
     {
@@ -49,7 +49,7 @@ TEST(if_, if_else_empty)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring result = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
   if(true)
@@ -66,7 +66,7 @@ TEST(if_, if_else_empty)
 
 TEST(if_, if_else_if_else_empty)
 {
-  auto test_shader = [](sltl::shader_tag_vertex)
+  auto test_shader = []()
   {
     sltl::if_(true, []()
     {
@@ -79,7 +79,7 @@ TEST(if_, if_else_if_else_empty)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring result = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
   if(true)
@@ -99,7 +99,7 @@ TEST(if_, if_else_if_else_empty)
 
 TEST(if_, if_condition)
 {
-  auto test_shader = [](sltl::shader_tag_vertex)
+  auto test_shader = []()
   {
     sltl::scalar<bool> cond1 = true;
 
@@ -110,7 +110,7 @@ TEST(if_, if_condition)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring result = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
   bool b1(true);
@@ -125,7 +125,7 @@ TEST(if_, if_condition)
 
 TEST(if_, if_body)
 {
-  auto test_shader = [](sltl::shader_tag_vertex)
+  auto test_shader = []()
   {
     sltl::scalar<bool> cond1 = true;
     sltl::scalar<int> count = 0;
@@ -141,7 +141,7 @@ TEST(if_, if_body)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring result = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
   bool b1(true);

@@ -15,7 +15,7 @@ namespace
 
 TEST(vector, constructor)
 {
-  auto test_shader = [](sltl::shader_tag_vertex)
+  auto test_shader = []()
   {
     typedef sltl::vector<float, 2> vec2;
     typedef sltl::vector<float, 3> vec3;
@@ -63,7 +63,7 @@ TEST(vector, constructor)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring result = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
   vec2 v1;
@@ -102,7 +102,7 @@ TEST(vector, constructor)
 
 TEST(vector, variable_naming)
 {
-  auto test_shader = [](sltl::shader_tag_vertex)
+  auto test_shader = []()
   {
     typedef sltl::vector<float, 2> vec2;
     typedef sltl::vector<float, 3> vec3;
@@ -147,7 +147,7 @@ TEST(vector, variable_naming)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring result = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
   vec2 v1;
@@ -173,7 +173,7 @@ TEST(vector, variable_naming)
 
 TEST(vector, assignment_operator)
 {
-  auto test_shader = [](sltl::shader_tag_vertex)
+  auto test_shader = []()
   {
     typedef sltl::vector<float, 2> vec2;
 
@@ -187,7 +187,7 @@ TEST(vector, assignment_operator)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring result = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
   vec2 v1;
@@ -204,7 +204,7 @@ TEST(vector, assignment_operator)
 
 TEST(vector, addition_operator)
 {
-  auto test_shader = [](sltl::shader_tag_vertex)
+  auto test_shader = []()
   {
     typedef sltl::vector<float, 2> vec2;
 
@@ -226,7 +226,7 @@ TEST(vector, addition_operator)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring result = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
   vec2 v1;
@@ -250,7 +250,7 @@ TEST(vector, addition_operator)
 
 TEST(vector, subtraction_operator)
 {
-  auto test_shader = [](sltl::shader_tag_vertex)
+  auto test_shader = []()
   {
     typedef sltl::vector<float, 2> vec2;
 
@@ -272,7 +272,7 @@ TEST(vector, subtraction_operator)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring result = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
   vec2 v1;

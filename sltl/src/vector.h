@@ -2,8 +2,6 @@
 
 #include "scalar.h"
 
-#include "syntax/expression_list.h"
-
 
 namespace sltl
 {

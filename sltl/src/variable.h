@@ -1,7 +1,7 @@
 #pragma once
 
 #include "element.h"
-#include "language.h"
+
 #include "syntax/expression.h"
 
 
@@ -11,6 +11,12 @@ namespace sltl
   namespace syntax
   {
     class variable_declaration;
+  }
+
+  // Forward declarations - sltl::language namespace
+  namespace language
+  {
+    struct type;
   }
 
   class variable : public element
@@ -23,11 +29,14 @@ namespace sltl
     variable(const language::type& type);
     variable(const language::type& type, syntax::expression::ptr&& initializer);
 
-    //TODO: check for duplicate names being declared in the same scope?
-    //void set_name(const std::wstring& name);
+    syntax::expression::ptr make_temporary();
 
-    // This isn't const so the variable declaration's initializer
-    // can potentially be moved into a syntax::temporary object
-    syntax::variable_declaration& _declaration;
+    const syntax::variable_declaration* get_declaration() const
+    {
+      return _declaration;
+    }
+
+  private:
+    syntax::variable_declaration* _declaration;
   };
 }

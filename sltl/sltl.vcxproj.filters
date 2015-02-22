@@ -19,6 +19,9 @@
     <Filter Include="Header Files\syntax">
       <UniqueIdentifier>{cce6ca30-0dc1-43d7-85d8-4a158e4cfe71}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\detail">
+      <UniqueIdentifier>{4640de1e-5936-444b-825e-7fa3e0fb88d4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\scope.h">
@@ -63,9 +66,6 @@
     <ClInclude Include="src\syntax\conditional.h">
       <Filter>Header Files\syntax</Filter>
     </ClInclude>
-    <ClInclude Include="src\syntax\expression_list.h">
-      <Filter>Header Files\syntax</Filter>
-    </ClInclude>
     <ClInclude Include="src\vector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -100,6 +100,33 @@
       <Filter>Header Files\syntax</Filter>
     </ClInclude>
     <ClInclude Include="src\syntax\parentheses.h">
+      <Filter>Header Files\syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="src\syntax\function_call.h">
+      <Filter>Header Files\syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="src\call.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\detail\function_traits.h">
+      <Filter>Header Files\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="src\syntax\function_definition.h">
+      <Filter>Header Files\syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="src\syntax\function_manager.h">
+      <Filter>Header Files\syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="src\syntax\list.h">
+      <Filter>Header Files\syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="src\syntax\declaration_statement.h">
+      <Filter>Header Files\syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="src\syntax\parameter_declaration.h">
+      <Filter>Header Files\syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="src\syntax\return_statement.h">
       <Filter>Header Files\syntax</Filter>
     </ClInclude>
   </ItemGroup>

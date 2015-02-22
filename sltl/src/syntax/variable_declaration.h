@@ -3,7 +3,7 @@
 #include "block.h"
 #include "block_manager.h"
 #include "expression.h"
-#include "declaration.h"
+#include "declaration_statement.h"
 
 #include "../output.h"
 #include "../language.h"
@@ -13,11 +13,11 @@ namespace sltl
 {
 namespace syntax
 {
-  class variable_declaration : public declaration
+  class variable_declaration : public declaration_statement
   {
   public:
-    variable_declaration(const language::type& type) : declaration(get_current_block().get_child_name()), _type(type), _initializer() {}
-    variable_declaration(const language::type& type, expression::ptr&& initializer) : declaration(get_current_block().get_child_name()), _type(type), _initializer(std::move(initializer)) {}
+    variable_declaration(const language::type& type) : declaration_statement(get_current_block().get_child_name()), _type(type), _initializer(), _ref_count(0) {}
+    variable_declaration(const language::type& type, expression::ptr&& initializer) : declaration_statement(get_current_block().get_child_name()), _type(type), _initializer(std::move(initializer)), _ref_count(0) {}
 
     bool is_direct_initialized() const
     {
@@ -33,6 +33,16 @@ namespace syntax
     expression::ptr&& move()
     {
       return std::move(_initializer);
+    }
+
+    size_t get_ref_count() const
+    {
+      return _ref_count;
+    }
+
+    const variable_declaration& inc_ref_count() const
+    {
+      ++_ref_count; return *this;
     }
 
     virtual void traverse(output& out) const
@@ -51,6 +61,7 @@ namespace syntax
 
   private:
     expression::ptr _initializer;//TODO: const (ptr or expression or both)?
+    mutable size_t _ref_count;//TODO: this is not a great design, try and improve it...
   };
 }
 }

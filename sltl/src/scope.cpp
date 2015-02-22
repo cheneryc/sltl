@@ -8,7 +8,7 @@ namespace
   namespace ns = sltl;
 }
 
-ns::scope::scope(type t) : scope(t, syntax::get_current_block()) {}
+ns::scope::scope() : scope(syntax::get_current_block()) {}
 
 ns::scope::~scope()
 {

@@ -5,6 +5,7 @@
 
 namespace sltl
 {
+  //TODO: move this file into the detail namespace and folder
   template<typename T>
   struct is_integer
   {

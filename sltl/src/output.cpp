@@ -5,6 +5,8 @@
 #include "syntax/temporary.h"
 #include "syntax/operator.h"
 #include "syntax/conditional.h"
+#include "syntax/function_call.h"
+#include "syntax/function_definition.h"
 #include "language.h"
 
 #include <cmath>
@@ -77,6 +79,11 @@ void ns::output::operator()(const syntax::variable_declaration& vd, bool is_star
   }
 }
 
+void ns::output::operator()(const syntax::parameter_declaration&)
+{
+  assert(false); //TODO: implement this...
+}
+
 void ns::output::operator()(const syntax::reference& r)
 {
   _ss << language::to_prefix_string(r._declaration._type) << r._declaration._name;
@@ -141,6 +148,50 @@ void ns::output::operator()(const syntax::parentheses&, bool is_start)
   }
 }
 
+void ns::output::operator()(const syntax::list_separator&)
+{
+    _ss << L", ";
+}
+
+void ns::output::operator()(const syntax::function_call& fc, bool is_start)
+{
+  if(is_start)
+  {
+    _ss << fc.get_function_name() << L'(';
+  }
+  else
+  {
+    _ss << L')';
+  }
+}
+
+void ns::output::operator()(const syntax::function_definition& fd, bool is_start)
+{
+  if(is_start)
+  {
+    line_begin();
+    _ss << language::to_type_string(fd._type_return) << L' ' << fd._name << L'(';
+  }
+  else
+  {
+    _ss << L')';
+    line_end(false);
+  }
+}
+
+void ns::output::operator()(const syntax::return_statement&, bool is_start)
+{
+  if(is_start)
+  {
+    line_begin();
+    _ss << language::to_keyword_string(language::id_return) << L' ';
+  }
+  else
+  {
+    line_end();
+  }
+}
+
 void ns::output::operator()(float f)
 {
   float integral;
@@ -184,11 +235,6 @@ void ns::output::operator()(unsigned int ui)
 void ns::output::operator()(bool b)
 {
   _ss << std::boolalpha << b;
-}
-
-void ns::output::comma()
-{
-  _ss << L", ";
 }
 
 void ns::output::line_begin()

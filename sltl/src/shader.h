@@ -15,14 +15,15 @@ namespace sltl
     {
       vertex,
       geometry,
-      fragment
+      fragment,
+      test
     };
 
     template<type>
     struct tag {};
 
     shader(shader&& s) : _t(s._t), _tree(std::move(s._tree)) {}
-    shader(type t, syntax::tree&& tree) : _t(t), _tree(std::move(tree)) {}
+    shader(type t, syntax::tree_base::ptr&& tree) : _t(t), _tree(std::move(tree)) {}
 
     template<typename Fn, typename ...T>
     std::wstring str(T&& ...t) const
@@ -31,13 +32,13 @@ namespace sltl
       //TODO: static assert that the type Fn is callable? Something similar to std::is_function, but works for functors & lambdas
 
       Fn fn(std::forward<T>(t)...);
-      _tree.traverse(fn);
+      _tree->traverse(fn);
       return fn.str();
     }
 
   private:
     type _t;
-    syntax::tree _tree;
+    syntax::tree_base::ptr _tree;
   };
 
   typedef shader::tag<shader::vertex>   shader_tag_vertex;
@@ -67,16 +68,10 @@ namespace sltl
   };
 
   // Used to create a shader from a callable type without a shader type tag parameter
-  template<shader::type S, typename Fn>
+  template<shader::type S, typename Fn, typename T = syntax::tree>
   shader make_shader(Fn fn)
   {
-    syntax::tree tree;
-    fn(shader::tag<S>());
-
-    // Remove the root block from the block stack. The stack should be empty after this.
-    syntax::block_manager::get().get_block().pop();
-
-    return shader(S, std::move(tree));
+    return shader(S, syntax::tree::make<T>([fn](){ fn(shader::tag<S>()); }));
   }
 
   // Used to create a shader from a callable type when the first parameter is a shader type tag
@@ -94,5 +89,15 @@ namespace sltl
   {
   }
 
-  //TODO: create a similar make_test function for use with unit tests?
+  template<typename Fn>
+  shader make_test(Fn fn)
+  {
+    auto fn_test = [&fn](shader::tag<shader::test>)
+    {
+      fn();
+    };
+
+    // Explicitly specify the 'fragment' tree type
+    return make_shader<shader::test, decltype(fn_test), syntax::tree_fragment>(fn);
+  }
 }

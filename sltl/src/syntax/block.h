@@ -22,8 +22,7 @@ namespace syntax
       global
     };
 
-    block(type t = local);
-    block(block&& b);
+    block(type t);
 
     bool operator==(const block& rhs) const;
     bool operator!=(const block& rhs) const;

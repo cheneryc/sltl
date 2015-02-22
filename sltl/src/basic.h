@@ -6,7 +6,6 @@
 #include "syntax/literal.h"
 #include "syntax/operator.h"
 #include "syntax/reference.h"
-#include "syntax/temporary.h"
 #include "syntax/expression_statement.h"
 
 
@@ -53,7 +52,7 @@ namespace sltl
       proxy_t(syntax::expression::ptr&& e) : proxy_base(std::move(e)) {}
 
       proxy_t(proxy_t&& p) : proxy_t(std::move(p._expression)) {}
-      proxy_t(V<T, D2>&& v) : proxy_t(syntax::expression::make<syntax::temporary>(std::move(v._declaration))) {}
+      proxy_t(V<T, D2>&& v) : proxy_t(v.make_reference_or_temporary()) {}
       proxy_t(const V<T, D2>& v) : proxy_t(v.make_reference()) {}
     };
 
@@ -67,7 +66,7 @@ namespace sltl
 
       proxy_t(T t) : proxy_t(syntax::expression::make<syntax::literal<T>>(t)) {}
       proxy_t(proxy_t&& p) : proxy_t(std::move(p._expression)) {}
-      proxy_t(V<T, 1>&& v) : proxy_t(syntax::expression::make<syntax::temporary>(std::move(v._declaration))) {}
+      proxy_t(V<T, 1>&& v) : proxy_t(v.make_reference_or_temporary()) {}
       proxy_t(const V<T, 1>& v) : proxy_t(v.make_reference()) {}
     };
 
@@ -93,14 +92,26 @@ namespace sltl
       return make_proxy<syntax::binary_operator>(language::id_subtraction, lhs.move(), rhs.move());
     }
 
-    syntax::expression::ptr make_reference() const
-    {
-      return syntax::expression::make<syntax::reference>(_declaration);
-    }
-
   protected:
     basic() : variable(language::type_helper<T, D>()) {}
     basic(syntax::expression::ptr&& initializer) : variable(language::type_helper<T, D>(), std::move(initializer)) {}
+
+    syntax::expression::ptr make_reference() const
+    {
+      return syntax::expression::make<syntax::reference>(get_declaration()->inc_ref_count());
+    }
+
+    syntax::expression::ptr make_reference_or_temporary()
+    {
+      if(get_declaration()->get_ref_count() > 0)
+      {
+        return make_reference();
+      }
+      else
+      {
+        return make_temporary();
+      }
+    }
 
     template<typename T, typename ...A>
     static proxy make_proxy(A&& ...a)

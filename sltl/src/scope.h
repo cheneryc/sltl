@@ -14,26 +14,17 @@ namespace sltl
   class scope : public element
   {
   public:
-    enum type
-    {
-      block,
-      loop,
-      function,
-      shader
-    };
-
-    scope(type t);
+    scope();
 
     template<typename S>
-    scope(type t, S& s) : _t(t), _b(s.add<syntax::block>()) {}
-
-    ~scope();
+    scope(S& s) : _b(s.add<syntax::block>(syntax::block::local)) {}
 
     scope(const scope&) = delete;
     scope& operator=(const scope&) = delete;
 
+    ~scope();
+
   private:
-    type _t;
     syntax::block& _b;
   };
 }

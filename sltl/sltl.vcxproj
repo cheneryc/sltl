@@ -12,6 +12,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\basic.h" />
+    <ClInclude Include="src\call.h" />
+    <ClInclude Include="src\detail\function_traits.h" />
     <ClInclude Include="src\element.h" />
     <ClInclude Include="src\if.h" />
     <ClInclude Include="src\language.h" />
@@ -23,14 +25,20 @@
     <ClInclude Include="src\syntax\block_manager.h" />
     <ClInclude Include="src\syntax\conditional.h" />
     <ClInclude Include="src\syntax\declaration.h" />
+    <ClInclude Include="src\syntax\declaration_statement.h" />
     <ClInclude Include="src\syntax\expression.h" />
-    <ClInclude Include="src\syntax\expression_list.h" />
     <ClInclude Include="src\syntax\expression_statement.h" />
+    <ClInclude Include="src\syntax\function_call.h" />
+    <ClInclude Include="src\syntax\function_definition.h" />
+    <ClInclude Include="src\syntax\function_manager.h" />
+    <ClInclude Include="src\syntax\list.h" />
     <ClInclude Include="src\syntax\literal.h" />
     <ClInclude Include="src\syntax\node.h" />
     <ClInclude Include="src\syntax\operator.h" />
+    <ClInclude Include="src\syntax\parameter_declaration.h" />
     <ClInclude Include="src\syntax\parentheses.h" />
     <ClInclude Include="src\syntax\reference.h" />
+    <ClInclude Include="src\syntax\return_statement.h" />
     <ClInclude Include="src\syntax\statement.h" />
     <ClInclude Include="src\syntax\temporary.h" />
     <ClInclude Include="src\syntax\tree.h" />

@@ -11,6 +11,7 @@ namespace sltl
   {
     class block;
     class variable_declaration;
+    class parameter_declaration;
     class reference;
     class temporary;
     class assignment_operator;
@@ -18,6 +19,10 @@ namespace sltl
     class conditional;
     class expression_statement;
     class parentheses;
+    class list_separator;
+    class function_call;
+    class function_definition;
+    class return_statement;
 
     template<typename T>
     class literal;
@@ -30,6 +35,7 @@ namespace sltl
 
     void operator()(const syntax::block&, bool is_start = true);
     void operator()(const syntax::variable_declaration& vd, bool is_start = true);
+    void operator()(const syntax::parameter_declaration& pd);
     void operator()(const syntax::reference& r);
     void operator()(const syntax::temporary& t, bool is_start = true);
     void operator()(const syntax::assignment_operator& op);
@@ -37,14 +43,16 @@ namespace sltl
     void operator()(const syntax::conditional& c, bool is_start = true);
     void operator()(const syntax::expression_statement& es, bool is_start = true);
     void operator()(const syntax::parentheses& p, bool is_start = true);
+    void operator()(const syntax::list_separator& ls);
+    void operator()(const syntax::function_call& fc, bool is_start = true);
+    void operator()(const syntax::function_definition& fd, bool is_start = true);
+    void operator()(const syntax::return_statement& rs, bool is_start = true);
 
     template<typename T>
     void operator()(const syntax::literal<T>& cd)
     {
       (*this)(cd._t);
     }
-
-    void comma();
 
     std::wstring str() const;
 
