@@ -4,6 +4,8 @@
 #include "function_manager.h"
 #include "function_definition.h"
 
+#include <algorithm>
+
 
 namespace sltl
 {
@@ -28,7 +30,7 @@ namespace syntax
       return ptr(new T(std::forward<A>(a)...));
     }
 
-    virtual void traverse(output& out) const = 0;
+    virtual bool apply_action(const_action& cact) const = 0;
 
   protected:
     tree_base() = default;
@@ -45,12 +47,12 @@ namespace syntax
       function_manager::get().move(_functions);
     }
 
-    virtual void traverse(output& out) const
+    virtual bool apply_action(const_action& cact) const
     {
-      // Traverse in reverse order so the main function is last
-      std::for_each(_functions.rbegin(), _functions.rend(), [&out](const function_definition::ptr& fd)
+      // Traverse in reverse order so the main function is processed last
+      return std::all_of(_functions.rbegin(), _functions.rend(), [&cact](const function_definition::ptr& fd)
       {
-        fd->traverse(out);
+        return fd->apply_action(cact);
       });
     }
 
@@ -74,9 +76,9 @@ namespace syntax
       _root_block.pop();
     }
 
-    virtual void traverse(output& out) const
+    virtual bool apply_action(const_action& cact) const
     {
-      _root_block.traverse(out);
+      return _root_block.apply_action(cact);
     }
 
   private:

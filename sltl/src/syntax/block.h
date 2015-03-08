@@ -8,11 +8,12 @@
 
 namespace sltl
 {
-  // Forward declarations - sltl namespace
-  class output;
-
 namespace syntax
 {
+  // Forward declarations - sltl::syntax namespace
+  class action;
+  class const_action;
+
   class block : public statement
   {
   public:
@@ -39,7 +40,8 @@ namespace syntax
     void erase(const statement& s);
     void pop();
 
-    virtual void traverse(output& out) const;
+    virtual bool apply_action(action& act) override;
+    virtual bool apply_action(const_action& cact) const override;
 
   private:
     type _t;

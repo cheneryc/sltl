@@ -63,7 +63,7 @@ TEST(vector, constructor)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_test(test_shader));
+  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
   vec2 v1;
@@ -97,7 +97,7 @@ TEST(vector, constructor)
 }
 )";
 
-  ASSERT_EQ(result, expected);
+  ASSERT_EQ(expected, actual);
 }
 
 TEST(vector, variable_naming)
@@ -147,7 +147,7 @@ TEST(vector, variable_naming)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_test(test_shader));
+  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
   vec2 v1;
@@ -168,7 +168,7 @@ TEST(vector, variable_naming)
 }
 )";
 
-  ASSERT_EQ(result, expected);
+  ASSERT_EQ(expected, actual);
 }
 
 TEST(vector, assignment_operator)
@@ -187,7 +187,7 @@ TEST(vector, assignment_operator)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_test(test_shader));
+  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
   vec2 v1;
@@ -199,7 +199,7 @@ TEST(vector, assignment_operator)
 }
 )";
 
-  ASSERT_EQ(result, expected);
+  ASSERT_EQ(expected, actual);
 }
 
 TEST(vector, addition_operator)
@@ -226,7 +226,7 @@ TEST(vector, addition_operator)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_test(test_shader));
+  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
   vec2 v1;
@@ -245,7 +245,7 @@ TEST(vector, addition_operator)
 }
 )";
 
-  ASSERT_EQ(result, expected);
+  ASSERT_EQ(expected, actual);
 }
 
 TEST(vector, subtraction_operator)
@@ -272,7 +272,7 @@ TEST(vector, subtraction_operator)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_test(test_shader));
+  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
   vec2 v1;
@@ -291,5 +291,5 @@ TEST(vector, subtraction_operator)
 }
 )";
 
-  ASSERT_EQ(result, expected);
+  ASSERT_EQ(expected, actual);
 }

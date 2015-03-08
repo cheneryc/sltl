@@ -24,7 +24,7 @@ TEST(if_, if_empty)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_test(test_shader));
+  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
   if(true)
@@ -33,7 +33,7 @@ TEST(if_, if_empty)
 }
 )";
 
-  ASSERT_EQ(result, expected);
+  ASSERT_EQ(expected, actual);
 }
 
 TEST(if_, if_else_empty)
@@ -49,7 +49,7 @@ TEST(if_, if_else_empty)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_test(test_shader));
+  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
   if(true)
@@ -61,7 +61,7 @@ TEST(if_, if_else_empty)
 }
 )";
 
-  ASSERT_EQ(result, expected);
+  ASSERT_EQ(expected, actual);
 }
 
 TEST(if_, if_else_if_else_empty)
@@ -79,7 +79,7 @@ TEST(if_, if_else_if_else_empty)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_test(test_shader));
+  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
   if(true)
@@ -94,7 +94,7 @@ TEST(if_, if_else_if_else_empty)
 }
 )";
 
-  ASSERT_EQ(result, expected);
+  ASSERT_EQ(expected, actual);
 }
 
 TEST(if_, if_condition)
@@ -110,7 +110,7 @@ TEST(if_, if_condition)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_test(test_shader));
+  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
   bool b1(true);
@@ -120,7 +120,7 @@ TEST(if_, if_condition)
 }
 )";
 
-  ASSERT_EQ(result, expected);
+  ASSERT_EQ(expected, actual);
 }
 
 TEST(if_, if_body)
@@ -141,7 +141,7 @@ TEST(if_, if_body)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_test(test_shader));
+  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
   bool b1(true);
@@ -157,5 +157,5 @@ TEST(if_, if_body)
 }
 )";
 
-  ASSERT_EQ(result, expected);
+  ASSERT_EQ(expected, actual);
 }

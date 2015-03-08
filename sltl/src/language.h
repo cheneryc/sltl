@@ -67,6 +67,16 @@ namespace language
     const size_t _components;
     const type_id _id;
 
+    friend bool operator==(const type& t1, const type& t2)
+    {
+      return ((t1._id == t2._id) && (t1._components == t2._components));
+    }
+
+    friend bool operator!=(const type& t1, const type& t2)
+    {
+      return !(t1 == t2);
+    }
+
     type& operator=(const type&) = delete;
   };
 

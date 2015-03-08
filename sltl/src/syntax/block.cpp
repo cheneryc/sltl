@@ -1,8 +1,9 @@
 #include "block.h"
 #include "block_manager.h"
-#include "../output.h"
+#include "action.h"
 
 #include <algorithm>
+#include <sstream>
 
 #include <cassert>
 
@@ -80,14 +81,12 @@ std::wstring ns::block::get_child_name()
   return ss.str();
 }
 
-void ns::block::traverse(sltl::output& out) const
+bool ns::block::apply_action(action& act)
 {
-  out(*this);
+  return (act(*this) && std::all_of(_statements.begin(), _statements.end(), [&act](statement::ptr& s){ return s->apply_action(act); }) && act(*this, false));
+}
 
-  std::for_each(_statements.begin(), _statements.end(), [&out](const statement::ptr& s)
-  {
-    s->traverse(out);
-  });
-
-  out(*this, false);
+bool ns::block::apply_action(const_action& cact) const
+{
+  return (cact(*this) && std::all_of(_statements.begin(), _statements.end(), [&cact](const statement::ptr& s){ return s->apply_action(cact); }) && cact(*this, false));
 }

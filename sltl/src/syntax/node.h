@@ -3,11 +3,12 @@
 
 namespace sltl
 {
-  // Forward declaration - sltl namespace
-  class output;
-
 namespace syntax
 {
+  // Forward declarations - sltl::syntax namespace
+  class action;
+  class const_action;
+
   class node
   {
   public:
@@ -18,8 +19,9 @@ namespace syntax
     virtual ~node()
     {
     }
-    
-    virtual void traverse(output& out) const = 0;
+
+    virtual bool apply_action(action& act) = 0;
+    virtual bool apply_action(const_action& cact) const = 0;
 
   protected:
     node() = default;

@@ -5,7 +5,6 @@
 #include "expression.h"
 #include "declaration_statement.h"
 
-#include "../output.h"
 #include "../language.h"
 
 
@@ -45,21 +44,25 @@ namespace syntax
       ++_ref_count; return *this;
     }
 
-    virtual void traverse(output& out) const
+    virtual bool apply_action(action& act) override
     {
-      out(*this);
+      return apply_action(act, *this);
+    }
 
-      if(_initializer)
-      {
-        _initializer->traverse(out);
-      }
-
-      out(*this, false);
+    virtual bool apply_action(const_action& cact) const override
+    {
+      return apply_action(cact, *this);
     }
 
     const language::type _type;
 
   private:
+    template<typename A, typename T>
+    static auto apply_action(A& act, T& type) -> typename std::enable_if<std::is_same<typename std::remove_const<T>::type, variable_declaration>::value, bool>::type
+    {
+      return (act(type) && (type._initializer ? type._initializer->apply_action(act) : true) && act(type, false));
+    }
+
     expression::ptr _initializer;//TODO: const (ptr or expression or both)?
     mutable size_t _ref_count;//TODO: this is not a great design, try and improve it...
   };

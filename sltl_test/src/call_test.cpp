@@ -14,9 +14,7 @@ namespace
     return L'\n' + shader.str<sltl::output>(false);
   }
 
-  void fn_empty_returns_void()
-  {
-  }
+  void fn_empty_returns_void() {}
 
   sltl::scalar<int> fn_empty_returns_int()
   {
@@ -26,6 +24,11 @@ namespace
   sltl::vector<float, 3> fn_empty_returns_vector()
   {
     return sltl::vector<float, 3>(0.0f, 0.0f, 0.0f);
+  }
+
+  sltl::vector<float, 3> fn_empty_returns_vector_default()
+  {
+    return sltl::vector<float, 3>();
   }
 
   sltl::vector<float, 3> fn_simple_returns_vector_variable_reference()
@@ -44,7 +47,7 @@ TEST(call, call_fn_empty_returns_void)
   };
 
   // This test uses make_shader as make_test doesn't output function definitions
-  const std::wstring result = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
   const std::wstring expected = LR"(
 void fn1()
 {
@@ -55,7 +58,7 @@ void main()
 }
 )";
 
-  ASSERT_EQ(result, expected);
+  ASSERT_EQ(expected, actual);
 }
 
 TEST(call, call_fn_empty_returns_int)
@@ -66,11 +69,11 @@ TEST(call, call_fn_empty_returns_int)
   };
 
   // This test uses make_shader as make_test doesn't output function definitions
-  const std::wstring result = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
   const std::wstring expected = LR"(
 int fn1()
 {
-  return int(0);
+  return 0;
 }
 void main()
 {
@@ -78,7 +81,7 @@ void main()
 }
 )";
 
-  ASSERT_EQ(result, expected);
+  ASSERT_EQ(expected, actual);
 }
 
 TEST(call, call_with_assignment_fn_empty_returns_int)
@@ -89,11 +92,11 @@ TEST(call, call_with_assignment_fn_empty_returns_int)
   };
 
   // This test uses make_shader as make_test doesn't output function definitions
-  const std::wstring result = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
   const std::wstring expected = LR"(
 int fn1()
 {
-  return int(0);
+  return 0;
 }
 void main()
 {
@@ -101,7 +104,7 @@ void main()
 }
 )";
 
-  ASSERT_EQ(result, expected);
+  ASSERT_EQ(expected, actual);
 }
 
 TEST(call, call_with_assignment_fn_empty_returns_vector)
@@ -112,7 +115,7 @@ TEST(call, call_with_assignment_fn_empty_returns_vector)
   };
 
   // This test uses make_shader as make_test doesn't output function definitions
-  const std::wstring result = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
   const std::wstring expected = LR"(
 vec3 fn1()
 {
@@ -124,10 +127,32 @@ void main()
 }
 )";
 
-  ASSERT_EQ(result, expected);
+  ASSERT_EQ(expected, actual);
 }
 
-//TODO: currently fails in debug as the returned variable reference is wrapped in a temporary
+TEST(call, call_with_assignment_fn_empty_returns_vector_default)
+{
+  auto test_shader = [](sltl::shader::tag<sltl::shader::test>) -> void
+  {
+    sltl::vector<float, 3> test_assignment = sltl::call(fn_empty_returns_vector_default);
+  };
+
+  // This test uses make_shader as make_test doesn't output function definitions
+  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring expected = LR"(
+vec3 fn1()
+{
+  return vec3();
+}
+void main()
+{
+  vec3 v1(fn1());
+}
+)";
+
+  ASSERT_EQ(expected, actual);
+}
+
 TEST(call, call_with_assignment_fn_simple_returns_vector_variable_reference)
 {
   auto test_shader = [](sltl::shader::tag<sltl::shader::test>) -> void
@@ -136,7 +161,7 @@ TEST(call, call_with_assignment_fn_simple_returns_vector_variable_reference)
   };
 
   // This test uses make_shader as make_test doesn't output function definitions
-  const std::wstring result = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
   const std::wstring expected = LR"(
 vec3 fn1()
 {
@@ -150,5 +175,5 @@ void main()
 }
 )";
 
-  ASSERT_EQ(result, expected);
+  ASSERT_EQ(expected, actual);
 }

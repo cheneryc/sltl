@@ -29,7 +29,7 @@ TEST(scalar, constructor)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_test(test_shader));
+  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
   float f1;
@@ -42,7 +42,7 @@ TEST(scalar, constructor)
 }
 )";
 
-  ASSERT_EQ(result, expected);
+  ASSERT_EQ(expected, actual);
 }
 
 TEST(scalar, variable_naming)
@@ -63,7 +63,7 @@ TEST(scalar, variable_naming)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_test(test_shader));
+  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
   float f1;
@@ -77,7 +77,7 @@ TEST(scalar, variable_naming)
 }
 )";
 
-  ASSERT_EQ(result, expected);
+  ASSERT_EQ(expected, actual);
 }
 
 TEST(scalar, assignment_operator)
@@ -95,7 +95,7 @@ TEST(scalar, assignment_operator)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_test(test_shader));
+  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
   float f1;
@@ -108,7 +108,7 @@ TEST(scalar, assignment_operator)
 }
 )";
 
-  ASSERT_EQ(result, expected);
+  ASSERT_EQ(expected, actual);
 }
 
 TEST(scalar, addition_operator)
@@ -137,7 +137,7 @@ TEST(scalar, addition_operator)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_test(test_shader));
+  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
   float f1;
@@ -159,7 +159,7 @@ TEST(scalar, addition_operator)
 }
 )";
 
-  ASSERT_EQ(result, expected);
+  ASSERT_EQ(expected, actual);
 }
 
 TEST(scalar, subtraction_operator)
@@ -188,7 +188,7 @@ TEST(scalar, subtraction_operator)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_test(test_shader));
+  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
   float f1;
@@ -210,5 +210,5 @@ TEST(scalar, subtraction_operator)
 }
 )";
 
-  ASSERT_EQ(result, expected);
+  ASSERT_EQ(expected, actual);
 }

@@ -2,9 +2,9 @@
 
 #include "node.h"
 #include "list.h"
+#include "action.h"
 #include "declaration.h"
 
-#include "../output.h"
 #include "../language.h"
 
 #include <memory>
@@ -22,9 +22,14 @@ namespace syntax
     //TODO: real values for the parameter name and type
     parameter_declaration() : declaration(std::wstring(L"?")), _type(language::type_helper<void>()) {}
 
-    virtual void traverse(output& out) const
+    virtual bool apply_action(action& act) override
     {
-      out(*this);
+      return act(*this);
+    }
+
+    virtual bool apply_action(const_action& cact) const override
+    {
+      return cact(*this);
     }
 
     const language::type _type;

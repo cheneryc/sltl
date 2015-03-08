@@ -2,11 +2,13 @@
 
 #include "node.h"
 #include "block.h"
+#include "block_manager.h"
+#include "elide.h"
+#include "action.h"
 #include "declaration.h"
 #include "parameter_declaration.h"
 #include "return_statement.h"
 
-#include "../output.h"
 #include "../language.h"
 
 #include "detail/function_traits.h"
@@ -28,18 +30,25 @@ namespace syntax
       _function_body.pop();
     }
 
-    virtual void traverse(output& out) const
+    virtual bool apply_action(action& act) override
     {
-      out(*this);
-      _parameters.traverse(out);
-      out(*this, false);
+      return apply_action(act, *this);
+    }
 
-      _function_body.traverse(out);
+    virtual bool apply_action(const_action& cact) const override
+    {
+      return apply_action(cact, *this);
     }
 
     const language::type _type_return;
 
   private:
+    template<typename A, typename T>
+    static auto apply_action(A& act, T& type) -> typename std::enable_if<std::is_same<typename std::remove_const<T>::type, function_definition>::value, bool>::type
+    {
+      return (act(type) && type._parameters.apply_action(act) && act(type, false) && type._function_body.apply_action(act));
+    }
+
     template<typename Fn>
     auto call_fn(Fn fn) -> typename std::enable_if< std::is_same<typename detail::function_traits<Fn>::return_t, void>::value>::type
     {
@@ -49,7 +58,7 @@ namespace syntax
     template<typename Fn>
     auto call_fn(Fn fn) -> typename std::enable_if<!std::is_same<typename detail::function_traits<Fn>::return_t, void>::value>::type
     {
-      syntax::get_current_block().add<syntax::return_statement>(detail::function_traits<Fn>::return_t::proxy(fn()).move());
+      syntax::get_current_block().add<syntax::return_statement>(elide(detail::function_traits<Fn>::return_t::proxy(fn()).move(), _type_return));
     }
 
     parameter_list _parameters;

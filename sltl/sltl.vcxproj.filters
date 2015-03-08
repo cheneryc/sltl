@@ -129,6 +129,12 @@
     <ClInclude Include="src\syntax\return_statement.h">
       <Filter>Header Files\syntax</Filter>
     </ClInclude>
+    <ClInclude Include="src\syntax\elide.h">
+      <Filter>Header Files\syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="src\syntax\action.h">
+      <Filter>Header Files\syntax</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\scope.cpp">
@@ -156,6 +162,9 @@
       <Filter>Source Files\syntax</Filter>
     </ClCompile>
     <ClCompile Include="src\syntax\reference.cpp">
+      <Filter>Source Files\syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="src\syntax\elide.cpp">
       <Filter>Source Files\syntax</Filter>
     </ClCompile>
   </ItemGroup>

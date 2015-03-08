@@ -1,5 +1,5 @@
 #include "reference.h"
-#include "../output.h"
+#include "action.h"
 
 
 namespace
@@ -11,7 +11,12 @@ ns::reference::reference(const variable_declaration& declaration) : expression()
 {
 }
 
-void ns::reference::traverse(sltl::output& out) const
+bool ns::reference::apply_action(action& act)
 {
-  out(*this);
+  return act(*this);
+}
+
+bool ns::reference::apply_action(const_action& cact) const
+{
+  return cact(*this);
 }

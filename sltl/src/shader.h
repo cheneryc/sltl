@@ -32,7 +32,12 @@ namespace sltl
       //TODO: static assert that the type Fn is callable? Something similar to std::is_function, but works for functors & lambdas
 
       Fn fn(std::forward<T>(t)...);
-      _tree->traverse(fn);
+      
+      if(!_tree->apply_action(fn))
+      {
+        throw std::exception();//TODO: better exception type and message?
+      }
+
       return fn.str();
     }
 

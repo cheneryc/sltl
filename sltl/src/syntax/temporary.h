@@ -1,5 +1,6 @@
 #pragma once
 
+#include "action.h"
 #include "expression.h"
 #include "variable_declaration.h"
 
@@ -16,21 +17,30 @@ namespace syntax
       syntax::get_current_block().erase(declaration);
     }
 
-    virtual void traverse(output& out) const
+    expression::ptr&& move()
     {
-      out(*this);
+      return std::move(_initializer);
+    }
 
-      if(_initializer)
-      {
-        _initializer->traverse(out);
-      }
+    virtual bool apply_action(action& act) override
+    {
+      return apply_action(act, *this);
+    }
 
-      out(*this, false);
+    virtual bool apply_action(const_action& cact) const override
+    {
+      return apply_action(cact, *this);
     }
 
     const language::type _type;
 
   private:
+    template<typename A, typename T>
+    static auto apply_action(A& act, T& type) -> typename std::enable_if<std::is_same<typename std::remove_const<T>::type, temporary>::value, bool>::type
+    {
+      return (act(type) && (type._initializer ? type._initializer->apply_action(act) : true) && act(type, false));
+    }
+
     expression::ptr _initializer;//TODO: const (ptr or expression or both)?
   };
 }

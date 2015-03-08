@@ -1,5 +1,5 @@
 #include "expression_statement.h"
-#include "../output.h"
+#include "action.h"
 
 #include <cassert>
 
@@ -13,11 +13,14 @@ ns::expression_statement::expression_statement(expression::ptr&& e) : _expressio
 {
 }
 
-void ns::expression_statement::traverse(sltl::output& out) const
+bool ns::expression_statement::apply_action(action& act)
 {
   assert(_expression);
+  return apply_action(act, *this);
+}
 
-  out(*this);
-  _expression->traverse(out);
-  out(*this, false);
+bool ns::expression_statement::apply_action(const_action& cact) const
+{
+  assert(_expression);
+  return apply_action(cact, *this);
 }

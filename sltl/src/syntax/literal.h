@@ -1,9 +1,9 @@
 #pragma once
 
+#include "action.h"
 #include "expression.h"
 
 #include "../traits.h"
-#include "../output.h"
 
 
 namespace sltl
@@ -18,9 +18,14 @@ namespace syntax
   public:
     literal(T t) : _t(t) {}
 
-    virtual void traverse(output& out) const
+    virtual bool apply_action(action& act) override
     {
-      out(*this);
+      return act(*this);
+    }
+
+    virtual bool apply_action(const_action& cact) const override
+    {
+      return cact(*this);
     }
 
     const T _t;

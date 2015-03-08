@@ -36,7 +36,7 @@ std::wstring ns::output::str() const
   return _ss.str();
 }
 
-void ns::output::operator()(const syntax::block&, bool is_start)
+bool ns::output::operator()(const syntax::block&, bool is_start)
 {
   wchar_t brace;
 
@@ -52,9 +52,10 @@ void ns::output::operator()(const syntax::block&, bool is_start)
   }
 
   _ss << brace << std::endl;
+  return true;
 }
 
-void ns::output::operator()(const syntax::variable_declaration& vd, bool is_start)
+bool ns::output::operator()(const syntax::variable_declaration& vd, bool is_start)
 {
   if(is_start)
   {
@@ -77,19 +78,23 @@ void ns::output::operator()(const syntax::variable_declaration& vd, bool is_star
 
     line_end();
   }
+
+  return true;
 }
 
-void ns::output::operator()(const syntax::parameter_declaration&)
+bool ns::output::operator()(const syntax::parameter_declaration&)
 {
   assert(false); //TODO: implement this...
+  return true;
 }
 
-void ns::output::operator()(const syntax::reference& r)
+bool ns::output::operator()(const syntax::reference& r)
 {
   _ss << language::to_prefix_string(r._declaration._type) << r._declaration._name;
+  return true;
 }
 
-void ns::output::operator()(const syntax::temporary& t, bool is_start)
+bool ns::output::operator()(const syntax::temporary& t, bool is_start)
 {
   if(is_start)
   {
@@ -99,19 +104,23 @@ void ns::output::operator()(const syntax::temporary& t, bool is_start)
   {
     _ss << L')';
   }
+
+  return true;
 }
 
-void ns::output::operator()(const syntax::assignment_operator& op)
+bool ns::output::operator()(const syntax::assignment_operator& op)
 {
   _ss << L' ' << language::to_assignment_operator_string(op._id) << ' ';
+  return true;
 }
 
-void ns::output::operator()(const syntax::binary_operator& op)
+bool ns::output::operator()(const syntax::binary_operator& op)
 {
   _ss << L' ' << language::to_operator_string(op._id) << ' ';
+  return true;
 }
 
-void ns::output::operator()(const syntax::conditional& c, bool is_start)
+bool ns::output::operator()(const syntax::conditional& c, bool is_start)
 {
   if(is_start)
   {
@@ -122,9 +131,11 @@ void ns::output::operator()(const syntax::conditional& c, bool is_start)
   {
     line_end(false);
   }
+
+  return true;
 }
 
-void ns::output::operator()(const syntax::expression_statement&, bool is_start)
+bool ns::output::operator()(const syntax::expression_statement&, bool is_start)
 {
   if(is_start)
   {
@@ -134,9 +145,11 @@ void ns::output::operator()(const syntax::expression_statement&, bool is_start)
   {
     line_end();
   }
+
+  return true;
 }
 
-void ns::output::operator()(const syntax::parentheses&, bool is_start)
+bool ns::output::operator()(const syntax::parentheses&, bool is_start)
 {
   if(is_start)
   {
@@ -146,14 +159,17 @@ void ns::output::operator()(const syntax::parentheses&, bool is_start)
   {
     _ss << L')';
   }
+
+  return true;
 }
 
-void ns::output::operator()(const syntax::list_separator&)
+bool ns::output::operator()(const syntax::list_separator&)
 {
     _ss << L", ";
+    return true;
 }
 
-void ns::output::operator()(const syntax::function_call& fc, bool is_start)
+bool ns::output::operator()(const syntax::function_call& fc, bool is_start)
 {
   if(is_start)
   {
@@ -163,9 +179,11 @@ void ns::output::operator()(const syntax::function_call& fc, bool is_start)
   {
     _ss << L')';
   }
+
+  return true;
 }
 
-void ns::output::operator()(const syntax::function_definition& fd, bool is_start)
+bool ns::output::operator()(const syntax::function_definition& fd, bool is_start)
 {
   if(is_start)
   {
@@ -177,9 +195,11 @@ void ns::output::operator()(const syntax::function_definition& fd, bool is_start
     _ss << L')';
     line_end(false);
   }
+
+  return true;
 }
 
-void ns::output::operator()(const syntax::return_statement&, bool is_start)
+bool ns::output::operator()(const syntax::return_statement&, bool is_start)
 {
   if(is_start)
   {
@@ -190,9 +210,11 @@ void ns::output::operator()(const syntax::return_statement&, bool is_start)
   {
     line_end();
   }
+
+  return true;
 }
 
-void ns::output::operator()(float f)
+bool ns::output::operator()(float f)
 {
   float integral;
 
@@ -205,9 +227,11 @@ void ns::output::operator()(float f)
   {
     _ss << f << L'f';
   }
+
+  return true;
 }
 
-void ns::output::operator()(double d)
+bool ns::output::operator()(double d)
 {
   double integral;
 
@@ -220,21 +244,32 @@ void ns::output::operator()(double d)
   {
     _ss << d;
   }
+
+  return true;
 }
 
-void ns::output::operator()(int i)
+bool ns::output::operator()(int i)
 {
   _ss << i;
+  return true;
 }
 
-void ns::output::operator()(unsigned int ui)
+bool ns::output::operator()(unsigned int ui)
 {
   _ss << ui << L'U';
+  return true;
 }
 
-void ns::output::operator()(bool b)
+bool ns::output::operator()(bool b)
 {
   _ss << std::boolalpha << b;
+  return true;
+}
+
+bool ns::output::get_default()
+{
+  assert(false);
+  return true;
 }
 
 void ns::output::line_begin()

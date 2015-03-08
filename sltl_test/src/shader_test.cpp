@@ -20,13 +20,13 @@ TEST(shader, empty)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_test(test_shader));
+  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
 }
 )";
 
-  ASSERT_EQ(result, expected);
+  ASSERT_EQ(expected, actual);
 }
 
 TEST(shader, empty_shader)
@@ -36,12 +36,12 @@ TEST(shader, empty_shader)
     return 0;
   };
 
-  const std::wstring result = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
   const std::wstring expected = LR"(
 void main()
 {
 }
 )";
 
-  ASSERT_EQ(result, expected);
+  ASSERT_EQ(expected, actual);
 }
