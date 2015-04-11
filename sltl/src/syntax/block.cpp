@@ -71,7 +71,6 @@ std::wstring ns::block::get_child_name()
 {
   std::wstringstream ss;
 
-  //TODO: benchmark to see if stringstream is necessary here (or just + strings together)
   if(_t == local)
   {
     ss << _name << L"_";

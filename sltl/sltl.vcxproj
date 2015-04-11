@@ -13,9 +13,13 @@
   <ItemGroup>
     <ClInclude Include="src\basic.h" />
     <ClInclude Include="src\call.h" />
+    <ClInclude Include="src\detail\conditional_traits.h" />
     <ClInclude Include="src\detail\function_traits.h" />
+    <ClInclude Include="src\detail\variadic_algorithm.h" />
+    <ClInclude Include="src\detail\variadic_traits.h" />
     <ClInclude Include="src\element.h" />
     <ClInclude Include="src\if.h" />
+    <ClInclude Include="src\io\io.h" />
     <ClInclude Include="src\language.h" />
     <ClInclude Include="src\output.h" />
     <ClInclude Include="src\scalar.h" />
@@ -33,6 +37,8 @@
     <ClInclude Include="src\syntax\function_call.h" />
     <ClInclude Include="src\syntax\function_definition.h" />
     <ClInclude Include="src\syntax\function_manager.h" />
+    <ClInclude Include="src\syntax\io_block.h" />
+    <ClInclude Include="src\syntax\io_block_manager.h" />
     <ClInclude Include="src\syntax\list.h" />
     <ClInclude Include="src\syntax\literal.h" />
     <ClInclude Include="src\syntax\node.h" />

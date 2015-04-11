@@ -138,6 +138,12 @@ namespace language
     id_return
   };
 
+  enum qualifier_id
+  {
+    id_in,
+    id_out
+  };
+
   std::wstring to_type_string(const type& t);
   std::wstring to_prefix_string(const type& t);
 
@@ -145,5 +151,6 @@ namespace language
   const wchar_t* to_assignment_operator_string(assignment_operator_id id);
   const wchar_t* to_conditional_string(conditional_id id);
   const wchar_t* to_keyword_string(keyword_id id);
+  const wchar_t* to_qualifier_string(qualifier_id id);
 }
 }

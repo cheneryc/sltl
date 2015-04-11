@@ -59,8 +59,6 @@ TEST(vector, constructor)
     vec4 unpack7(v2, vec2(1.0f, 1.0f));
     vec4 unpack8(v2, v2);
     vec4 unpack9(v2 + v2, v2 + v2);
-
-    return 0;
   };
 
   const std::wstring actual = ::to_string(sltl::make_test(test_shader));
@@ -143,8 +141,6 @@ TEST(vector, variable_naming)
     bvec2 test_bvec2;
     bvec3 test_bvec3;
     bvec4 test_bvec4;
-
-    return 0;
   };
 
   const std::wstring actual = ::to_string(sltl::make_test(test_shader));
@@ -183,8 +179,6 @@ TEST(vector, assignment_operator)
     test1 = vec2();
     test1 = vec2(1.0f, 1.0f);
     test1 = test2 = test1;
-
-    return 0;
   };
 
   const std::wstring actual = ::to_string(sltl::make_test(test_shader));
@@ -222,8 +216,6 @@ TEST(vector, addition_operator)
     test1 += test2 + vec2();
     test1 += test2 + test3;
     test1 += (test2 + test3) + test4;
-
-    return 0;
   };
 
   const std::wstring actual = ::to_string(sltl::make_test(test_shader));
@@ -268,8 +260,6 @@ TEST(vector, subtraction_operator)
     test1 -= test2 - vec2();
     test1 -= test2 - test3;
     test1 -= (test2 - test3) - test4;
-
-    return 0;
   };
 
   const std::wstring actual = ::to_string(sltl::make_test(test_shader));

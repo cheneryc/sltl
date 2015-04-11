@@ -25,8 +25,6 @@ TEST(scalar, constructor)
     sltl::scalar<float> test_construct5 = test_construct4;
     sltl::scalar<float> test_construct6(test_construct5);
     sltl::scalar<float> test_construct7(sltl::scalar<float>(1.0f));// Temporary object eliminated by copy elision optimisation
-
-    return 0;
   };
 
   const std::wstring actual = ::to_string(sltl::make_test(test_shader));
@@ -59,8 +57,6 @@ TEST(scalar, variable_naming)
       sltl::scope block_scope;
       sltl::scalar<float> test_flt_scope;
     }
-
-    return 0;
   };
 
   const std::wstring actual = ::to_string(sltl::make_test(test_shader));
@@ -91,8 +87,6 @@ TEST(scalar, assignment_operator)
     test1 = sltl::scalar<float>();
     test1 = sltl::scalar<float>(1.0f);
     test1 = test2 = test1;
-
-    return 0;
   };
 
   const std::wstring actual = ::to_string(sltl::make_test(test_shader));
@@ -133,8 +127,6 @@ TEST(scalar, addition_operator)
     test1 += test2 + sltl::scalar<float>();
     test1 += test2 + test3;
     test1 += (test2 + 1.0f) + test3;
-
-    return 0;
   };
 
   const std::wstring actual = ::to_string(sltl::make_test(test_shader));
@@ -184,8 +176,6 @@ TEST(scalar, subtraction_operator)
     test1 -= test2 - sltl::scalar<float>();
     test1 -= test2 - test3;
     test1 -= (test2 - 1.0f) - test3;
-
-    return 0;
   };
 
   const std::wstring actual = ::to_string(sltl::make_test(test_shader));

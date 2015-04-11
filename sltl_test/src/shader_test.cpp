@@ -1,7 +1,8 @@
 #include <gtest/gtest.h>
 
 #include "shader.h"
-#include "scalar.h"
+
+#include "io/io.h"
 
 
 namespace
@@ -15,10 +16,7 @@ namespace
 
 TEST(shader, empty)
 {
-  auto test_shader = []()
-  {
-    return 0;
-  };
+  auto test_shader = [](){};
 
   const std::wstring actual = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
@@ -31,10 +29,7 @@ TEST(shader, empty)
 
 TEST(shader, empty_shader)
 {
-  auto test_shader = [](sltl::shader::tag<sltl::shader::test>)
-  {
-    return 0;
-  };
+  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, sltl::io::block<>){};
 
   const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
   const std::wstring expected = LR"(

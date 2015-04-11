@@ -86,6 +86,7 @@
   <ItemGroup>
     <ClCompile Include="src\call_test.cpp" />
     <ClCompile Include="src\if_test.cpp" />
+    <ClCompile Include="src\io_test.cpp" />
     <ClCompile Include="src\scalar_test.cpp" />
     <ClCompile Include="src\shader_test.cpp" />
     <ClCompile Include="src\vector_test.cpp" />

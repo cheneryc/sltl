@@ -20,8 +20,6 @@ TEST(if_, if_empty)
     sltl::if_(true, []()
     {
     });
-
-    return 0;
   };
 
   const std::wstring actual = ::to_string(sltl::make_test(test_shader));
@@ -45,8 +43,6 @@ TEST(if_, if_else_empty)
     }).else_([]()
     {
     });
-
-    return 0;
   };
 
   const std::wstring actual = ::to_string(sltl::make_test(test_shader));
@@ -75,8 +71,6 @@ TEST(if_, if_else_if_else_empty)
     }).else_([]()
     {
     });
-
-    return 0;
   };
 
   const std::wstring actual = ::to_string(sltl::make_test(test_shader));
@@ -106,8 +100,6 @@ TEST(if_, if_condition)
     sltl::if_(cond1, []()
     {
     });
-
-    return 0;
   };
 
   const std::wstring actual = ::to_string(sltl::make_test(test_shader));
@@ -137,8 +129,6 @@ TEST(if_, if_body)
     {
       count += 2;
     });
-
-    return 0;
   };
 
   const std::wstring actual = ::to_string(sltl::make_test(test_shader));

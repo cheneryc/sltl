@@ -5,6 +5,10 @@
 #include "syntax/tree.h"
 #include "syntax/block_manager.h"
 
+#include "io/io.h"
+
+#include "detail/function_traits.h"
+
 
 namespace sltl
 {
@@ -41,8 +45,9 @@ namespace sltl
       return fn.str();
     }
 
+    const type _t;
+
   private:
-    type _t;
     syntax::tree_base::ptr _tree;
   };
 
@@ -59,32 +64,38 @@ namespace sltl
   };
 
   // The shader traits specialization for a pointer-to-function
-  template<typename R, template<shader::type> class A, shader::type S>
-  struct shader_traits<R(*)(A<S>)>
+  template<typename R, template<shader::type> class A, typename I, shader::type S>
+  struct shader_traits<R(*)(A<S>, I)>
   {
     static const shader::type _type = S;
   };
 
   // The shader traits specialization for a pointer-to-member-function
-  template<typename R, typename T, template<shader::type> class A, shader::type S>
-  struct shader_traits<R(T::*)(A<S>) const>
+  template<typename R, typename T, template<shader::type> class A, typename I, shader::type S>
+  struct shader_traits<R(T::*)(A<S>, I) const>
   {
     static const shader::type _type = S;
   };
 
   // Used to create a shader from a callable type without a shader type tag parameter
-  template<shader::type S, typename Fn, typename T = syntax::tree>
+  template<shader::type S, typename TTree, typename Fn>
   shader make_shader(Fn fn)
   {
-    return shader(S, syntax::tree::make<T>([fn](){ fn(shader::tag<S>()); }));
+    return shader(S, syntax::tree::make<TTree>(fn));
   }
 
   // Used to create a shader from a callable type when the first parameter is a shader type tag
   template<typename Fn>
   shader make_shader(Fn fn)
   {
+    auto fn_wrap = [fn]()
+    {
+      fn(detail::function_traits<Fn>::arg<0>::type(),
+         detail::function_traits<Fn>::arg<1>::type(io::qualifier::in));
+    };
+
     // Infer the type of shader to be created from the shader type tag parameter.
-    return make_shader<shader_traits<Fn>::_type>(fn);
+    return make_shader<shader_traits<Fn>::_type, syntax::tree>(fn_wrap);
   }
 
   //TODO: the program functor must support vertex and fragment but not necessarily geometry. How to get this to compile?
@@ -97,12 +108,7 @@ namespace sltl
   template<typename Fn>
   shader make_test(Fn fn)
   {
-    auto fn_test = [&fn](shader::tag<shader::test>)
-    {
-      fn();
-    };
-
     // Explicitly specify the 'fragment' tree type
-    return make_shader<shader::test, decltype(fn_test), syntax::tree_fragment>(fn);
+    return make_shader<shader::test, syntax::tree_fragment>(fn);
   }
 }

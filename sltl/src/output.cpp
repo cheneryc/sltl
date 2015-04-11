@@ -1,5 +1,6 @@
 #include "output.h"
 #include "syntax/block.h"
+#include "syntax/io_block.h"
 #include "syntax/variable_declaration.h"
 #include "syntax/reference.h"
 #include "syntax/temporary.h"
@@ -55,13 +56,40 @@ bool ns::output::operator()(const syntax::block&, bool is_start)
   return true;
 }
 
+bool ns::output::operator()(const syntax::io_block& iob, bool is_start)
+{
+  if(is_start)
+  {
+    _qualifier_io = language::to_qualifier_string(iob._id);
+  }
+  else
+  {
+    _qualifier_io.clear();
+  }
+
+  return true;
+}
+
 bool ns::output::operator()(const syntax::variable_declaration& vd, bool is_start)
 {
   if(is_start)
   {
     line_begin();
 
+    //TODO: for 'in' qualified variables it is also necessary to figure out the layout qualifier stuff (e.g. 'layout (location = 0)')
+    if(!_qualifier_io.empty())
+    {
+      _ss << _qualifier_io << L' ';
+    }
+
     _ss << language::to_type_string(vd._type) << L' ';
+
+    // Prepend the io qualifier to the variable name to ensure it is globally unique
+    if(!_qualifier_io.empty())
+    {
+      _ss << _qualifier_io << L'_'; 
+    }
+
     _ss << language::to_prefix_string(vd._type) << vd._name;
 
     if(vd.has_initializer())

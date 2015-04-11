@@ -173,3 +173,16 @@ const wchar_t* ns::to_keyword_string(keyword_id id)
 
   return nullptr;
 }
+
+const wchar_t* ns::to_qualifier_string(qualifier_id id)
+{
+  switch(id)
+  {
+  case id_in:
+    return L"in";
+  case id_out:
+    return L"out";
+  }
+
+  return nullptr;
+}

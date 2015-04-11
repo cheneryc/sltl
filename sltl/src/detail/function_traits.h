@@ -1,5 +1,7 @@
 #pragma once
 
+#include "variadic_traits.h"
+
 
 namespace sltl
 {
@@ -18,6 +20,12 @@ namespace detail
   struct function_traits<R(*)(A...)>
   {
     typedef R return_t;
+
+    template<size_t N>
+    struct arg
+    {
+      typedef typename get<N, A...>::type type;
+    };
   };
 
   // The specialization for a pointer-to-member-function
@@ -25,6 +33,12 @@ namespace detail
   struct function_traits<R(T::*)(A...) const>
   {
     typedef R return_t;
+
+    template<size_t N>
+    struct arg
+    {
+      typedef typename get<N, A...>::type type;
+    };
   };
 }
 }

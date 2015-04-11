@@ -7,6 +7,7 @@ namespace syntax
 {
   // Forward declarations - sltl::syntax namespace
   class block;
+  class io_block;
   class variable_declaration;
   class parameter_declaration;
   class reference;
@@ -28,6 +29,7 @@ namespace syntax
   {
   public:
     virtual bool operator()(syntax::block&, bool = true) { return get_default(); }
+    virtual bool operator()(syntax::io_block&, bool = true) { return get_default(); }
     virtual bool operator()(syntax::variable_declaration&, bool = true) { return get_default(); }
     virtual bool operator()(syntax::parameter_declaration&) { return get_default(); }
     virtual bool operator()(syntax::reference&) { return get_default(); }
@@ -62,6 +64,7 @@ namespace syntax
   {
   public:
     virtual bool operator()(const syntax::block&, bool = true) { return get_default(); }
+    virtual bool operator()(const syntax::io_block&, bool = true) { return get_default(); }
     virtual bool operator()(const syntax::variable_declaration&, bool = true) { return get_default(); }
     virtual bool operator()(const syntax::parameter_declaration&) { return get_default(); }
     virtual bool operator()(const syntax::reference&) { return get_default(); }

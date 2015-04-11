@@ -1,5 +1,7 @@
 #include "shader.h"
 
+#include "io/io.h"
+
 #include <iostream>
 
 
@@ -7,8 +9,9 @@ namespace
 {
   using namespace sltl;
 
-  void shader_fn(shader::tag<shader::test>)
+  io::block<> shader_fn(shader::tag<shader::test>, io::block<>)
   {
+    return io::block<>(io::qualifier::out);
   }
 }
 

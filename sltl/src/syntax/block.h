@@ -43,13 +43,14 @@ namespace syntax
     virtual bool apply_action(action& act) override;
     virtual bool apply_action(const_action& cact) const override;
 
+  protected:
+   std::vector<statement::ptr> _statements;
+
   private:
     type _t;
 
     size_t _current_child_id;
     const std::wstring _name;
-
-    std::vector<statement::ptr> _statements;
   };
 }
 }
