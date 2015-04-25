@@ -69,6 +69,27 @@ void main()
   ASSERT_EQ(expected, actual);
 }
 
+TEST(io, in_ref_single)
+{
+  typedef sltl::io::block<sltl::io::variable<sltl::scalar<float>, sltl::io::semantic::position>> io_block_in;
+
+  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, io_block_in input)
+  {
+    sltl::scalar<float> local = input.get<sltl::io::semantic::position>();
+  };
+
+  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring expected = LR"(
+in float in_f1;
+void main()
+{
+  float f1(in_f1);
+}
+)";
+
+  ASSERT_EQ(expected, actual);
+}
+
 TEST(io, out_single)
 {
   typedef sltl::io::block<sltl::io::variable<sltl::scalar<float>>> io_block_out;
@@ -118,6 +139,29 @@ out vec3 out_v7;
 out vec4 out_v8;
 void main()
 {
+}
+)";
+
+  ASSERT_EQ(expected, actual);
+}
+
+TEST(io, out_ref_single)
+{
+  typedef sltl::io::block<sltl::io::variable<sltl::scalar<float>, sltl::io::semantic::position>> io_block_out;
+
+  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, sltl::io::block<>)
+  {
+    io_block_out output;
+    output.get<sltl::io::semantic::position>() = 0.0f;
+    return output;
+  };
+
+  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring expected = LR"(
+out float out_f1;
+void main()
+{
+  out_f1 = 0.0f;
 }
 )";
 
@@ -193,6 +237,31 @@ out vec3 out_v7;
 out vec4 out_v8;
 void main()
 {
+}
+)";
+
+  ASSERT_EQ(expected, actual);
+}
+
+TEST(io, inout_ref_single)
+{
+  typedef sltl::io::block<sltl::io::variable<sltl::scalar<float>, sltl::io::semantic::position>> io_block_in;
+  typedef sltl::io::block<sltl::io::variable<sltl::scalar<float>, sltl::io::semantic::position>> io_block_out;
+
+  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, io_block_in input)
+  {
+    io_block_out output;
+    output.get<sltl::io::semantic::position>() = input.get<sltl::io::semantic::position>();
+    return output;
+  };
+
+  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring expected = LR"(
+in float in_f1;
+out float out_f1;
+void main()
+{
+  out_f1 = in_f1;
 }
 )";
 

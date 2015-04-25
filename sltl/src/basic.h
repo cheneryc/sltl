@@ -8,6 +8,8 @@
 #include "syntax/reference.h"
 #include "syntax/expression_statement.h"
 
+#include <cassert>
+
 
 namespace sltl
 {
@@ -54,6 +56,16 @@ namespace sltl
       proxy_t(proxy_t&& p) : proxy_t(std::move(p._expression)) {}
       proxy_t(V<T, D2>&& v) : proxy_t(v.make_reference_or_temporary()) {}
       proxy_t(const V<T, D2>& v) : proxy_t(v.make_reference()) {}
+
+      //TODO: C++11, this function should only be callable for r-value references. Its signature should be proxy_t operator=(proxy_t&& p) &&
+      proxy_t operator=(proxy_t&& p)
+      {
+        // As the proxy is never meant to be an l-value self-assignment shouldn't
+        // occur (if it does then it will put the tree in an invalid/corrupt state)
+        assert(this != &p);
+
+        return make_proxy<syntax::assignment_operator>(language::id_assignment, move(), p.move());
+      }
     };
 
     // Specialization for the one-dimensional case that allows
@@ -68,6 +80,16 @@ namespace sltl
       proxy_t(proxy_t&& p) : proxy_t(std::move(p._expression)) {}
       proxy_t(V<T, 1>&& v) : proxy_t(v.make_reference_or_temporary()) {}
       proxy_t(const V<T, 1>& v) : proxy_t(v.make_reference()) {}
+
+      //TODO: C++11, this function should only be callable for r-value references. Its signature should be proxy_t operator=(proxy_t&& p) &&
+      proxy_t operator=(proxy_t&& p)
+      {
+        // As the proxy is never meant to be an l-value self-assignment shouldn't
+        // occur (if it does then it will put the tree in an invalid/corrupt state)
+        assert(this != &p);
+
+        return make_proxy<syntax::assignment_operator>(language::id_assignment, move(), p.move());
+      }
     };
 
     typedef proxy_t<D> proxy;

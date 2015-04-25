@@ -9,5 +9,10 @@ namespace detail
   // contexts (function argument lists are one of the acceptable expansion loci)
   template<typename ...A>
   inline void pass(A&&...) {}
+
+  template<typename ...A2>
+  struct variadic_guard
+  {
+  };
 }
 }
