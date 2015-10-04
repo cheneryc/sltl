@@ -7,6 +7,8 @@
 
 #include "../language.h"
 
+#include "../core/qualifier.h"
+
 
 namespace sltl
 {
@@ -15,8 +17,8 @@ namespace syntax
   class variable_declaration : public declaration_statement
   {
   public:
-    variable_declaration(const language::type& type) : declaration_statement(get_current_block().get_child_name()), _type(type), _initializer(), _ref_count(0) {}
-    variable_declaration(const language::type& type, expression::ptr&& initializer) : declaration_statement(get_current_block().get_child_name()), _type(type), _initializer(std::move(initializer)), _ref_count(0) {}
+    variable_declaration(const language::type& type, core::qualifier::ptr&& qualifier) : declaration_statement(get_current_block().get_child_name()), _type(type), _qualifier(std::move(qualifier)), _initializer(), _ref_count(0) {}
+    variable_declaration(const language::type& type, core::qualifier::ptr&& qualifier, expression::ptr&& initializer) : declaration_statement(get_current_block().get_child_name()), _type(type), _qualifier(std::move(qualifier)), _initializer(std::move(initializer)), _ref_count(0) {}
 
     bool is_direct_initialized() const
     {
@@ -54,6 +56,11 @@ namespace syntax
       return apply_action(cact, *this);
     }
 
+    const core::qualifier& get_qualifier() const
+    {
+      return *_qualifier;
+    }
+
     const language::type _type;
 
   private:
@@ -63,6 +70,7 @@ namespace syntax
       return (act(type) && (type._initializer ? type._initializer->apply_action(act) : true) && act(type, false));
     }
 
+    core::qualifier::ptr _qualifier;//TODO: const (ptr or expression or both)?
     expression::ptr _initializer;//TODO: const (ptr or expression or both)?
     mutable size_t _ref_count;//TODO: this is not a great design, try and improve it...
   };

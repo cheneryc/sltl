@@ -91,7 +91,7 @@ namespace sltl
     auto fn_wrap = [fn]()
     {
       fn(detail::function_traits<Fn>::arg<0>::type(),
-         detail::function_traits<Fn>::arg<1>::type(io::qualifier::in));
+         detail::function_traits<Fn>::arg<1>::type(core::qualifier_storage::in));
     };
 
     // Infer the type of shader to be created from the shader type tag parameter.

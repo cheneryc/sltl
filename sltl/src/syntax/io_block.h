@@ -2,6 +2,8 @@
 
 #include "block.h"
 #include "action.h"
+
+#include "../core/qualifier.h"
 #include "../language.h"
 
 #include <algorithm>
@@ -16,7 +18,7 @@ namespace syntax
   class io_block : public block
   {
   public:
-    io_block(language::qualifier_id id) : block(global), _id(id) {}
+    io_block(core::qualifier_storage qualifier) : block(global), _qualifier(qualifier) {}
 
     virtual bool apply_action(action& act) override
     {
@@ -28,7 +30,7 @@ namespace syntax
       return (cact(*this) && std::all_of(_statements.begin(), _statements.end(), [&cact](const statement::ptr& s){ return s->apply_action(cact); }) && cact(*this, false));
     }
 
-    const language::qualifier_id _id;
+    const core::qualifier_storage _qualifier;
   };
 }
 }

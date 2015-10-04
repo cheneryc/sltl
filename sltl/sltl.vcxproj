@@ -13,6 +13,8 @@
   <ItemGroup>
     <ClInclude Include="src\basic.h" />
     <ClInclude Include="src\call.h" />
+    <ClInclude Include="src\core\qualifier.h" />
+    <ClInclude Include="src\core\semantic.h" />
     <ClInclude Include="src\detail\conditional_traits.h" />
     <ClInclude Include="src\detail\function_traits.h" />
     <ClInclude Include="src\detail\variadic_algorithm.h" />

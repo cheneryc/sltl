@@ -26,6 +26,25 @@ namespace
       ss << (is_indent_tab ? L"\t" : L"  ");
     }
   }
+
+  std::wstring get_variable_name(const ns::syntax::variable_declaration& vd)
+  {
+    std::wstringstream ss;
+
+    // Prepend the storage qualifier to the variable name to ensure it is globally unique
+    if(auto qualifier = ns::language::to_qualifier_prefix_string(static_cast<const ns::core::storage_qualifier&>(vd.get_qualifier())._value))
+    {
+      ss << qualifier << L'_';
+    }
+
+    ss << ns::language::to_type_prefix_string(vd._type) << vd._name;
+    return ss.str();
+  }
+
+  const wchar_t* get_variable_qualifier(const ns::syntax::variable_declaration& vd)
+  {
+    return ns::language::to_qualifier_string(static_cast<const ns::core::storage_qualifier&>(vd.get_qualifier())._value);
+  }
 }
 
 ns::output::output(bool is_indent_tab) : _indent_count(0), _is_indent_tab(is_indent_tab)
@@ -56,17 +75,8 @@ bool ns::output::operator()(const syntax::block&, bool is_start)
   return true;
 }
 
-bool ns::output::operator()(const syntax::io_block& iob, bool is_start)
+bool ns::output::operator()(const syntax::io_block&, bool)
 {
-  if(is_start)
-  {
-    _qualifier_io = language::to_qualifier_string(iob._id);
-  }
-  else
-  {
-    _qualifier_io.clear();
-  }
-
   return true;
 }
 
@@ -77,20 +87,13 @@ bool ns::output::operator()(const syntax::variable_declaration& vd, bool is_star
     line_begin();
 
     //TODO: for 'in' qualified variables it is also necessary to figure out the layout qualifier stuff (e.g. 'layout (location = 0)')
-    if(!_qualifier_io.empty())
+    if(auto qualifier = get_variable_qualifier(vd))
     {
-      _ss << _qualifier_io << L' ';
+      _ss << qualifier << L' ';
     }
 
     _ss << language::to_type_string(vd._type) << L' ';
-
-    // Prepend the io qualifier to the variable name to ensure it is globally unique
-    if(!_qualifier_io.empty())
-    {
-      _ss << _qualifier_io << L'_'; 
-    }
-
-    _ss << language::to_prefix_string(vd._type) << vd._name;
+    _ss << get_variable_name(vd);
 
     if(vd.has_initializer())
     {
@@ -118,7 +121,7 @@ bool ns::output::operator()(const syntax::parameter_declaration&)
 
 bool ns::output::operator()(const syntax::reference& r)
 {
-  _ss << language::to_prefix_string(r._declaration._type) << r._declaration._name;
+  _ss << get_variable_name(r._declaration);
   return true;
 }
 

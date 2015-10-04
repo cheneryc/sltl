@@ -2,6 +2,8 @@
 
 #include "element.h"
 
+#include "core/qualifier.h"
+
 #include "syntax/expression.h"
 
 
@@ -26,8 +28,8 @@ namespace sltl
     variable& operator=(const variable&) = delete;
 
   protected:
-    variable(const language::type& type);
-    variable(const language::type& type, syntax::expression::ptr&& initializer);
+    variable(const language::type& type, core::qualifier::ptr&& qualifier);
+    variable(const language::type& type, core::qualifier::ptr&& qualifier, syntax::expression::ptr&& initializer);
 
     syntax::expression::ptr make_temporary();
 

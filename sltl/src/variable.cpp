@@ -12,8 +12,8 @@ namespace
   namespace ns = sltl;
 }
 
-ns::variable::variable(const language::type& type) : _declaration(&(syntax::get_current_block().add<syntax::variable_declaration>(type))) {}
-ns::variable::variable(const language::type& type, syntax::expression::ptr&& initializer) : _declaration(&(syntax::get_current_block().add<syntax::variable_declaration>(type, std::move(initializer)))) {}
+ns::variable::variable(const language::type& type, core::qualifier::ptr&& qualifier) : _declaration(&(syntax::get_current_block().add<syntax::variable_declaration>(type, std::move(qualifier)))) {}
+ns::variable::variable(const language::type& type, core::qualifier::ptr&& qualifier, syntax::expression::ptr&& initializer) : _declaration(&(syntax::get_current_block().add<syntax::variable_declaration>(type, std::move(qualifier), std::move(initializer)))) {}
 
 ns::syntax::expression::ptr ns::variable::make_temporary()
 {

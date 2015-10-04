@@ -2,6 +2,8 @@
 
 #include "io_block.h"
 #include "statement.h"
+
+#include "../core./qualifier.h"
 #include "../language.h"
 
 #include <tuple>
@@ -22,19 +24,25 @@ namespace syntax
       return manager;
     }
 
-    io_block* get_io_block(language::qualifier_id id)
+    io_block* get_io_block(core::qualifier_storage qualifier)
     {
-      return static_cast<io_block*>((id == language::id_in) ? _io_in.get() : _io_out.get());
+      assert(qualifier != core::qualifier_storage::default);
+      assert(qualifier != core::qualifier_storage::uniform);
+
+      return static_cast<io_block*>((qualifier == core::qualifier_storage::in) ? _io_in.get() : _io_out.get());
     }
 
-    io_block& add(language::qualifier_id id)
+    io_block& add(core::qualifier_storage qualifier)
     {
-      statement::ptr& io_block_node = ((id == language::id_in) ? _io_in : _io_out);
+      assert(qualifier != core::qualifier_storage::default);
+      assert(qualifier != core::qualifier_storage::uniform);
+
+      statement::ptr& io_block_node = ((qualifier == core::qualifier_storage::in) ? _io_in : _io_out);
 
       //TODO: might need to throw an exception here instead as this could be a user/programmer error
       assert(!io_block_node);
 
-      io_block_node = statement::make<io_block>(id);
+      io_block_node = statement::make<io_block>(qualifier);
       return static_cast<io_block&>(*io_block_node);
     }
 

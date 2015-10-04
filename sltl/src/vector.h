@@ -11,8 +11,8 @@ namespace sltl
     static_assert((D >=2) && (D <= 4), "sltl::vector: template parameter D is only valid for values of 2, 3 and 4");
 
   public:
-    vector() : basic() {}
-    vector(proxy&& p) : basic(p.move()) {}
+    vector(proxy&& p) : basic(core::qualifier::make<core::storage_qualifier>(core::qualifier_storage::default), p.move()) {}
+    vector(core::qualifier_storage qualifier = core::qualifier_storage::default) : basic(core::qualifier::make<core::storage_qualifier>(qualifier)) {}
 
     vector(vector&& v) : vector(proxy(std::move(v))) {}
     vector(const vector& v) : vector(proxy(v)) {}

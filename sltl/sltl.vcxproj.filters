@@ -25,6 +25,9 @@
     <Filter Include="Header Files\io">
       <UniqueIdentifier>{8d9baa6d-f4ec-4c79-ad1d-134d8eeabeb5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\core">
+      <UniqueIdentifier>{32d96e13-e16e-4fcc-83d8-c8dfcd3ee2ad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\scope.h">
@@ -155,6 +158,12 @@
     </ClInclude>
     <ClInclude Include="src\syntax\io_block_manager.h">
       <Filter>Header Files\syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\qualifier.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\semantic.h">
+      <Filter>Header Files\core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

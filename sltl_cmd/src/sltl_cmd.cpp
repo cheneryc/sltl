@@ -1,5 +1,6 @@
 #include "shader.h"
 
+#include "core/qualifier.h"
 #include "io/io.h"
 
 #include <iostream>
@@ -11,7 +12,7 @@ namespace
 
   io::block<> shader_fn(shader::tag<shader::test>, io::block<>)
   {
-    return io::block<>(io::qualifier::out);
+    return io::block<>(core::qualifier_storage::out);
   }
 }
 

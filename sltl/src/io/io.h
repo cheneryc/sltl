@@ -1,5 +1,8 @@
 #pragma once
 
+#include "core/qualifier.h"
+#include "core/semantic.h"
+
 #include "syntax/io_block.h"
 #include "syntax/io_block_manager.h"
 
@@ -13,27 +16,10 @@ namespace sltl
 {
 namespace io
 {
-  enum class qualifier
-  {
-    in,
-    out
-  };
-
-  enum class semantic
-  {
-    none,
-    position,
-    depth,
-    colour,
-    normal,
-    texcoord,
-    target
-  };
-
   class variable_key
   {
   public:
-    variable_key(semantic s, size_t index) : _s(s), _idx(index) {}
+    variable_key(core::semantic s, size_t index) : _s(s), _idx(index) {}
 
     bool operator<(const variable_key& rhs) const
     {
@@ -41,7 +27,7 @@ namespace io
     }
 
   private:
-    semantic _s;
+    core::semantic _s;
     size_t _idx;
   };
 
@@ -67,10 +53,10 @@ namespace io
       delete _impl;
     }
 
-    template<typename T>
-    static variable_wrapper make()
+    template<typename T, typename ...A>
+    static variable_wrapper make(A&&... a)
     {
-      return variable_wrapper(new impl<T>());
+      return variable_wrapper(new impl<T>(std::forward<A>(a)...));
     }
 
     template<typename T>
@@ -92,6 +78,9 @@ namespace io
     template<typename T>
     struct impl : impl_base
     {
+      template<typename ...A>
+      impl(A&&... a) : t(std::forward<A>(a)...) {}
+
       virtual void* get() override
       {
         return &t;
@@ -107,12 +96,12 @@ namespace io
     impl_base* _impl;
   };
 
-  template<typename T, semantic S = semantic::none, size_t N = 0U>
+  template<typename T, core::semantic S = core::semantic::none, size_t N = 0U>
   struct variable
   {
     typedef T type;
 
-    static const semantic _semantic = S;
+    static const core::semantic _semantic = S;
     static const size_t _index = N;
 
     static variable_key create_key()
@@ -127,14 +116,14 @@ namespace io
   public:
     block(block&& b) : _variable_map(std::move(b._variable_map)) {}
 
-    block(qualifier q = qualifier::out)
+    block(core::qualifier_storage qualifier = core::qualifier_storage::out)
     {
       auto& io_block_manager = syntax::io_block_manager::get();
-      auto& io_block = io_block_manager.add((q == qualifier::in) ? language::id_in : language::id_out);
+      auto& io_block = io_block_manager.add(qualifier);
 
       // Default construct each of the io_variables (i.e. the template parameters) type. This
       // then adds a new variable_declaration node to the current block (i.e. this io_block)
-      init();
+      init(qualifier);
 
       // Remove the block from the top of the block_manager's stack
       io_block.pop();
@@ -145,7 +134,7 @@ namespace io
     block& operator=(block&&) = delete;
     block& operator=(const block&) = delete;
 
-    template<semantic S, size_t N = 0U>
+    template<core::semantic S, size_t N = 0U>
     auto get() -> decltype(get_impl<S, N, A...>())
     {
       return get_impl<S, N, A...>();
@@ -154,51 +143,51 @@ namespace io
   private:
     enum variable_none_t {};
 
-    template<semantic S, size_t N, typename T, typename ...A2>
+    template<core::semantic S, size_t N, typename T, typename ...A2>
     auto get_impl() -> typename std::enable_if<(S == T::_semantic) && (N == T::_index), typename T::type::proxy>::type
     {
       return T::type::proxy(_variable_map.at(T::create_key()).get<T::type>());
     }
 
-    template<semantic S, size_t N, typename T, typename ...A2>
+    template<core::semantic S, size_t N, typename T, typename ...A2>
     auto get_impl() -> typename std::enable_if<(S != T::_semantic) || (N != T::_index), decltype(get_impl<S, N, A2...>())>::type
     {
       return get_impl<S, N, A2...>();
     }
 
-    template<semantic S, size_t N>
+    template<core::semantic S, size_t N>
     auto get_impl() -> variable_none_t
     {
       static_assert(false, "sltl::io::block::get: the specified semantic and/or index is not valid for this io::block");
     }
 
-    void init()
+    void init(core::qualifier_storage qualifier)
     {
-      init_impl(detail::variadic_guard<A...>());
+      init_impl(qualifier, detail::variadic_guard<A...>());
     }
 
     template<typename ...A2>
-    void init_impl(detail::variadic_guard<>) {}
+    void init_impl(core::qualifier_storage, detail::variadic_guard<>) {}
 
     template<typename T, typename ...A2>
-    void init_impl(detail::variadic_guard<T, A2...>)
+    void init_impl(core::qualifier_storage qualifier, detail::variadic_guard<T, A2...>)
     {
-      init_type<T>();
-      init_impl(detail::variadic_guard<A2...>());
+      init_type<T>(qualifier);
+      init_impl(qualifier, detail::variadic_guard<A2...>());
     }
 
     template<typename T>
-    auto init_type() -> typename std::enable_if<T::_semantic == semantic::none>::type
+    auto init_type(core::qualifier_storage qualifier) -> typename std::enable_if<T::_semantic == core::semantic::none>::type
     {
-      T::type();
+      T::type t(qualifier);
     }
 
     template<typename T>
-    auto init_type() -> typename std::enable_if<T::_semantic != semantic::none>::type
+    auto init_type(core::qualifier_storage qualifier) -> typename std::enable_if<T::_semantic != core::semantic::none>::type
     {
       // Throw an exception if the insertion failed as this means the
       // block has more than one variable bound to the same semantic.
-      if(!_variable_map.emplace(T::create_key(), variable_wrapper::make<T::type>()).second)
+      if(!_variable_map.emplace(T::create_key(), variable_wrapper::make<T::type>(qualifier)).second)
       {
         throw std::exception();//TODO: exception type and message
       }

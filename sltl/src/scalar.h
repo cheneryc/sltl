@@ -25,8 +25,8 @@ namespace sltl
     static_assert(D == 1, "sltl::scalar: template parameter D must be 1");
 
   public:
-    scalar() : basic() {}
-    scalar(proxy&& p) : basic(p.move()) {}
+    scalar(proxy&& p) : basic(core::qualifier::make<core::storage_qualifier>(core::qualifier_storage::default), p.move()) {}
+    scalar(core::qualifier_storage qualifier = core::qualifier_storage::default) : basic(core::qualifier::make<core::storage_qualifier>(qualifier)) {}
 
     scalar(scalar&& s) : scalar(proxy(std::move(s))) {}
     scalar(const scalar& s) : scalar(proxy(s)) {}

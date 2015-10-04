@@ -14,7 +14,7 @@ namespace sltl
     output(bool is_indent_tab = true);
 
     virtual bool operator()(const syntax::block&, bool is_start = true) override;
-    virtual bool operator()(const syntax::io_block& iob, bool is_start = true) override;
+    virtual bool operator()(const syntax::io_block&, bool is_start = true) override;
     virtual bool operator()(const syntax::variable_declaration& vd, bool is_start = true) override;
     virtual bool operator()(const syntax::parameter_declaration& pd) override;
     virtual bool operator()(const syntax::reference& r) override;
@@ -45,7 +45,6 @@ namespace sltl
     void line_end(bool has_semi_colon = true);
 
     size_t _indent_count;
-    std::wstring _qualifier_io;
     std::wstringstream _ss;
     bool _is_indent_tab;
   };

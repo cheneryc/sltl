@@ -71,7 +71,7 @@ std::wstring ns::to_type_string(const type& t)
   return std::move(type_string);
 }
 
-std::wstring ns::to_prefix_string(const type& t)
+std::wstring ns::to_type_prefix_string(const type& t)
 {
   // Variable names can't begin with a numeral so we need a type specific prefix
   std::wstring prefix_string;
@@ -174,14 +174,34 @@ const wchar_t* ns::to_keyword_string(keyword_id id)
   return nullptr;
 }
 
-const wchar_t* ns::to_qualifier_string(qualifier_id id)
+const wchar_t* ns::to_qualifier_string(sltl::core::qualifier_storage id)
 {
   switch(id)
   {
-  case id_in:
+  case sltl::core::qualifier_storage::in:
     return L"in";
-  case id_out:
+  case sltl::core::qualifier_storage::out:
     return L"out";
+  case sltl::core::qualifier_storage::uniform:
+    return L"uniform";
+  }
+
+  return nullptr;
+}
+
+const wchar_t* ns::to_qualifier_prefix_string(sltl::core::qualifier_storage id)
+{
+  switch(id)
+  {
+  case sltl::core::qualifier_storage::in:
+    return L"i";
+    break;
+  case sltl::core::qualifier_storage::out:
+    return L"o";
+    break;
+  case sltl::core::qualifier_storage::uniform:
+    return L"u";
+    break;
   }
 
   return nullptr;
