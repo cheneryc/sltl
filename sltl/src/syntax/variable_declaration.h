@@ -7,6 +7,7 @@
 
 #include "../language.h"
 
+#include "../core/semantic.h"
 #include "../core/qualifier.h"
 
 
@@ -17,8 +18,21 @@ namespace syntax
   class variable_declaration : public declaration_statement
   {
   public:
-    variable_declaration(const language::type& type, core::qualifier::ptr&& qualifier) : declaration_statement(get_current_block().get_child_name()), _type(type), _qualifier(std::move(qualifier)), _initializer(), _ref_count(0) {}
-    variable_declaration(const language::type& type, core::qualifier::ptr&& qualifier, expression::ptr&& initializer) : declaration_statement(get_current_block().get_child_name()), _type(type), _qualifier(std::move(qualifier)), _initializer(std::move(initializer)), _ref_count(0) {}
+    variable_declaration(const language::type& type, core::qualifier::ptr&& qualifier, core::semantic_pair semantic) : declaration_statement(get_current_block().get_child_name()),
+      _type(type),
+      _semantic(semantic._semantic),
+      _semantic_index(semantic._index),
+      _qualifier(std::move(qualifier)),
+      _initializer(),
+      _ref_count(0) {}
+
+    variable_declaration(const language::type& type, core::qualifier::ptr&& qualifier, core::semantic_pair semantic, expression::ptr&& initializer) : declaration_statement(get_current_block().get_child_name()),
+      _type(type),
+      _semantic(semantic._semantic),
+      _semantic_index(semantic._index),
+      _qualifier(std::move(qualifier)),
+      _initializer(std::move(initializer)),
+      _ref_count(0) {}
 
     bool is_direct_initialized() const
     {
@@ -62,6 +76,9 @@ namespace syntax
     }
 
     const language::type _type;
+
+    const core::semantic _semantic;
+    const core::semantic_index_t _semantic_index;
 
   private:
     template<typename A, typename T>

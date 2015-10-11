@@ -71,19 +71,19 @@ void main()
 
 TEST(io, in_ref_single)
 {
-  typedef sltl::io::block<sltl::io::variable<sltl::scalar<float>, sltl::core::semantic::position>> io_block_in;
+  typedef sltl::io::block<sltl::io::variable<sltl::vector<float, 2>, sltl::core::semantic::texcoord>> io_block_in;
 
   auto test_shader = [](sltl::shader::tag<sltl::shader::test>, io_block_in input)
   {
-    sltl::scalar<float> local = input.get<sltl::core::semantic::position>();
+    sltl::vector<float, 2> local = input.get<sltl::core::semantic::texcoord>();
   };
 
   const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
   const std::wstring expected = LR"(
-in float i_f1;
+in vec2 i_v1;
 void main()
 {
-  float f1(i_f1);
+  vec2 v1(i_v1);
 }
 )";
 
@@ -147,21 +147,98 @@ void main()
 
 TEST(io, out_ref_single)
 {
-  typedef sltl::io::block<sltl::io::variable<sltl::scalar<float>, sltl::core::semantic::position>> io_block_out;
+  typedef sltl::io::block<sltl::io::variable<sltl::vector<float, 2>, sltl::core::semantic::texcoord>> io_block_out;
 
   auto test_shader = [](sltl::shader::tag<sltl::shader::test>, sltl::io::block<>)
   {
     io_block_out output;
-    output.get<sltl::core::semantic::position>() = 0.0f;
+    output.get<sltl::core::semantic::texcoord>() = sltl::vector<float, 2>(0.0f, 0.0f);
     return output;
   };
 
   const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
   const std::wstring expected = LR"(
-out float o_f1;
+out vec2 o_v1;
 void main()
 {
-  o_f1 = 0.0f;
+  o_v1 = vec2(0.0f, 0.0f);
+}
+)";
+
+  ASSERT_EQ(expected, actual);
+}
+
+TEST(io, uniform_single)
+{
+  typedef sltl::io::block<sltl::io::variable<sltl::scalar<float>>> io_block_uniform;
+
+  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, sltl::io::block<>)
+  {
+    io_block_uniform uniform(sltl::core::qualifier_storage::uniform);
+  };
+
+  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring expected = LR"(
+uniform float u_f1;
+void main()
+{
+}
+)";
+
+  ASSERT_EQ(expected, actual);
+}
+
+TEST(io, uniform_many)
+{
+  typedef sltl::io::block<
+    sltl::io::variable<sltl::scalar<float>>,
+    sltl::io::variable<sltl::scalar<double>>,
+    sltl::io::variable<sltl::scalar<int>>,
+    sltl::io::variable<sltl::scalar<unsigned int>>,
+    sltl::io::variable<sltl::scalar<bool>>,
+    sltl::io::variable<sltl::vector<float, 2>>,
+    sltl::io::variable<sltl::vector<float, 3>>,
+    sltl::io::variable<sltl::vector<float, 4>>> io_block_uniform;
+
+  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, sltl::io::block<>)
+  {
+    io_block_uniform uniform(sltl::core::qualifier_storage::uniform);
+  };
+
+  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring expected = LR"(
+uniform float u_f1;
+uniform double u_d2;
+uniform int u_i3;
+uniform unsigned int u_u4;
+uniform bool u_b5;
+uniform vec2 u_v6;
+uniform vec3 u_v7;
+uniform vec4 u_v8;
+void main()
+{
+}
+)";
+
+  ASSERT_EQ(expected, actual);
+}
+
+TEST(io, uniform_ref_single)
+{
+  typedef sltl::io::block<sltl::io::variable<sltl::vector<float, 2>, sltl::core::semantic::texcoord>> io_block_uniform;
+
+  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, sltl::io::block<>)
+  {
+    io_block_uniform uniform(sltl::core::qualifier_storage::uniform);
+    sltl::vector<float, 2> local = uniform.get<sltl::core::semantic::texcoord>();
+  };
+
+  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring expected = LR"(
+uniform vec2 u_v1;
+void main()
+{
+  vec2 v1(u_v1);
 }
 )";
 
@@ -245,23 +322,49 @@ void main()
 
 TEST(io, inout_ref_single)
 {
-  typedef sltl::io::block<sltl::io::variable<sltl::scalar<float>, sltl::core::semantic::position>> io_block_in;
-  typedef sltl::io::block<sltl::io::variable<sltl::scalar<float>, sltl::core::semantic::position>> io_block_out;
+  typedef sltl::io::block<sltl::io::variable<sltl::vector<float, 2>, sltl::core::semantic::texcoord>> io_block_in;
+  typedef sltl::io::block<sltl::io::variable<sltl::vector<float, 2>, sltl::core::semantic::texcoord>> io_block_out;
 
   auto test_shader = [](sltl::shader::tag<sltl::shader::test>, io_block_in input)
   {
     io_block_out output;
-    output.get<sltl::core::semantic::position>() = input.get<sltl::core::semantic::position>();
+    output.get<sltl::core::semantic::texcoord>() = input.get<sltl::core::semantic::texcoord>();
     return output;
   };
 
   const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
   const std::wstring expected = LR"(
-in float i_f1;
-out float o_f1;
+in vec2 i_v1;
+out vec2 o_v1;
 void main()
 {
-  o_f1 = i_f1;
+  o_v1 = i_v1;
+}
+)";
+
+  ASSERT_EQ(expected, actual);
+}
+
+TEST(io, semantic_built_in)
+{
+  typedef sltl::io::block<
+    sltl::io::variable<sltl::vector<float, 4>, sltl::core::semantic::position>,
+    sltl::io::variable<sltl::scalar<float>, sltl::core::semantic::depth>> io_block_out;
+
+  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, sltl::io::block<>)
+  {
+    io_block_out output;
+    output.get<sltl::core::semantic::position>() = sltl::vector<float, 4>(0.0f, 0.0f, 0.0f, 0.0f);
+    output.get<sltl::core::semantic::depth>() = 0.0f;
+    return output;
+  };
+
+  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring expected = LR"(
+void main()
+{
+  gl_Position = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+  gl_FragDepth = 0.0f;
 }
 )";
 

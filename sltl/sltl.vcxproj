@@ -58,6 +58,7 @@
     <ClInclude Include="src\vector.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\core\semantic.cpp" />
     <ClCompile Include="src\element.cpp" />
     <ClCompile Include="src\language.cpp" />
     <ClCompile Include="src\output.cpp" />

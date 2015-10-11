@@ -27,22 +27,78 @@ namespace
     }
   }
 
+  bool is_variable_built_in(ns::core::semantic semantic)
+  {
+    return (semantic == ns::core::semantic::position) ||
+           (semantic == ns::core::semantic::depth);
+  }
+
+  bool is_variable_built_in(const ns::syntax::variable_declaration& vd)
+  {
+    return is_variable_built_in(vd._semantic);
+  }
+
+  std::wstring to_built_in_string(ns::core::semantic semantic, ns::core::semantic_index_t index)
+  {
+    assert(is_variable_built_in(semantic));
+    assert(index == 0);
+
+    //TODO: validation that the built-in is of the correct type and used in the correct shader stage
+
+    std::wstringstream ss;
+
+    switch(semantic)
+    {
+    case ns::core::semantic::position:
+      //TODO: if the variable is vertex shader output then this is gl_Position
+      //TODO: if the variable is pixel shader input then this is gl_FragCoord
+      //TODO: note that index must be zero for position semantic
+      ss << L"gl_Position";
+      break;
+    case ns::core::semantic::depth:
+      //TODO: only valid as a fragment shader output
+      //TODO: note that index must be zero for depth semantic
+      ss << L"gl_FragDepth";
+      break;
+    }
+
+    if(index > 0)
+    {
+      ss << L'[' << index << L']';
+    }
+
+    return ss.str();
+  }
+
   std::wstring get_variable_name(const ns::syntax::variable_declaration& vd)
   {
     std::wstringstream ss;
 
-    // Prepend the storage qualifier to the variable name to ensure it is globally unique
-    if(auto qualifier = ns::language::to_qualifier_prefix_string(static_cast<const ns::core::storage_qualifier&>(vd.get_qualifier())._value))
+    if(is_variable_built_in(vd))
     {
-      ss << qualifier << L'_';
+      ss << to_built_in_string(vd._semantic, vd._semantic_index);
+    }
+    else
+    {
+      // Prepend the storage qualifier to the variable name to ensure it is globally unique
+      if(auto qualifier = ns::language::to_qualifier_prefix_string(static_cast<const ns::core::storage_qualifier&>(vd.get_qualifier())._value))
+      {
+        ss << qualifier << L'_';
+      }
+
+      ss << ns::language::to_type_prefix_string(vd._type) << vd._name;
     }
 
-    ss << ns::language::to_type_prefix_string(vd._type) << vd._name;
     return ss.str();
   }
 
   const wchar_t* get_variable_qualifier(const ns::syntax::variable_declaration& vd)
   {
+    if(is_variable_built_in(vd))
+    {
+      throw std::exception();//TODO: exception type and message
+    }
+
     return ns::language::to_qualifier_string(static_cast<const ns::core::storage_qualifier&>(vd.get_qualifier())._value);
   }
 }
@@ -82,32 +138,35 @@ bool ns::output::operator()(const syntax::io_block&, bool)
 
 bool ns::output::operator()(const syntax::variable_declaration& vd, bool is_start)
 {
-  if(is_start)
+  if(!is_variable_built_in(vd))
   {
-    line_begin();
-
-    //TODO: for 'in' qualified variables it is also necessary to figure out the layout qualifier stuff (e.g. 'layout (location = 0)')
-    if(auto qualifier = get_variable_qualifier(vd))
+    if(is_start)
     {
-      _ss << qualifier << L' ';
+      line_begin();
+
+      //TODO: for 'in' qualified variables it is also necessary to figure out the layout qualifier stuff (e.g. 'layout (location = 0)')
+      if(auto qualifier = get_variable_qualifier(vd))
+      {
+        _ss << qualifier << L' ';
+      }
+
+      _ss << language::to_type_string(vd._type) << L' ';
+      _ss << get_variable_name(vd);
+
+      if(vd.has_initializer())
+      {
+        _ss << (vd.is_direct_initialized() ? L"(" : L" = ");
+      }
     }
-
-    _ss << language::to_type_string(vd._type) << L' ';
-    _ss << get_variable_name(vd);
-
-    if(vd.has_initializer())
+    else
     {
-      _ss << (vd.is_direct_initialized() ? L"(" : L" = ");
-    }
-  }
-  else
-  {
-    if(vd.has_initializer() && vd.is_direct_initialized())
-    {
-      _ss << L')';
-    }
+      if(vd.has_initializer() && vd.is_direct_initialized())
+      {
+        _ss << L')';
+      }
 
-    line_end();
+      line_end();
+    }
   }
 
   return true;

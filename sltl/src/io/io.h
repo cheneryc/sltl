@@ -19,7 +19,7 @@ namespace io
   class variable_key
   {
   public:
-    variable_key(core::semantic s, size_t index) : _s(s), _idx(index) {}
+    variable_key(core::semantic s, core::semantic_index_t index) : _s(s), _idx(index) {}
 
     bool operator<(const variable_key& rhs) const
     {
@@ -28,7 +28,7 @@ namespace io
 
   private:
     core::semantic _s;
-    size_t _idx;
+    core::semantic_index_t _idx;
   };
 
   // Types deriving from sltl::variable don't define virtual destructors so
@@ -96,13 +96,18 @@ namespace io
     impl_base* _impl;
   };
 
-  template<typename T, core::semantic S = core::semantic::none, size_t N = 0U>
+  template<typename T, core::semantic S = core::semantic::none, core::semantic_index_t N = 0U>
   struct variable
   {
     typedef T type;
 
     static const core::semantic _semantic = S;
-    static const size_t _index = N;
+    static const core::semantic_index_t _index = N;
+
+    static core::semantic_pair create_semantic_pair()
+    {
+      return core::semantic_pair(_semantic, _index);
+    }
 
     static variable_key create_key()
     {
@@ -134,7 +139,7 @@ namespace io
     block& operator=(block&&) = delete;
     block& operator=(const block&) = delete;
 
-    template<core::semantic S, size_t N = 0U>
+    template<core::semantic S, core::semantic_index_t N = 0U>
     auto get() -> decltype(get_impl<S, N, A...>())
     {
       return get_impl<S, N, A...>();
@@ -143,19 +148,19 @@ namespace io
   private:
     enum variable_none_t {};
 
-    template<core::semantic S, size_t N, typename T, typename ...A2>
+    template<core::semantic S, core::semantic_index_t N, typename T, typename ...A2>
     auto get_impl() -> typename std::enable_if<(S == T::_semantic) && (N == T::_index), typename T::type::proxy>::type
     {
       return T::type::proxy(_variable_map.at(T::create_key()).get<T::type>());
     }
 
-    template<core::semantic S, size_t N, typename T, typename ...A2>
+    template<core::semantic S, core::semantic_index_t N, typename T, typename ...A2>
     auto get_impl() -> typename std::enable_if<(S != T::_semantic) || (N != T::_index), decltype(get_impl<S, N, A2...>())>::type
     {
       return get_impl<S, N, A2...>();
     }
 
-    template<core::semantic S, size_t N>
+    template<core::semantic S, core::semantic_index_t N>
     auto get_impl() -> variable_none_t
     {
       static_assert(false, "sltl::io::block::get: the specified semantic and/or index is not valid for this io::block");
@@ -187,7 +192,7 @@ namespace io
     {
       // Throw an exception if the insertion failed as this means the
       // block has more than one variable bound to the same semantic.
-      if(!_variable_map.emplace(T::create_key(), variable_wrapper::make<T::type>(qualifier)).second)
+      if(!_variable_map.emplace(T::create_key(), variable_wrapper::make<T::type>(qualifier, T::create_semantic_pair())).second)
       {
         throw std::exception();//TODO: exception type and message
       }

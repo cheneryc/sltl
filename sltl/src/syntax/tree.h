@@ -47,12 +47,18 @@ namespace syntax
       _functions.emplace_back(std::make_unique<function_definition>(fn, L"main", language::type_helper<void>()));
       function_manager::get().move(_functions);
 
-      std::tie(_io_block_in, _io_block_out) = io_block_manager::get().move();
+      std::tie(_io_block_in, _io_block_out, _io_block_uniform) = io_block_manager::get().move();
     }
 
     virtual bool apply_action(const_action& cact) const
     {
-      //TODO: assert the io_blocks are not null...
+      //TODO: assert the io_blocks are not null... (not sure this is actually a good idea...)
+
+      if(_io_block_uniform)
+      {
+        _io_block_uniform->apply_action(cact);
+      }
+
       if(_io_block_in)
       {
         _io_block_in->apply_action(cact);
@@ -76,6 +82,7 @@ namespace syntax
 
     statement::ptr _io_block_in;
     statement::ptr _io_block_out;
+    statement::ptr _io_block_uniform;
   };
 
   class tree_fragment : public tree_base

@@ -3,6 +3,7 @@
 #include "traits.h"
 #include "variable.h"
 
+#include "core/semantic.h"
 #include "core/qualifier.h"
 
 #include "syntax/literal.h"
@@ -117,8 +118,8 @@ namespace sltl
     }
 
   protected:
-    basic(core::qualifier::ptr&& qualifier) : variable(language::type_helper<T, D>(), std::move(qualifier)) {}
-    basic(core::qualifier::ptr&& qualifier, syntax::expression::ptr&& initializer) : variable(language::type_helper<T, D>(), std::move(qualifier), std::move(initializer)) {}
+    basic(core::qualifier::ptr&& qualifier, core::semantic_pair semantic) : variable(language::type_helper<T, D>(), std::move(qualifier), semantic) {}
+    basic(core::qualifier::ptr&& qualifier, core::semantic_pair semantic, syntax::expression::ptr&& initializer) : variable(language::type_helper<T, D>(), std::move(qualifier), semantic, std::move(initializer)) {}
 
     syntax::expression::ptr make_reference() const
     {

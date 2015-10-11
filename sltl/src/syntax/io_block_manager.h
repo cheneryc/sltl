@@ -27,17 +27,15 @@ namespace syntax
     io_block* get_io_block(core::qualifier_storage qualifier)
     {
       assert(qualifier != core::qualifier_storage::default);
-      assert(qualifier != core::qualifier_storage::uniform);
 
-      return static_cast<io_block*>((qualifier == core::qualifier_storage::in) ? _io_in.get() : _io_out.get());
+      return static_cast<io_block*>(get_block_node(qualifier).get());
     }
 
     io_block& add(core::qualifier_storage qualifier)
     {
       assert(qualifier != core::qualifier_storage::default);
-      assert(qualifier != core::qualifier_storage::uniform);
 
-      statement::ptr& io_block_node = ((qualifier == core::qualifier_storage::in) ? _io_in : _io_out);
+      statement::ptr& io_block_node = get_block_node(qualifier);
 
       //TODO: might need to throw an exception here instead as this could be a user/programmer error
       assert(!io_block_node);
@@ -46,14 +44,33 @@ namespace syntax
       return static_cast<io_block&>(*io_block_node);
     }
 
-    std::tuple<statement::ptr&&, statement::ptr&&> move()
+    std::tuple<statement::ptr&&, statement::ptr&&, statement::ptr&&> move()
     {
-      return std::forward_as_tuple(std::move(_io_in), std::move(_io_out));
+      return std::forward_as_tuple(std::move(_io_in), std::move(_io_out), std::move(_io_uniform));
     }
 
   private:
+    statement::ptr& get_block_node(core::qualifier_storage qualifier)
+    {
+      switch(qualifier)
+      {
+      case core::qualifier_storage::in:
+        return _io_in;
+        break;
+      case core::qualifier_storage::out:
+        return _io_out;
+        break;
+      case core::qualifier_storage::uniform:
+        return _io_uniform;
+        break;
+      default:
+        throw std::exception();//TODO: exception type and message
+      }
+    }
+
     statement::ptr _io_in;
     statement::ptr _io_out;
+    statement::ptr _io_uniform;
   };
 }
 }
