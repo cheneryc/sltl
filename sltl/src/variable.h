@@ -19,7 +19,7 @@ namespace sltl
   // Forward declarations - sltl::language namespace
   namespace language
   {
-    struct type;
+    class type;
   }
 
   class variable : public element

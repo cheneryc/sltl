@@ -3,6 +3,11 @@
 #include "core/qualifier.h"
 
 #include <string>
+#include <vector>
+#include <algorithm>
+#include <initializer_list>
+
+#include <cassert>
 
 
 namespace sltl
@@ -62,16 +67,60 @@ namespace language
     static const language::type_id value = language::id_bool;
   };
 
-  struct type
-  {
-    type(type_id id, size_t components) : _components(components), _id(id) {}
+  typedef size_t type_index_t;
 
-    const size_t _components;
-    const type_id _id;
+  class type
+  {
+  public:
+    type(type_id id, std::vector<type_index_t>&& dimensions) : _id(id), _dimensions(std::move(dimensions))
+    {
+      assert(get_dimension_count() > 0U);
+      assert(std::all_of(cbegin(), cend(), [](type_index_t d){ return (d > 0U) && (d <= 4U); }));
+    }
+
+    type& operator=(const type&) = delete;
+
+    typedef std::vector<type_index_t>::const_iterator const_iterator;
+    typedef std::vector<type_index_t>::const_reverse_iterator const_reverse_iterator;
+
+    const_iterator cbegin() const
+    {
+      return _dimensions.cbegin();
+    }
+
+    const_iterator cend() const
+    {
+      return _dimensions.cend();
+    }
+
+    const_reverse_iterator crbegin() const
+    {
+      return _dimensions.crbegin();
+    }
+
+    const_reverse_iterator crend() const
+    {
+      return _dimensions.crend();
+    }
+
+    type_index_t front() const
+    {
+      return _dimensions.front();
+    }
+
+    type_index_t back() const
+    {
+      return _dimensions.back();
+    }
+
+    size_t get_dimension_count() const
+    {
+      return _dimensions.size();
+    }
 
     friend bool operator==(const type& t1, const type& t2)
     {
-      return ((t1._id == t2._id) && (t1._components == t2._components));
+      return ((t1._id == t2._id) && (t1._dimensions.size() == t2._dimensions.size()) && std::equal(t1._dimensions.begin(), t1._dimensions.end(), t2._dimensions.begin()));
     }
 
     friend bool operator!=(const type& t1, const type& t2)
@@ -79,36 +128,38 @@ namespace language
       return !(t1 == t2);
     }
 
-    type& operator=(const type&) = delete;
+    const type_id _id;
+
+  private:
+    //TODO: the vector isn't ideal, would prefer dynarray when (if?) it becomes available
+    const std::vector<type_index_t> _dimensions;
   };
 
-  template<typename T, size_t D = 1>
+  template<typename T>
   struct type_helper : public type
   {
-    type_helper() : type(type_id_helper<T>::value, D) {}
+    type_helper(std::initializer_list<type_index_t> l = {1U}) : type(type_id_helper<T>::value, std::vector<type_index_t>(l.begin(), l.end())) {}
   };
 
-  // Specialization for void type, stops vectors of void type being defined
-  template<size_t D>
-  struct type_helper<void, D> : public type
+  // Specialization for void type, stops vectors and matrices of void type from being defined
+  template<>
+  struct type_helper<void> : public type
   {
-    static_assert(D == 1, "sltl::language::type_helper: invalid template parameter D for type void, this parameter must be 1");
-
-    type_helper() : type(type_id_helper<void>::value, D) {}
+    type_helper() : type(type_id_helper<void>::value, {1U}) {}
   };
 
   // Specialization for scalar types derived from sltl::basic
   template<template<typename> class V, typename T>
-  struct type_helper<V<T>> : public type
+  struct type_helper<V<T>> : public type_helper<T>
   {
-    type_helper() : type(type_id_helper<T>::value, 1) {}
+    type_helper() : type_helper<T>() {}
   };
 
-  // Specialization for vector types derived from sltl::basic
-  template<template<typename, size_t> class V, typename T, size_t D>
-  struct type_helper<V<T, D>> : public type
+  // Specialization for vector and matrix types derived from sltl::basic
+  template<template<typename, type_index_t...> class V, typename T, type_index_t ...D>
+  struct type_helper<V<T, D...>> : public type_helper<T>
   {
-    type_helper() : type(type_id_helper<T>::value, D) {}
+    type_helper() : type_helper<T>({D...}) {}
   };
 
   enum operator_id

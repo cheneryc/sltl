@@ -23,6 +23,7 @@
     <ClInclude Include="src\if.h" />
     <ClInclude Include="src\io\io.h" />
     <ClInclude Include="src\language.h" />
+    <ClInclude Include="src\matrix.h" />
     <ClInclude Include="src\output.h" />
     <ClInclude Include="src\scalar.h" />
     <ClInclude Include="src\scope.h" />

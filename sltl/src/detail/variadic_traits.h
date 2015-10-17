@@ -54,5 +54,12 @@ namespace detail
   {
     static const T1 value = get_value<N, T1, V...>::value;
   };
+
+  // Useful for enabling class template specialization on empty parameter packs
+  template<size_t ...D>
+  struct empty_guard {};
+
+  template<>
+  struct empty_guard<> {};
 }
 }

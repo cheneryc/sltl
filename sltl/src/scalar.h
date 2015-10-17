@@ -19,11 +19,9 @@ namespace sltl
   //1. //use partial template specialization to remove non-const operators etc.
   //2. require a 'specifier' field adding to variable declaration etc.
 
-  template<typename T, size_t D = 1>
-  class scalar : public basic<sltl::scalar, T, D>
+  template<typename T>
+  class scalar : public basic<sltl::scalar, T>
   {
-    static_assert(D == 1, "sltl::scalar: template parameter D must be 1");
-
   public:
     scalar(proxy&& p) : basic(core::qualifier::make<core::storage_qualifier>(core::qualifier_storage::default), core::semantic_pair::none, p.move()) {}
     scalar(core::qualifier_storage qualifier = core::qualifier_storage::default, core::semantic_pair semantic = core::semantic_pair::none) : basic(core::qualifier::make<core::storage_qualifier>(qualifier), semantic) {}

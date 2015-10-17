@@ -12,63 +12,95 @@ namespace
 
 std::wstring ns::to_type_string(const type& t)
 {
-  std::wstring type_string;
+  std::wstringstream ss;
 
-  if(t._components > 1)
+  if(t.get_dimension_count() > 1)
   {
     switch(t._id)
     {
     case id_float:
-      type_string = L"vec";
+      ss << L"mat";
       break;
     case id_double:
-      type_string = L"dvec";
-      break;
-    case id_int:
-      type_string = L"ivec";
-      break;
-    case id_uint:
-      type_string = L"uvec";
-      break;
-    case id_bool:
-      type_string = L"bvec";
+      ss << L"dmat";
       break;
     default:
-      assert((t._id != id_unknown) && (t._id != id_void));
+      assert((t._id == id_float) || (t._id == id_double));
     }
 
-    type_string += std::to_wstring(t._components);
+    const auto it_end = t.crend();
+
+    // use reverse iterators as glsl matrices are column-major
+    for(auto it = t.crbegin(); it != it_end; ++it)
+    {
+      ss << *it;
+
+      if(std::next(it) != it_end)
+      {
+        ss << L'x';
+      }
+    }
   }
   else
   {
-    assert(t._components != 0);
+    assert(t.get_dimension_count() == 1U);
 
-    switch(t._id)
+    if(t.front() > 1)
     {
-    case id_void:
-      type_string = L"void";
-      break;
-    case id_float:
-      type_string = L"float";
-      break;
-    case id_double:
-      type_string = L"double";
-      break;
-    case id_int:
-      type_string = L"int";
-      break;
-    case id_uint:
-      type_string = L"unsigned int";
-      break;
-    case id_bool:
-      type_string = L"bool";
-      break;
-    default:
-      assert(t._id != id_unknown);
+      switch(t._id)
+      {
+      case id_float:
+        ss << L"vec";
+        break;
+      case id_double:
+        ss << L"dvec";
+        break;
+      case id_int:
+        ss << L"ivec";
+        break;
+      case id_uint:
+        ss << L"uvec";
+        break;
+      case id_bool:
+        ss << L"bvec";
+        break;
+      default:
+        assert((t._id != id_unknown) && (t._id != id_void));
+      }
+
+      ss << t.front();
+    }
+    else
+    {
+      assert(t.front() != 0);
+
+      switch(t._id)
+      {
+      case id_void:
+        ss << L"void";
+        break;
+      case id_float:
+        ss << L"float";
+        break;
+      case id_double:
+        ss << L"double";
+        break;
+      case id_int:
+        ss << L"int";
+        break;
+      case id_uint:
+        ss << L"unsigned int";
+        break;
+      case id_bool:
+        ss << L"bool";
+        break;
+      default:
+        assert(t._id != id_unknown);
+      }
     }
   }
 
-  return std::move(type_string);
+  return ss.str();
 }
 
 std::wstring ns::to_type_prefix_string(const type& t)
@@ -76,36 +108,48 @@ std::wstring ns::to_type_prefix_string(const type& t)
   // Variable names can't begin with a numeral so we need a type specific prefix
   std::wstring prefix_string;
 
-  if(t._components > 1)
+  if(t.get_dimension_count() > 1)
   {
-    assert(t._id != id_void);
-    assert(t._id != id_unknown);
+    assert((t._id == id_float) ||
+           (t._id == id_double));
 
-    prefix_string = L'v';
+    prefix_string = L'm';
   }
   else
   {
-    assert(t._components != 0);
+    assert(t.get_dimension_count() == 1U);
 
-    switch(t._id)
+    if(t.front() > 1)
     {
-    case id_float:
-      prefix_string = L'f';
-      break;
-    case id_double:
-      prefix_string = L'd';
-      break;
-    case id_int:
-      prefix_string = L'i';
-      break;
-    case id_uint:
-      prefix_string = L'u';
-      break;
-    case id_bool:
-      prefix_string = L'b';
-      break;
-    default:
-      assert((t._id != id_unknown) && (t._id != id_void));
+      assert(t._id != id_void);
+      assert(t._id != id_unknown);
+
+      prefix_string = L'v';
+    }
+    else
+    {
+      assert(t.front() != 0);
+
+      switch(t._id)
+      {
+      case id_float:
+        prefix_string = L'f';
+        break;
+      case id_double:
+        prefix_string = L'd';
+        break;
+      case id_int:
+        prefix_string = L'i';
+        break;
+      case id_uint:
+        prefix_string = L'u';
+        break;
+      case id_bool:
+        prefix_string = L'b';
+        break;
+      default:
+        assert((t._id != id_unknown) && (t._id != id_void));
+      }
     }
   }
 
