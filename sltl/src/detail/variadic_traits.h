@@ -57,9 +57,15 @@ namespace detail
 
   // Useful for enabling class template specialization on empty parameter packs
   template<size_t ...D>
-  struct empty_guard {};
+  struct is_empty
+  {
+    static const bool value = false;
+  };
 
   template<>
-  struct empty_guard<> {};
+  struct is_empty<>
+  {
+    static const bool value = true;
+  };
 }
 }

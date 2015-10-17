@@ -18,14 +18,14 @@
 
 namespace sltl
 {
-  template<typename V, typename T, size_t ...D>
-  class basic_base : public variable
+  template<template<typename, size_t...> class V, typename T, size_t ...D>
+  class basic : public variable
   {
     static_assert(is_scalar<T>::value, "sltl::basic: Type T is not a valid template parameter type");
 
   public:
-    basic_base(const basic_base&) = delete;
-    basic_base& operator=(const basic_base&) = delete;
+    basic(const basic&) = delete;
+    basic& operator=(const basic&) = delete;
 
     class proxy_base
     {
@@ -52,15 +52,15 @@ namespace sltl
       syntax::expression::ptr _expression;
     };
 
-    template<typename>
+    template<bool>
     class proxy_t : public proxy_base
     {
     public:
       proxy_t(syntax::expression::ptr&& e) : proxy_base(std::move(e)) {}
 
       proxy_t(proxy_t&& p) : proxy_t(std::move(p._expression)) {}
-      proxy_t(V&& v) : proxy_t(v.make_reference_or_temporary()) {}
-      proxy_t(const V& v) : proxy_t(v.make_reference()) {}
+      proxy_t(V<T, D...>&& v) : proxy_t(v.make_reference_or_temporary()) {}
+      proxy_t(const V<T, D...>& v) : proxy_t(v.make_reference()) {}
 
       //TODO: C++11, this function should only be callable for r-value references. Its signature should be proxy_t operator=(proxy_t&& p) &&
       proxy_t operator=(proxy_t&& p)
@@ -76,15 +76,15 @@ namespace sltl
     // Specialization for the one-dimensional case that allows
     // a proxy to be constructed directly from an instance of T
     template<>
-    class proxy_t<detail::empty_guard<>> : public proxy_base
+    class proxy_t<true> : public proxy_base
     {
     public:
       proxy_t(syntax::expression::ptr&& e) : proxy_base(std::move(e)) {}
 
       proxy_t(T t) : proxy_t(syntax::expression::make<syntax::literal<T>>(t)) {}
       proxy_t(proxy_t&& p) : proxy_t(std::move(p._expression)) {}
-      proxy_t(V&& v) : proxy_t(v.make_reference_or_temporary()) {}
-      proxy_t(const V& v) : proxy_t(v.make_reference()) {}
+      proxy_t(V<T, D...>&& v) : proxy_t(v.make_reference_or_temporary()) {}
+      proxy_t(const V<T, D...>& v) : proxy_t(v.make_reference()) {}
 
       //TODO: C++11, this function should only be callable for r-value references. Its signature should be proxy_t operator=(proxy_t&& p) &&
       proxy_t operator=(proxy_t&& p)
@@ -97,7 +97,7 @@ namespace sltl
       }
     };
 
-    typedef proxy_t<detail::empty_guard<D...>> proxy;
+    typedef proxy_t<detail::is_empty<D...>::value> proxy;
 
     proxy operator+=(proxy&& p)
     {
@@ -120,8 +120,8 @@ namespace sltl
     }
 
   protected:
-    basic_base(core::qualifier::ptr&& qualifier, core::semantic_pair semantic) : variable(language::type_helper<T>{D...}, std::move(qualifier), semantic) {}
-    basic_base(core::qualifier::ptr&& qualifier, core::semantic_pair semantic, syntax::expression::ptr&& initializer) : variable(language::type_helper<T>{D...}, std::move(qualifier), semantic, std::move(initializer)) {}
+    basic(core::qualifier::ptr&& qualifier, core::semantic_pair semantic) : variable(language::type_helper<T>{D...}, std::move(qualifier), semantic) {}
+    basic(core::qualifier::ptr&& qualifier, core::semantic_pair semantic, syntax::expression::ptr&& initializer) : variable(language::type_helper<T>{D...}, std::move(qualifier), semantic, std::move(initializer)) {}
 
     syntax::expression::ptr make_reference() const
     {
@@ -145,13 +145,5 @@ namespace sltl
     {
       return proxy(syntax::expression::make<T>(std::forward<A>(a)...));
     }
-  };
-
-  template<template<typename, size_t...> class V, typename T, size_t ...D>
-  class basic : public basic_base<V<T, D...>, T, D...>
-  {
-  protected:
-    basic(core::qualifier::ptr&& qualifier, core::semantic_pair semantic) : basic_base(std::move(qualifier), semantic) {}
-    basic(core::qualifier::ptr&& qualifier, core::semantic_pair semantic, syntax::expression::ptr&& initializer) : basic_base(std::move(qualifier), semantic, std::move(initializer)) {}
   };
 }
