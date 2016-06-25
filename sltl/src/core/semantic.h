@@ -22,6 +22,7 @@ namespace core
   public:
     semantic_pair(semantic s = semantic::none, semantic_index_t index = 0U) : _semantic(s), _index(index) {}
 
+    // Non-assignable
     semantic_pair& operator=(semantic_pair&&) = delete;
     semantic_pair& operator=(const semantic_pair&) = delete;
 

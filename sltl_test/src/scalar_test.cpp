@@ -1,8 +1,9 @@
 #include <gtest/gtest.h>
 
 #include "scalar.h"
-#include "scope.h"
 #include "shader.h"
+#include "output.h"
+#include "scope.h"
 
 
 namespace

@@ -1,7 +1,6 @@
 #pragma once
 
-#include "output.h"
-
+#include "syntax/action.h"
 #include "syntax/tree.h"
 #include "syntax/block_manager.h"
 
@@ -32,7 +31,7 @@ namespace sltl
     template<typename Fn, typename ...T>
     std::wstring str(T&& ...t) const
     {
-      static_assert(std::is_base_of<output, Fn>::value, "Template parameter Fn must derive from sltl::output");
+      static_assert(std::is_base_of<syntax::const_action_result<std::wstring>, Fn>::value, "Template parameter Fn must derive from sltl::syntax::const_action_result<std::wstring>");
       //TODO: static assert that the type Fn is callable? Something similar to std::is_function, but works for functors & lambdas
 
       Fn fn(std::forward<T>(t)...);
@@ -42,7 +41,7 @@ namespace sltl
         throw std::exception();//TODO: better exception type and message?
       }
 
-      return fn.str();
+      return fn.get_result();
     }
 
     const type _t;

@@ -1,8 +1,9 @@
 #include <gtest/gtest.h>
 
 #include "matrix.h"
-#include "scope.h"
 #include "shader.h"
+#include "output.h"
+#include "scope.h"
 
 
 namespace

@@ -60,6 +60,13 @@ namespace syntax
     virtual bool get_default() = 0;
   };
 
+  template<typename T>
+  class action_result : public action
+  {
+  public:
+    virtual T get_result() const = 0;
+  };
+
   class const_action
   {
   public:
@@ -93,6 +100,13 @@ namespace syntax
     virtual bool operator()(bool) { return get_default(); }
 
     virtual bool get_default() = 0;
+  };
+
+  template<typename T>
+  class const_action_result : public const_action
+  {
+  public:
+    virtual T get_result() const = 0;
   };
 }
 }

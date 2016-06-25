@@ -3,6 +3,7 @@
 #include "io/io.h"
 
 #include "shader.h"
+#include "output.h"
 #include "scalar.h"
 #include "vector.h"
 
@@ -243,6 +244,30 @@ void main()
 )";
 
   ASSERT_EQ(expected, actual);
+}
+
+TEST(io, uniform_introspection)
+{
+  typedef sltl::io::block<
+    sltl::io::variable<sltl::vector<float, 2>, sltl::core::semantic::texcoord, 0>,
+    sltl::io::variable<sltl::vector<float, 2>, sltl::core::semantic::texcoord, 1>> io_block_uniform;
+
+  auto test_shader = [](sltl::shader::tag<sltl::shader::fragment>, sltl::io::block<>)
+  {
+    io_block_uniform uniform(sltl::core::qualifier_storage::uniform);
+  };
+
+  auto shader = sltl::make_shader(test_shader);
+
+  const std::wstring actual_texcoord0 = shader.str<sltl::output_introspector>(sltl::core::qualifier_storage::uniform, sltl::core::semantic_pair(sltl::core::semantic::texcoord, 0));
+  const std::wstring expected_texcoord0 = L"u_v1";
+
+  ASSERT_EQ(expected_texcoord0, actual_texcoord0);
+
+  const std::wstring actual_texcoord1 = shader.str<sltl::output_introspector>(sltl::core::qualifier_storage::uniform, sltl::core::semantic_pair(sltl::core::semantic::texcoord, 1));
+  const std::wstring expected_texcoord1 = L"u_v2";
+
+  ASSERT_EQ(expected_texcoord1, actual_texcoord1);
 }
 
 TEST(io, inout_single)

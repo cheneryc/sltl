@@ -107,7 +107,7 @@ ns::output::output(bool is_indent_tab) : _indent_count(0), _is_indent_tab(is_ind
 {
 }
 
-std::wstring ns::output::str() const
+std::wstring ns::output::get_result() const
 {
   return _ss.str();
 }
@@ -375,4 +375,32 @@ void ns::output::line_end(bool has_semi_colon)
   }
 
   _ss << std::endl;
+}
+
+bool ns::output_introspector::operator()(const syntax::variable_declaration& vd, bool is_start)
+{
+  if(is_start)
+  {
+    auto qualifier_storage = static_cast<const ns::core::storage_qualifier&>(vd.get_qualifier())._value;
+
+    if((qualifier_storage == _qualifier) &&
+       (vd._semantic == _semantic) &&
+       (vd._semantic_index == _semantic_index))
+    {
+      _name = get_variable_name(vd);
+    }
+  }
+
+  //TODO: should the action terminate once the desired variable declaration has been found? Would require shader::str() to not throw if the action doesn't complete.
+  return true;
+}
+
+std::wstring ns::output_introspector::get_result() const
+{
+  return _name;
+}
+
+bool ns::output_introspector::get_default()
+{
+  return true;
 }

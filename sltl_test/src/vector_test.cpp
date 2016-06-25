@@ -2,6 +2,7 @@
 
 #include "vector.h"
 #include "shader.h"
+#include "output.h"
 
 
 namespace

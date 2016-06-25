@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "shader.h"
+#include "output.h"
 
 #include "io/io.h"
 

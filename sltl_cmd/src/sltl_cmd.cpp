@@ -1,4 +1,5 @@
 #include "shader.h"
+#include "output.h"
 
 #include "core/qualifier.h"
 #include "io/io.h"

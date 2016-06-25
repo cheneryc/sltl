@@ -2,6 +2,7 @@
 
 #include "call.h"
 #include "shader.h"
+#include "output.h"
 #include "scalar.h"
 #include "vector.h"
 
