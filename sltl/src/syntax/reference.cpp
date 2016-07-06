@@ -1,5 +1,4 @@
 #include "reference.h"
-#include "action.h"
 
 
 namespace
@@ -13,10 +12,10 @@ ns::reference::reference(const variable_declaration& declaration) : expression()
 
 bool ns::reference::apply_action(action& act)
 {
-  return act(*this);
+  return apply_action_impl(act, *this);
 }
 
 bool ns::reference::apply_action(const_action& cact) const
 {
-  return cact(*this);
+  return apply_action_impl(cact, *this);
 }

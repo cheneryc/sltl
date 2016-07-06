@@ -50,27 +50,27 @@ namespace syntax
       std::tie(_io_block_in, _io_block_out, _io_block_uniform) = io_block_manager::get().move();
     }
 
-    virtual bool apply_action(const_action& cact) const
+    virtual bool apply_action(const_action& cact) const override
     {
-      //TODO: assert the io_blocks are not null... (not sure this is actually a good idea...)
+      bool is_continuing = true;
 
       if(_io_block_uniform)
       {
-        _io_block_uniform->apply_action(cact);
+        is_continuing = _io_block_uniform->apply_action(cact);
       }
 
-      if(_io_block_in)
+      if(_io_block_in && is_continuing)
       {
-        _io_block_in->apply_action(cact);
+        is_continuing = _io_block_in->apply_action(cact);
       }
 
-      if(_io_block_out)
+      if(_io_block_out && is_continuing)
       {
-        _io_block_out->apply_action(cact);
+        is_continuing = _io_block_out->apply_action(cact);
       }
 
       // Traverse in reverse order so the main function is processed last
-      return std::all_of(_functions.rbegin(), _functions.rend(), [&cact](const function_definition::ptr& fd)
+      return is_continuing && std::all_of(_functions.rbegin(), _functions.rend(), [&cact](const function_definition::ptr& fd)
       {
         return fd->apply_action(cact);
       });

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "action.h"
 #include "expression.h"
 
 #include "../traits.h"
@@ -20,12 +19,12 @@ namespace syntax
 
     virtual bool apply_action(action& act) override
     {
-      return act(*this);
+      return apply_action_impl(act, *this);
     }
 
     virtual bool apply_action(const_action& cact) const override
     {
-      return cact(*this);
+      return apply_action_impl(cact, *this);
     }
 
     const T _t;

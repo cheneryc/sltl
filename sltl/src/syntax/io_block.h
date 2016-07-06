@@ -22,12 +22,12 @@ namespace syntax
 
     virtual bool apply_action(action& act) override
     {
-      return (act(*this) && std::all_of(_statements.begin(), _statements.end(), [&act](statement::ptr& s){ return s->apply_action(act); }) && act(*this, false));
+      return apply_action_impl(act, *this, _statements.begin(), _statements.end());
     }
 
     virtual bool apply_action(const_action& cact) const override
     {
-      return (cact(*this) && std::all_of(_statements.begin(), _statements.end(), [&cact](const statement::ptr& s){ return s->apply_action(cact); }) && cact(*this, false));
+      return apply_action_impl(cact, *this, _statements.begin(), _statements.end());
     }
 
     const core::qualifier_storage _qualifier;

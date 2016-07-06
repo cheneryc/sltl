@@ -19,7 +19,7 @@ namespace
   public:
     elide_action(const language::type& type) : _type(type), _action_state(unknown), _action_target(nullptr) {}
 
-    virtual bool operator()(temporary& t, bool is_start = true) override
+    virtual action_return_t operator()(temporary& t, bool is_start = true) override
     {
       if(is_start)
       {
@@ -29,18 +29,18 @@ namespace
           _action_target = &t;
 
           // The elide action only continues when the expression is a temporary node of matching type
-          return true;
+          return action_return_t::step_in;
         });
       }
       else
       {
-        return false;
+        return action_return_t::stop;
       }
     }
 
-    virtual bool operator()(syntax::reference& r) override
+    virtual action_return_t operator()(syntax::reference& r) override
     {
-      return do_action(r._declaration._type, [&]{ _action_state = ((_action_state == matching) ? omitted : different); return false; });
+      return do_action(r._declaration._type, [&]{ _action_state = ((_action_state == matching) ? omitted : different); return action_return_t::stop; });
     }
 
     expression::ptr&& get_result(expression::ptr&& exp)
@@ -60,47 +60,47 @@ namespace
     const language::type _type;
 
   protected:
-    virtual bool operator()(float) override
+    virtual action_return_t operator()(float) override
     {
-      return do_action(language::type_helper<float>(), [&]{ _action_state = ((_action_state == matching) ? omitted : different); return false; });
+      return do_action(language::type_helper<float>(), [&]{ _action_state = ((_action_state == matching) ? omitted : different); return action_return_t::stop; });
     }
 
-    virtual bool operator()(double) override
+    virtual action_return_t operator()(double) override
     {
-      return do_action(language::type_helper<double>(), [&]{ _action_state = ((_action_state == matching) ? omitted : different); return false; });
+      return do_action(language::type_helper<double>(), [&]{ _action_state = ((_action_state == matching) ? omitted : different); return action_return_t::stop; });
     }
 
-    virtual bool operator()(int) override
+    virtual action_return_t operator()(int) override
     {
-      return do_action(language::type_helper<int>(), [&]{ _action_state = ((_action_state == matching) ? omitted : different); return false; });
+      return do_action(language::type_helper<int>(), [&]{ _action_state = ((_action_state == matching) ? omitted : different); return action_return_t::stop; });
     }
 
-    virtual bool operator()(unsigned int) override
+    virtual action_return_t operator()(unsigned int) override
     {
-      return do_action(language::type_helper<unsigned int>(), [&]{ _action_state = ((_action_state == matching) ? omitted : different); return false; });
+      return do_action(language::type_helper<unsigned int>(), [&]{ _action_state = ((_action_state == matching) ? omitted : different); return action_return_t::stop; });
     }
 
-    virtual bool operator()(bool) override
+    virtual action_return_t operator()(bool) override
     {
-      return do_action(language::type_helper<bool>(), [&]{ _action_state = ((_action_state == matching) ? omitted : different); return false; });
+      return do_action(language::type_helper<bool>(), [&]{ _action_state = ((_action_state == matching) ? omitted : different); return action_return_t::stop; });
     }
 
-    virtual bool get_default() override
+    virtual action_return_t get_default() override
     {
       _action_state = different;
       _action_target = nullptr;
 
-      return false;
+      return action_return_t::stop;
     }
 
   private:
     template<typename Fn>
-    bool do_action(const language::type& type, Fn fn)
+    action_return_t do_action(const language::type& type, Fn fn)
     {
       assert(((_action_state == unknown)  && !_action_target) ||
              ((_action_state == matching) &&  _action_target));
 
-      bool is_continuing = false;
+      action_return_t is_continuing = action_return_t::stop;
 
       if(_type == type)
       {

@@ -53,12 +53,7 @@ namespace syntax
         while(is_continuing && (++it != it_end))
         {
           list_separator ls;
-          is_continuing = act(ls);
-
-          if(is_continuing)
-          {
-            is_continuing = (*it)->apply_action(act);
-          }
+          is_continuing = (apply_action_impl(act, ls) && (*it)->apply_action(act));
         }
       }
 

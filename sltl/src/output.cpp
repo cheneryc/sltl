@@ -112,7 +112,7 @@ std::wstring ns::output::get_result() const
   return _ss.str();
 }
 
-bool ns::output::operator()(const syntax::block&, bool is_start)
+ns::syntax::action_return_t ns::output::operator()(const syntax::block&, bool is_start)
 {
   wchar_t brace;
 
@@ -128,15 +128,15 @@ bool ns::output::operator()(const syntax::block&, bool is_start)
   }
 
   _ss << brace << std::endl;
-  return true;
+  return ns::syntax::action_return_t::step_in;
 }
 
-bool ns::output::operator()(const syntax::io_block&, bool)
+ns::syntax::action_return_t ns::output::operator()(const syntax::io_block&, bool)
 {
-  return true;
+  return ns::syntax::action_return_t::step_in;
 }
 
-bool ns::output::operator()(const syntax::variable_declaration& vd, bool is_start)
+ns::syntax::action_return_t ns::output::operator()(const syntax::variable_declaration& vd, bool is_start)
 {
   if(!is_variable_built_in(vd))
   {
@@ -169,22 +169,22 @@ bool ns::output::operator()(const syntax::variable_declaration& vd, bool is_star
     }
   }
 
-  return true;
+  return ns::syntax::action_return_t::step_in;
 }
 
-bool ns::output::operator()(const syntax::parameter_declaration&)
+ns::syntax::action_return_t ns::output::operator()(const syntax::parameter_declaration&)
 {
   assert(false); //TODO: implement this...
-  return true;
+  return ns::syntax::action_return_t::step_in;
 }
 
-bool ns::output::operator()(const syntax::reference& r)
+ns::syntax::action_return_t ns::output::operator()(const syntax::reference& r)
 {
   _ss << get_variable_name(r._declaration);
-  return true;
+  return ns::syntax::action_return_t::step_in;
 }
 
-bool ns::output::operator()(const syntax::temporary& t, bool is_start)
+ns::syntax::action_return_t ns::output::operator()(const syntax::temporary& t, bool is_start)
 {
   if(is_start)
   {
@@ -195,22 +195,22 @@ bool ns::output::operator()(const syntax::temporary& t, bool is_start)
     _ss << L')';
   }
 
-  return true;
+  return ns::syntax::action_return_t::step_in;
 }
 
-bool ns::output::operator()(const syntax::assignment_operator& op)
+ns::syntax::action_return_t ns::output::operator()(const syntax::assignment_operator& op)
 {
   _ss << L' ' << language::to_assignment_operator_string(op._id) << ' ';
-  return true;
+  return ns::syntax::action_return_t::step_in;
 }
 
-bool ns::output::operator()(const syntax::binary_operator& op)
+ns::syntax::action_return_t ns::output::operator()(const syntax::binary_operator& op)
 {
   _ss << L' ' << language::to_operator_string(op._id) << ' ';
-  return true;
+  return ns::syntax::action_return_t::step_in;
 }
 
-bool ns::output::operator()(const syntax::conditional& c, bool is_start)
+ns::syntax::action_return_t ns::output::operator()(const syntax::conditional& c, bool is_start)
 {
   if(is_start)
   {
@@ -222,10 +222,10 @@ bool ns::output::operator()(const syntax::conditional& c, bool is_start)
     line_end(false);
   }
 
-  return true;
+  return ns::syntax::action_return_t::step_in;
 }
 
-bool ns::output::operator()(const syntax::expression_statement&, bool is_start)
+ns::syntax::action_return_t ns::output::operator()(const syntax::expression_statement&, bool is_start)
 {
   if(is_start)
   {
@@ -236,10 +236,10 @@ bool ns::output::operator()(const syntax::expression_statement&, bool is_start)
     line_end();
   }
 
-  return true;
+  return ns::syntax::action_return_t::step_in;
 }
 
-bool ns::output::operator()(const syntax::parentheses&, bool is_start)
+ns::syntax::action_return_t ns::output::operator()(const syntax::parentheses&, bool is_start)
 {
   if(is_start)
   {
@@ -250,16 +250,16 @@ bool ns::output::operator()(const syntax::parentheses&, bool is_start)
     _ss << L')';
   }
 
-  return true;
+  return ns::syntax::action_return_t::step_in;
 }
 
-bool ns::output::operator()(const syntax::list_separator&)
+ns::syntax::action_return_t ns::output::operator()(const syntax::list_separator&)
 {
-    _ss << L", ";
-    return true;
+  _ss << L", ";
+  return ns::syntax::action_return_t::step_in;
 }
 
-bool ns::output::operator()(const syntax::function_call& fc, bool is_start)
+ns::syntax::action_return_t ns::output::operator()(const syntax::function_call& fc, bool is_start)
 {
   if(is_start)
   {
@@ -270,10 +270,10 @@ bool ns::output::operator()(const syntax::function_call& fc, bool is_start)
     _ss << L')';
   }
 
-  return true;
+  return ns::syntax::action_return_t::step_in;
 }
 
-bool ns::output::operator()(const syntax::function_definition& fd, bool is_start)
+ns::syntax::action_return_t ns::output::operator()(const syntax::function_definition& fd, bool is_start)
 {
   if(is_start)
   {
@@ -286,10 +286,10 @@ bool ns::output::operator()(const syntax::function_definition& fd, bool is_start
     line_end(false);
   }
 
-  return true;
+  return ns::syntax::action_return_t::step_in;
 }
 
-bool ns::output::operator()(const syntax::return_statement&, bool is_start)
+ns::syntax::action_return_t ns::output::operator()(const syntax::return_statement&, bool is_start)
 {
   if(is_start)
   {
@@ -301,10 +301,10 @@ bool ns::output::operator()(const syntax::return_statement&, bool is_start)
     line_end();
   }
 
-  return true;
+  return ns::syntax::action_return_t::step_in;
 }
 
-bool ns::output::operator()(float f)
+ns::syntax::action_return_t ns::output::operator()(float f)
 {
   float integral;
 
@@ -318,10 +318,10 @@ bool ns::output::operator()(float f)
     _ss << f << L'f';
   }
 
-  return true;
+  return ns::syntax::action_return_t::step_in;
 }
 
-bool ns::output::operator()(double d)
+ns::syntax::action_return_t ns::output::operator()(double d)
 {
   double integral;
 
@@ -335,31 +335,31 @@ bool ns::output::operator()(double d)
     _ss << d;
   }
 
-  return true;
+  return ns::syntax::action_return_t::step_in;
 }
 
-bool ns::output::operator()(int i)
+ns::syntax::action_return_t ns::output::operator()(int i)
 {
   _ss << i;
-  return true;
+  return ns::syntax::action_return_t::step_in;
 }
 
-bool ns::output::operator()(unsigned int ui)
+ns::syntax::action_return_t ns::output::operator()(unsigned int ui)
 {
   _ss << ui << L'U';
-  return true;
+  return ns::syntax::action_return_t::step_in;
 }
 
-bool ns::output::operator()(bool b)
+ns::syntax::action_return_t ns::output::operator()(bool b)
 {
   _ss << std::boolalpha << b;
-  return true;
+  return ns::syntax::action_return_t::step_in;
 }
 
-bool ns::output::get_default()
+ns::syntax::action_return_t ns::output::get_default()
 {
   assert(false);
-  return true;
+  return ns::syntax::action_return_t::step_in;
 }
 
 void ns::output::line_begin()
@@ -377,8 +377,17 @@ void ns::output::line_end(bool has_semi_colon)
   _ss << std::endl;
 }
 
-bool ns::output_introspector::operator()(const syntax::variable_declaration& vd, bool is_start)
+ns::syntax::action_return_t ns::output_introspector::operator()(const syntax::io_block& iob, bool)
 {
+  return ((iob._qualifier == _qualifier) ?
+    ns::syntax::action_return_t::step_in :
+    ns::syntax::action_return_t::step_over);
+}
+
+ns::syntax::action_return_t ns::output_introspector::operator()(const syntax::variable_declaration& vd, bool is_start)
+{
+  ns::syntax::action_return_t return_val = ns::syntax::action_return_t::step_over;
+
   if(is_start)
   {
     auto qualifier_storage = static_cast<const ns::core::storage_qualifier&>(vd.get_qualifier())._value;
@@ -387,12 +396,11 @@ bool ns::output_introspector::operator()(const syntax::variable_declaration& vd,
        (vd._semantic == _semantic) &&
        (vd._semantic_index == _semantic_index))
     {
-      _name = get_variable_name(vd);
+      _name = get_variable_name(vd); return_val = ns::syntax::action_return_t::stop;
     }
   }
 
-  //TODO: should the action terminate once the desired variable declaration has been found? Would require shader::str() to not throw if the action doesn't complete.
-  return true;
+  return return_val;
 }
 
 std::wstring ns::output_introspector::get_result() const
@@ -400,7 +408,7 @@ std::wstring ns::output_introspector::get_result() const
   return _name;
 }
 
-bool ns::output_introspector::get_default()
+ns::syntax::action_return_t ns::output_introspector::get_default()
 {
-  return true;
+  return ns::syntax::action_return_t::step_in;
 }

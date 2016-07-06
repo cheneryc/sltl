@@ -62,12 +62,12 @@ namespace syntax
 
     virtual bool apply_action(action& act) override
     {
-      return apply_action(act, *this);
+      return apply_action_impl(act, *this, _initializer.get());
     }
 
     virtual bool apply_action(const_action& cact) const override
     {
-      return apply_action(cact, *this);
+      return apply_action_impl(cact, *this, _initializer.get());
     }
 
     const core::qualifier& get_qualifier() const
@@ -81,12 +81,6 @@ namespace syntax
     const core::semantic_index_t _semantic_index;
 
   private:
-    template<typename A, typename T>
-    static auto apply_action(A& act, T& type) -> typename std::enable_if<std::is_same<typename std::remove_const<T>::type, variable_declaration>::value, bool>::type
-    {
-      return (act(type) && (type._initializer ? type._initializer->apply_action(act) : true) && act(type, false));
-    }
-
     core::qualifier::ptr _qualifier;//TODO: const (ptr or expression or both)?
     expression::ptr _initializer;//TODO: const (ptr or expression or both)?
     mutable size_t _ref_count;//TODO: this is not a great design, try and improve it...

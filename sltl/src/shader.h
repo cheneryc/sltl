@@ -28,15 +28,15 @@ namespace sltl
     shader(shader&& s) : _t(s._t), _tree(std::move(s._tree)) {}
     shader(type t, syntax::tree_base::ptr&& tree) : _t(t), _tree(std::move(tree)) {}
 
-    template<typename Fn, typename ...T>
+    template<typename Fn, bool is_error = true, typename ...T>
     std::wstring str(T&& ...t) const
     {
       static_assert(std::is_base_of<syntax::const_action_result<std::wstring>, Fn>::value, "Template parameter Fn must derive from sltl::syntax::const_action_result<std::wstring>");
       //TODO: static assert that the type Fn is callable? Something similar to std::is_function, but works for functors & lambdas
 
       Fn fn(std::forward<T>(t)...);
-      
-      if(!_tree->apply_action(fn))
+
+      if(!_tree->apply_action(fn) && is_error)
       {
         throw std::exception();//TODO: better exception type and message?
       }

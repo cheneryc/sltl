@@ -1,6 +1,5 @@
 #pragma once
 
-#include "action.h"
 #include "statement.h"
 #include "expression.h"
 
@@ -16,21 +15,15 @@ namespace syntax
 
     virtual bool apply_action(action& act) override
     {
-      return apply_action(act, *this);
+      return apply_action_impl(act, *this, _expression.get());
     }
 
     virtual bool apply_action(const_action& cact) const override
     {
-      return apply_action(cact, *this);
+      return apply_action_impl(cact, *this, _expression.get());
     }
 
   private:
-    template<typename A, typename T>
-    static auto apply_action(A& act, T& type) -> typename std::enable_if<std::is_same<typename std::remove_const<T>::type, return_statement>::value, bool>::type
-    {
-      return (act(type) && type._expression->apply_action(act) && act(type, false));
-    }
-
     expression::ptr _expression;
   };
 }

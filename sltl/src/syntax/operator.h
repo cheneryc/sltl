@@ -57,7 +57,7 @@ namespace syntax
     template<typename A, typename T>
     static auto apply_action(A& act, T& type) -> typename std::enable_if<std::is_same<typename std::remove_const<T>::type, binary_operator>::value, bool>::type
     {
-      return (type._lhs->apply_action(act) && act(type) && type._rhs->apply_action(act));
+      return (type._lhs->apply_action(act) && apply_action_impl(act, type) && type._rhs->apply_action(act));
     }
   };
 
@@ -83,7 +83,7 @@ namespace syntax
     template<typename A, typename T>
     static auto apply_action(A& act, T& type) -> typename std::enable_if<std::is_same<typename std::remove_const<T>::type, assignment_operator>::value, bool>::type
     {
-      return (type._lhs->apply_action(act) && act(type) && type._rhs->apply_action(act));
+      return (type._lhs->apply_action(act) && apply_action_impl(act, type) && type._rhs->apply_action(act));
     }
   };
 }

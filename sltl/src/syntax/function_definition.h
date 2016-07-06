@@ -46,7 +46,7 @@ namespace syntax
     template<typename A, typename T>
     static auto apply_action(A& act, T& type) -> typename std::enable_if<std::is_same<typename std::remove_const<T>::type, function_definition>::value, bool>::type
     {
-      return (act(type) && type._parameters.apply_action(act) && act(type, false) && type._function_body.apply_action(act));
+      return (apply_action_impl(act, type, &(type._parameters)) && type._function_body.apply_action(act));
     }
 
     template<typename Fn>

@@ -16,32 +16,32 @@ namespace sltl
   public:
     output(bool is_indent_tab = true);
 
-    virtual bool operator()(const syntax::block&, bool is_start = true) override;
-    virtual bool operator()(const syntax::io_block&, bool is_start = true) override;
-    virtual bool operator()(const syntax::variable_declaration& vd, bool is_start = true) override;
-    virtual bool operator()(const syntax::parameter_declaration& pd) override;
-    virtual bool operator()(const syntax::reference& r) override;
-    virtual bool operator()(const syntax::temporary& t, bool is_start = true) override;
-    virtual bool operator()(const syntax::assignment_operator& op) override;
-    virtual bool operator()(const syntax::binary_operator& op) override;
-    virtual bool operator()(const syntax::conditional& c, bool is_start = true) override;
-    virtual bool operator()(const syntax::expression_statement& es, bool is_start = true) override;
-    virtual bool operator()(const syntax::parentheses& p, bool is_start = true) override;
-    virtual bool operator()(const syntax::list_separator& ls) override;
-    virtual bool operator()(const syntax::function_call& fc, bool is_start = true) override;
-    virtual bool operator()(const syntax::function_definition& fd, bool is_start = true) override;
-    virtual bool operator()(const syntax::return_statement& rs, bool is_start = true) override;
+    virtual syntax::action_return_t operator()(const syntax::block&, bool is_start = true) override;
+    virtual syntax::action_return_t operator()(const syntax::io_block&, bool is_start = true) override;
+    virtual syntax::action_return_t operator()(const syntax::variable_declaration& vd, bool is_start = true) override;
+    virtual syntax::action_return_t operator()(const syntax::parameter_declaration& pd) override;
+    virtual syntax::action_return_t operator()(const syntax::reference& r) override;
+    virtual syntax::action_return_t operator()(const syntax::temporary& t, bool is_start = true) override;
+    virtual syntax::action_return_t operator()(const syntax::assignment_operator& op) override;
+    virtual syntax::action_return_t operator()(const syntax::binary_operator& op) override;
+    virtual syntax::action_return_t operator()(const syntax::conditional& c, bool is_start = true) override;
+    virtual syntax::action_return_t operator()(const syntax::expression_statement& es, bool is_start = true) override;
+    virtual syntax::action_return_t operator()(const syntax::parentheses& p, bool is_start = true) override;
+    virtual syntax::action_return_t operator()(const syntax::list_separator& ls) override;
+    virtual syntax::action_return_t operator()(const syntax::function_call& fc, bool is_start = true) override;
+    virtual syntax::action_return_t operator()(const syntax::function_definition& fd, bool is_start = true) override;
+    virtual syntax::action_return_t operator()(const syntax::return_statement& rs, bool is_start = true) override;
 
     virtual std::wstring get_result() const override;
 
   protected:
-    virtual bool operator()(float f) override;
-    virtual bool operator()(double d) override;
-    virtual bool operator()(int i) override;
-    virtual bool operator()(unsigned int ui) override;
-    virtual bool operator()(bool b) override;
+    virtual syntax::action_return_t operator()(float f) override;
+    virtual syntax::action_return_t operator()(double d) override;
+    virtual syntax::action_return_t operator()(int i) override;
+    virtual syntax::action_return_t operator()(unsigned int ui) override;
+    virtual syntax::action_return_t operator()(bool b) override;
 
-    virtual bool get_default() override;
+    virtual syntax::action_return_t get_default() override;
 
   private:
     void line_begin();
@@ -60,7 +60,8 @@ namespace sltl
       _semantic_index(semantic._index),
       _qualifier(qualifier) {}
 
-    virtual bool operator()(const syntax::variable_declaration& vd, bool is_start = true) override;
+    virtual syntax::action_return_t operator()(const syntax::io_block&, bool is_start = true) override;
+    virtual syntax::action_return_t operator()(const syntax::variable_declaration& vd, bool is_start = true) override;
 
     // Non-assignable
     output_introspector& operator=(output_introspector&&) = delete;
@@ -74,7 +75,7 @@ namespace sltl
     const core::qualifier_storage _qualifier;
 
   protected:
-    virtual bool get_default() override;
+    virtual syntax::action_return_t get_default() override;
 
   private:
     std::wstring _name;

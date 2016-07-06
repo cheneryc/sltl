@@ -16,12 +16,12 @@ namespace syntax
 
     virtual bool apply_action(action& act) override
     {
-      return apply_action(act, *this);
+      return apply_action_impl(act, *this, nullptr);
     }
 
     virtual bool apply_action(const_action& cact) const override
     {
-      return apply_action(cact, *this);
+      return apply_action_impl(cact, *this, nullptr);
     }
 
     const wchar_t* get_function_name() const
@@ -30,12 +30,6 @@ namespace syntax
     }
 
   private:
-    template<typename A, typename T>
-    static auto apply_action(A& act, T& type) -> typename std::enable_if<std::is_same<typename std::remove_const<T>::type, function_call>::value, bool>::type
-    {
-      return (act(type) && act(type, false));
-    }
-
     const function_definition& _fd;
   };
 }

@@ -82,10 +82,10 @@ std::wstring ns::block::get_child_name()
 
 bool ns::block::apply_action(action& act)
 {
-  return (act(*this) && std::all_of(_statements.begin(), _statements.end(), [&act](statement::ptr& s){ return s->apply_action(act); }) && act(*this, false));
+  return apply_action_impl(act, *this, _statements.begin(), _statements.end());
 }
 
 bool ns::block::apply_action(const_action& cact) const
 {
-  return (cact(*this) && std::all_of(_statements.begin(), _statements.end(), [&cact](const statement::ptr& s){ return s->apply_action(cact); }) && cact(*this, false));
+  return apply_action_impl(cact, *this, _statements.begin(), _statements.end());
 }
