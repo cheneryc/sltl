@@ -85,8 +85,10 @@ namespace
       return do_action(language::type_helper<bool>(), [&]{ _action_state = ((_action_state == matching) ? omitted : different); return action_return_t::stop; });
     }
 
-    virtual action_return_t get_default() override
+    virtual action_return_t get_default(bool is_start) override
     {
+      assert(is_start);
+
       _action_state = different;
       _action_target = nullptr;
 

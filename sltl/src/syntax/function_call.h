@@ -16,12 +16,12 @@ namespace syntax
 
     virtual bool apply_action(action& act) override
     {
-      return apply_action_impl(act, *this, nullptr);
+      return apply_action_impl(act, *this, static_cast<node*>(nullptr));
     }
 
     virtual bool apply_action(const_action& cact) const override
     {
-      return apply_action_impl(cact, *this, nullptr);
+      return apply_action_impl(cact, *this, static_cast<const node*>(nullptr));
     }
 
     const wchar_t* get_function_name() const

@@ -20,14 +20,15 @@ namespace sltl
     virtual syntax::action_return_t operator()(const syntax::io_block&, bool is_start = true) override;
     virtual syntax::action_return_t operator()(const syntax::variable_declaration& vd, bool is_start = true) override;
     virtual syntax::action_return_t operator()(const syntax::parameter_declaration& pd) override;
+    virtual syntax::action_return_t operator()(const syntax::parameter_list& pl, bool is_start = true) override;
     virtual syntax::action_return_t operator()(const syntax::reference& r) override;
     virtual syntax::action_return_t operator()(const syntax::temporary& t, bool is_start = true) override;
     virtual syntax::action_return_t operator()(const syntax::assignment_operator& op) override;
     virtual syntax::action_return_t operator()(const syntax::binary_operator& op) override;
     virtual syntax::action_return_t operator()(const syntax::conditional& c, bool is_start = true) override;
     virtual syntax::action_return_t operator()(const syntax::expression_statement& es, bool is_start = true) override;
+    virtual syntax::action_return_t operator()(const syntax::expression_list& el, bool is_start = true) override;
     virtual syntax::action_return_t operator()(const syntax::parentheses& p, bool is_start = true) override;
-    virtual syntax::action_return_t operator()(const syntax::list_separator& ls) override;
     virtual syntax::action_return_t operator()(const syntax::function_call& fc, bool is_start = true) override;
     virtual syntax::action_return_t operator()(const syntax::function_definition& fd, bool is_start = true) override;
     virtual syntax::action_return_t operator()(const syntax::return_statement& rs, bool is_start = true) override;
@@ -41,7 +42,7 @@ namespace sltl
     virtual syntax::action_return_t operator()(unsigned int ui) override;
     virtual syntax::action_return_t operator()(bool b) override;
 
-    virtual syntax::action_return_t get_default() override;
+    virtual syntax::action_return_t get_default(bool is_start) override;
 
   private:
     void line_begin();
@@ -75,7 +76,7 @@ namespace sltl
     const core::qualifier_storage _qualifier;
 
   protected:
-    virtual syntax::action_return_t get_default() override;
+    virtual syntax::action_return_t get_default(bool is_start) override;
 
   private:
     std::wstring _name;

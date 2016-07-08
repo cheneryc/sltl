@@ -2,7 +2,6 @@
 
 #include "action.h"
 #include "statement.h"
-#include "parentheses.h"
 #include "../language.h"
 
 #include <cassert>
@@ -12,7 +11,6 @@ namespace sltl
 {
 namespace syntax
 {
-  //TODO: rename this class selection?
   class conditional : public statement
   {
   public:
@@ -21,7 +19,7 @@ namespace syntax
       assert(_id == language::id_else);
     }
 
-    conditional(language::conditional_id id, expression::ptr&& condition) : _id(id), _condition(expression::make<parentheses>(std::move(condition)))
+    conditional(language::conditional_id id, expression::ptr&& condition) : _id(id), _condition(std::move(condition))
     {
       assert((_id == language::id_if) || (_id == language::id_else_if));
     }
@@ -48,49 +46,71 @@ namespace syntax
       return apply_action(cact, *this);
     }
 
+    const expression* get_condition() const
+    {
+      return _condition.get();
+    }
+
+    const statement* get_statement() const
+    {
+      return _statement.get();
+    }
+
+    const statement* get_statement_else() const
+    {
+      return _statement_else.get();
+    }
+
     const language::conditional_id _id;
 
   private:
     template<typename A, typename T>
     static auto apply_action(A& act, T& type) -> typename std::enable_if<std::is_same<typename std::remove_const<T>::type, conditional>::value, bool>::type
     {
-      const auto return_act = act(type);
-      bool return_val = return_act != action_return_t::stop;
-
       assert(((type._id == language::id_else) && !type._condition) ||
              ((type._id != language::id_else) &&  type._condition));
 
-      if(return_act == action_return_t::step_in && type._condition)
-      {
-        return_val = type._condition->apply_action(act);
-      }
+      const auto act_result = act(type);
 
-      return_val = return_val && (act(type, false) != action_return_t::stop);//TODO: is there another way to get a line break instead of calling this early?
+      assert(act_result == action_return_t::step_in ||
+             act_result == action_return_t::step_over ||
+             act_result == action_return_t::stop);
 
-      if(return_val)
+      bool is_continuing = act_result != action_return_t::stop;
+
+      if(act_result == action_return_t::step_in)
       {
+        if(type._condition)
+        {
+          is_continuing = type._condition->apply_action(act);
+        }
+
         assert( type._statement);
         assert(!type._statement_else || (type._id != language::id_else));
 
-        if(return_act == action_return_t::step_in)
+        if(type._statement)
         {
-          return_val = type._statement->apply_action(act);
+          is_continuing = is_continuing && type._statement->apply_action(act);
         }
 
-        // The else statement is not considered to be a child of this conditional node so the action is applied even if the return value is step_over
-        if(return_val && type._statement_else)
+        if(type._statement_else)
         {
-          return_val = type._statement_else->apply_action(act);
+          is_continuing = is_continuing && type._statement_else->apply_action(act);
         }
       }
 
-      return return_val;
+      auto fn = [&act](T& t)
+      {
+        return act(t, false);
+      };
+
+      return is_continuing && apply_action_impl(fn, type);
     }
 
     const expression::ptr _condition;
 
-    statement::ptr  _statement;
-    statement::ptr  _statement_else;
+    statement::ptr _statement;
+    statement::ptr _statement_else;
   };
 }
 }

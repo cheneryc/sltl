@@ -1,8 +1,9 @@
 #pragma once
 
-#include "../detail/conditional_traits.h"
-
+#include <vector>
 #include <algorithm>
+
+#include <cassert>
 
 
 namespace sltl
@@ -34,35 +35,49 @@ namespace syntax
   template<typename A, typename T>
   bool apply_action_impl(A& act, T& type)
   {
-    return (act(type) != action_return_t::stop);
+    const auto act_result = act(type);
+
+    assert(act_result == action_return_t::step_out ||
+           act_result == action_return_t::stop);
+
+    return act_result != action_return_t::stop;
   }
 
-  template<typename A, typename T>
-  bool apply_action_impl(A& act, T& type, typename detail::same_const_pointer<T, node*>::type child)
+  template<typename A, typename T, typename N>
+  bool apply_action_impl(A& act, T& type, N* child)
   {
-    const auto return_act = act(type);
-    bool return_val = return_act != action_return_t::stop;
+    std::vector<N*> children;
 
-    if(return_act == action_return_t::step_in && child)
+    if(child)
     {
-      return_val = child->apply_action(act);
+      children.push_back(child);
     }
 
-    return (return_val && (act(type, false) != action_return_t::stop));
+    return apply_action_impl(act, type, children.begin(), children.end());
   }
 
   template<typename A, typename T, typename I>
   bool apply_action_impl(A& act, T& type, I it_begin, I it_end)
   {
-    const auto return_act = act(type);
-    bool return_val = return_act != action_return_t::stop;
+    const auto act_result = act(type);
 
-    if(return_act == action_return_t::step_in)
+    assert(act_result == action_return_t::step_in ||
+           act_result == action_return_t::step_over ||
+           act_result == action_return_t::stop);
+
+    bool is_continuing = act_result != action_return_t::stop;
+
+    if(act_result == action_return_t::step_in)
     {
-      return_val = std::all_of(it_begin, it_end, [&act](typename detail::same_const_reference<T, statement::ptr&>::type n){ return n->apply_action(act); });
+      is_continuing = std::all_of(it_begin, it_end, [&act](std::iterator_traits<I>::reference child){ return child->apply_action(act); });
     }
 
-    return (return_val && (act(type, false) != action_return_t::stop));
+    auto fn = [&act](T& t)
+    {
+      return act(t, false);
+    };
+
+    return is_continuing && apply_action_impl(fn, type);
   }
 }
 }

@@ -38,6 +38,16 @@ namespace syntax
     {
       _list_items.push_front(std::move(e));
     }
+
+    virtual bool apply_action(action& act) override
+    {
+      return apply_action_impl(act, *this, _list_items.begin(), _list_items.end());
+    }
+
+    virtual bool apply_action(const_action& cact) const override
+    {
+      return apply_action_impl(cact, *this, _list_items.begin(), _list_items.end());
+    }
   };
 }
 }

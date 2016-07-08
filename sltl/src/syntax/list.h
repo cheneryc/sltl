@@ -3,32 +3,32 @@
 #include "action.h"
 
 #include <deque>
-#include <algorithm>
 
 
 namespace sltl
 {
 namespace syntax
 {
-  class list_separator {};
-
   template<typename T, typename N>
   class list : public N
   {
+    static_assert(std::is_base_of<node, T>::value, "sltl::syntax::list: template parameter T must derive from sltl::syntax::node");
+    static_assert(std::is_base_of<node, N>::value, "sltl::syntax::list: template parameter N must derive from sltl::syntax::node");
+
   public:
     void add(typename T::ptr&& item)
     {
       _list_items.push_back(std::move(item));
     }
 
-    virtual bool apply_action(action& act) override
+    typename std::deque<typename T::ptr>::const_iterator begin() const
     {
-      return apply_action(act, *this);
+      return _list_items.begin();
     }
 
-    virtual bool apply_action(const_action& cact) const override
+    typename std::deque<typename T::ptr>::const_iterator end() const
     {
-      return apply_action(cact, *this);
+      return _list_items.end();
     }
 
   protected:
@@ -36,29 +36,6 @@ namespace syntax
     list(list&& l) : N(), _list_items(std::move(l._list_items)) {}
 
     std::deque<typename T::ptr> _list_items;
-
-  private:
-    template<typename A, typename TT>
-    static auto apply_action(A& act, TT& type) -> typename std::enable_if<std::is_same<typename std::remove_const<TT>::type, list>::value, bool>::type
-    {
-      bool is_continuing = true;
-
-      auto it = type._list_items.begin();
-      const auto it_end = type._list_items.end();
-
-      if(it != it_end)
-      {
-        is_continuing = (*it)->apply_action(act);
-
-        while(is_continuing && (++it != it_end))
-        {
-          list_separator ls;
-          is_continuing = (apply_action_impl(act, ls) && (*it)->apply_action(act));
-        }
-      }
-
-      return is_continuing;
-    }
   };
 }
 }

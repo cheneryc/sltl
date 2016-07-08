@@ -10,14 +10,15 @@ namespace syntax
   class io_block;
   class variable_declaration;
   class parameter_declaration;
+  class parameter_list;
   class reference;
   class temporary;
   class assignment_operator;
   class binary_operator;
   class conditional;
   class expression_statement;
+  class expression_list;
   class parentheses;
-  class list_separator;
   class function_call;
   class function_definition;
   class return_statement;
@@ -29,27 +30,29 @@ namespace syntax
   {
     step_in,
     step_over,
+    step_out,
     stop
   };
 
   class action
   {
   public:
-    virtual action_return_t operator()(syntax::block&, bool = true) { return get_default(); }
-    virtual action_return_t operator()(syntax::io_block&, bool = true) { return get_default(); }
-    virtual action_return_t operator()(syntax::variable_declaration&, bool = true) { return get_default(); }
-    virtual action_return_t operator()(syntax::parameter_declaration&) { return get_default(); }
-    virtual action_return_t operator()(syntax::reference&) { return get_default(); }
-    virtual action_return_t operator()(syntax::temporary&, bool = true) { return get_default(); }
-    virtual action_return_t operator()(syntax::assignment_operator&) { return get_default(); }
-    virtual action_return_t operator()(syntax::binary_operator&) { return get_default(); }
-    virtual action_return_t operator()(syntax::conditional&, bool = true) { return get_default(); }
-    virtual action_return_t operator()(syntax::expression_statement&, bool = true) { return get_default(); }
-    virtual action_return_t operator()(syntax::parentheses&, bool = true) { return get_default(); }
-    virtual action_return_t operator()(syntax::list_separator&) { return get_default(); }
-    virtual action_return_t operator()(syntax::function_call&, bool = true) { return get_default(); }
-    virtual action_return_t operator()(syntax::function_definition&, bool = true) { return get_default(); }
-    virtual action_return_t operator()(syntax::return_statement&, bool = true) { return get_default(); }
+    virtual action_return_t operator()(syntax::block&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(syntax::io_block&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(syntax::variable_declaration&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(syntax::parameter_declaration&) { return get_default(false); }
+    virtual action_return_t operator()(syntax::parameter_list&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(syntax::reference&) { return get_default(false); }
+    virtual action_return_t operator()(syntax::temporary&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(syntax::assignment_operator&) { return get_default(false); }
+    virtual action_return_t operator()(syntax::binary_operator&) { return get_default(false); }
+    virtual action_return_t operator()(syntax::conditional&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(syntax::expression_statement&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(syntax::expression_list&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(syntax::parentheses&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(syntax::function_call&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(syntax::function_definition&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(syntax::return_statement&, bool is_start = true) { return get_default(is_start); }
 
     template<typename T>
     action_return_t operator()(syntax::literal<T>& cd)
@@ -58,13 +61,13 @@ namespace syntax
     }
 
   protected:
-    virtual action_return_t operator()(float) { return get_default(); }
-    virtual action_return_t operator()(double) { return get_default(); }
-    virtual action_return_t operator()(int) { return get_default(); }
-    virtual action_return_t operator()(unsigned int) { return get_default(); }
-    virtual action_return_t operator()(bool) { return get_default(); }
+    virtual action_return_t operator()(float) { return get_default(false); }
+    virtual action_return_t operator()(double) { return get_default(false); }
+    virtual action_return_t operator()(int) { return get_default(false); }
+    virtual action_return_t operator()(unsigned int) { return get_default(false); }
+    virtual action_return_t operator()(bool) { return get_default(false); }
 
-    virtual action_return_t get_default() = 0;
+    virtual action_return_t get_default(bool is_start) = 0;
   };
 
   template<typename T>
@@ -77,21 +80,22 @@ namespace syntax
   class const_action
   {
   public:
-    virtual action_return_t operator()(const syntax::block&, bool = true) { return get_default(); }
-    virtual action_return_t operator()(const syntax::io_block&, bool = true) { return get_default(); }
-    virtual action_return_t operator()(const syntax::variable_declaration&, bool = true) { return get_default(); }
-    virtual action_return_t operator()(const syntax::parameter_declaration&) { return get_default(); }
-    virtual action_return_t operator()(const syntax::reference&) { return get_default(); }
-    virtual action_return_t operator()(const syntax::temporary&, bool = true) { return get_default(); }
-    virtual action_return_t operator()(const syntax::assignment_operator&) { return get_default(); }
-    virtual action_return_t operator()(const syntax::binary_operator&) { return get_default(); }
-    virtual action_return_t operator()(const syntax::conditional&, bool = true) { return get_default(); }
-    virtual action_return_t operator()(const syntax::expression_statement&, bool = true) { return get_default(); }
-    virtual action_return_t operator()(const syntax::parentheses&, bool = true) { return get_default(); }
-    virtual action_return_t operator()(const syntax::list_separator&) { return get_default(); }
-    virtual action_return_t operator()(const syntax::function_call&, bool = true) { return get_default(); }
-    virtual action_return_t operator()(const syntax::function_definition&, bool = true) { return get_default(); }
-    virtual action_return_t operator()(const syntax::return_statement&, bool = true) { return get_default(); }
+    virtual action_return_t operator()(const syntax::block&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(const syntax::io_block&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(const syntax::variable_declaration&, bool = true) { return get_default(false); }
+    virtual action_return_t operator()(const syntax::parameter_declaration&) { return get_default(false); }
+    virtual action_return_t operator()(const syntax::parameter_list&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(const syntax::reference&) { return get_default(false); }
+    virtual action_return_t operator()(const syntax::temporary&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(const syntax::assignment_operator&) { return get_default(false); }
+    virtual action_return_t operator()(const syntax::binary_operator&) { return get_default(false); }
+    virtual action_return_t operator()(const syntax::conditional&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(const syntax::expression_statement&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(const syntax::expression_list&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(const syntax::parentheses&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(const syntax::function_call&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(const syntax::function_definition&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(const syntax::return_statement&, bool is_start = true) { return get_default(is_start); }
 
     template<typename T>
     action_return_t operator()(const syntax::literal<T>& cd)
@@ -100,13 +104,13 @@ namespace syntax
     }
 
   protected:
-    virtual action_return_t operator()(float) { return get_default(); }
-    virtual action_return_t operator()(double) { return get_default(); }
-    virtual action_return_t operator()(int) { return get_default(); }
-    virtual action_return_t operator()(unsigned int) { return get_default(); }
-    virtual action_return_t operator()(bool) { return get_default(); }
+    virtual action_return_t operator()(float) { return get_default(false); }
+    virtual action_return_t operator()(double) { return get_default(false); }
+    virtual action_return_t operator()(int) { return get_default(false); }
+    virtual action_return_t operator()(unsigned int) { return get_default(false); }
+    virtual action_return_t operator()(bool) { return get_default(false); }
 
-    virtual action_return_t get_default() = 0;
+    virtual action_return_t get_default(bool is_start) = 0;
   };
 
   template<typename T>
