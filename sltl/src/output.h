@@ -4,7 +4,11 @@
 
 #include "core/qualifier.h"
 #include "core/semantic.h"
+#include "core/shader_stage.h"
 
+#include "detail/enum_flags.h"
+
+#include <map>
 #include <string>
 #include <sstream>
 
@@ -14,7 +18,88 @@ namespace sltl
   class output : public syntax::const_action_result<std::wstring>
   {
   public:
-    output(bool is_indent_tab = true);
+    enum class layout_flags : unsigned int
+    {
+      flag_none    = 0x0,
+      flag_in      = 0x1,
+      flag_out     = flag_in  << 1,
+      flag_uniform = flag_out << 1
+    };
+
+    typedef unsigned int layout_index_t;
+
+    class layout_map_key
+    {
+    public:
+      layout_map_key(const syntax::variable_declaration& vd);
+
+      // Non-assignable
+      layout_map_key& operator=(layout_map_key&&) = delete;
+      layout_map_key& operator=(const layout_map_key&) = delete;
+
+      bool operator<(const layout_map_key& rhs) const;
+
+    private:
+      const core::semantic _s;
+      const core::semantic_index_t _idx;
+    };
+
+    class layout_map
+    {
+    public:
+      layout_map(layout_flags flag);
+      layout_map(layout_map&& map);
+
+      // Non-copyable and non-assignable
+      layout_map(const layout_map&) = delete;
+      layout_map& operator=(layout_map&&) = delete;
+      layout_map& operator=(const layout_map&) = delete;
+
+      //TODO: if the map was pre-populated then a successful insertion shouldn't be possible - should throw in this situation
+      std::pair<layout_index_t, bool> insert(const syntax::variable_declaration& vd);
+
+      bool is_layout_enabled() const;
+      bool is_layout_qualified(const syntax::variable_declaration& vd) const;
+
+      void set_location_next(layout_index_t location);
+
+      layout_index_t get_location(const syntax::variable_declaration& vd) const;
+      layout_index_t get_location_next(const syntax::variable_declaration& vd) const;
+
+      const layout_flags _flag;
+
+    private:
+      layout_index_t _location_next;
+      std::map<layout_map_key, layout_index_t> _location_map;
+    };
+
+    class layout_manager
+    {
+    public:
+      //TODO: need a way to pre-populate layout_map(s) via io::block(s)
+      layout_manager(detail::enum_flags<layout_flags> flags);
+      layout_manager(layout_manager&& manager);
+
+      // Non-copyable and non-assignable
+      layout_manager(const layout_manager&) = delete;
+      layout_manager& operator=(layout_manager&&) = delete;
+      layout_manager& operator=(const layout_manager&) = delete;
+
+      layout_map& get_layout_map(const syntax::variable_declaration& vd);
+
+    private:
+      layout_map _layout_in;
+      layout_map _layout_out;
+      layout_map _layout_uniform;
+    };
+
+    output(core::shader_stage stage, bool is_indent_tab = true);
+    output(core::shader_stage stage, layout_manager&& manager, bool is_indent_tab = true);
+
+    // Non-copyable and non-assignable
+    output(const output&) = delete;
+    output& operator=(output&&) = delete;
+    output& operator=(const output&) = delete;
 
     virtual syntax::action_return_t operator()(const syntax::block&, bool is_start = true) override;
     virtual syntax::action_return_t operator()(const syntax::io_block&, bool is_start = true) override;
@@ -51,22 +136,23 @@ namespace sltl
     size_t _indent_count;
     std::wstringstream _ss;
     bool _is_indent_tab;
+    const core::shader_stage _stage;
+
+    layout_manager _layout_manager;
   };
 
   class output_introspector : public syntax::const_action_result<std::wstring>
   {
   public:
-    output_introspector(core::qualifier_storage qualifier, core::semantic_pair semantic) :
-      _semantic(semantic._semantic),
-      _semantic_index(semantic._index),
-      _qualifier(qualifier) {}
+    output_introspector(core::shader_stage, core::qualifier_storage qualifier, core::semantic_pair semantic);
+
+    // Non-copyable and non-assignable
+    output_introspector(const output_introspector&) = delete;
+    output_introspector& operator=(output_introspector&&) = delete;
+    output_introspector& operator=(const output_introspector&) = delete;
 
     virtual syntax::action_return_t operator()(const syntax::io_block&, bool is_start = true) override;
     virtual syntax::action_return_t operator()(const syntax::variable_declaration& vd, bool is_start = true) override;
-
-    // Non-assignable
-    output_introspector& operator=(output_introspector&&) = delete;
-    output_introspector& operator=(const output_introspector&) = delete;
 
     virtual std::wstring get_result() const override;
 
@@ -81,4 +167,8 @@ namespace sltl
   private:
     std::wstring _name;
   };
+
+  // Overloaded bitwise operators make the detail::enum_flags helper class more useful
+  detail::enum_flags<output::layout_flags> operator|(detail::enum_flags<output::layout_flags> lhs, output::layout_flags rhs);
+  detail::enum_flags<output::layout_flags> operator&(detail::enum_flags<output::layout_flags> lhs, output::layout_flags rhs);
 }

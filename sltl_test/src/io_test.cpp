@@ -6,6 +6,7 @@
 #include "output.h"
 #include "scalar.h"
 #include "vector.h"
+#include "matrix.h"
 
 
 namespace
@@ -15,13 +16,19 @@ namespace
     // Prepend a newline character to exactly match the raw string literals
     return L'\n' + shader.str<sltl::output>(false);
   }
+
+  std::wstring to_string(const sltl::shader& shader, sltl::detail::enum_flags<sltl::output::layout_flags> layout_flags)
+  {
+    // Prepend a newline character to exactly match the raw string literals
+    return L'\n' + shader.str<sltl::output>(sltl::output::layout_manager(layout_flags), false);
+  }
 }
 
 TEST(io, in_single)
 {
-  typedef sltl::io::block<sltl::io::variable<sltl::scalar<float>>> io_block_in;
+  typedef sltl::io::block<sltl::io::variable<sltl::scalar<float>, sltl::core::semantic::user>> io_block_in;
 
-  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, io_block_in)
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, io_block_in)
   {
   };
 
@@ -39,16 +46,16 @@ void main()
 TEST(io, in_many)
 {
   typedef sltl::io::block<
-    sltl::io::variable<sltl::scalar<float>>,
-    sltl::io::variable<sltl::scalar<double>>,
-    sltl::io::variable<sltl::scalar<int>>,
-    sltl::io::variable<sltl::scalar<unsigned int>>,
-    sltl::io::variable<sltl::scalar<bool>>,
-    sltl::io::variable<sltl::vector<float, 2>>,
-    sltl::io::variable<sltl::vector<float, 3>>,
-    sltl::io::variable<sltl::vector<float, 4>>> io_block_in;
+    sltl::io::variable<sltl::scalar<float>, sltl::core::semantic::user, 0U>,
+    sltl::io::variable<sltl::scalar<double>, sltl::core::semantic::user, 1U>,
+    sltl::io::variable<sltl::scalar<int>, sltl::core::semantic::user, 2U>,
+    sltl::io::variable<sltl::scalar<unsigned int>, sltl::core::semantic::user, 3U>,
+    sltl::io::variable<sltl::scalar<bool>, sltl::core::semantic::user, 4U>,
+    sltl::io::variable<sltl::vector<float, 2>, sltl::core::semantic::user, 5U>,
+    sltl::io::variable<sltl::vector<float, 3>, sltl::core::semantic::user, 6U>,
+    sltl::io::variable<sltl::vector<float, 4>, sltl::core::semantic::user, 7U>> io_block_in;
 
-  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, io_block_in)
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, io_block_in)
   {
   };
 
@@ -74,7 +81,7 @@ TEST(io, in_ref_single)
 {
   typedef sltl::io::block<sltl::io::variable<sltl::vector<float, 2>, sltl::core::semantic::texcoord>> io_block_in;
 
-  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, io_block_in input)
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, io_block_in input)
   {
     sltl::vector<float, 2> local = input.get<sltl::core::semantic::texcoord>();
   };
@@ -93,9 +100,9 @@ void main()
 
 TEST(io, out_single)
 {
-  typedef sltl::io::block<sltl::io::variable<sltl::scalar<float>>> io_block_out;
+  typedef sltl::io::block<sltl::io::variable<sltl::scalar<float>, sltl::core::semantic::user>> io_block_out;
 
-  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, sltl::io::block<>)
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, sltl::io::block<>)
   {
     return io_block_out();
   };
@@ -114,16 +121,16 @@ void main()
 TEST(io, out_many)
 {
   typedef sltl::io::block<
-    sltl::io::variable<sltl::scalar<float>>,
-    sltl::io::variable<sltl::scalar<double>>,
-    sltl::io::variable<sltl::scalar<int>>,
-    sltl::io::variable<sltl::scalar<unsigned int>>,
-    sltl::io::variable<sltl::scalar<bool>>,
-    sltl::io::variable<sltl::vector<float, 2>>,
-    sltl::io::variable<sltl::vector<float, 3>>,
-    sltl::io::variable<sltl::vector<float, 4>>> io_block_out;
+    sltl::io::variable<sltl::scalar<float>, sltl::core::semantic::user, 0U>,
+    sltl::io::variable<sltl::scalar<double>, sltl::core::semantic::user, 1U>,
+    sltl::io::variable<sltl::scalar<int>, sltl::core::semantic::user, 2U>,
+    sltl::io::variable<sltl::scalar<unsigned int>, sltl::core::semantic::user, 3U>,
+    sltl::io::variable<sltl::scalar<bool>, sltl::core::semantic::user, 4U>,
+    sltl::io::variable<sltl::vector<float, 2>, sltl::core::semantic::user, 5U>,
+    sltl::io::variable<sltl::vector<float, 3>, sltl::core::semantic::user, 6U>,
+    sltl::io::variable<sltl::vector<float, 4>, sltl::core::semantic::user, 7U>> io_block_out;
 
-  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, sltl::io::block<>)
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, sltl::io::block<>)
   {
     return io_block_out();
   };
@@ -150,7 +157,7 @@ TEST(io, out_ref_single)
 {
   typedef sltl::io::block<sltl::io::variable<sltl::vector<float, 2>, sltl::core::semantic::texcoord>> io_block_out;
 
-  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, sltl::io::block<>)
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, sltl::io::block<>)
   {
     io_block_out output;
     output.get<sltl::core::semantic::texcoord>() = sltl::vector<float, 2>(0.0f, 0.0f);
@@ -171,9 +178,9 @@ void main()
 
 TEST(io, uniform_single)
 {
-  typedef sltl::io::block<sltl::io::variable<sltl::scalar<float>>> io_block_uniform;
+  typedef sltl::io::block<sltl::io::variable<sltl::scalar<float>, sltl::core::semantic::user>> io_block_uniform;
 
-  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, sltl::io::block<>)
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, sltl::io::block<>)
   {
     io_block_uniform uniform(sltl::core::qualifier_storage::uniform);
   };
@@ -192,16 +199,16 @@ void main()
 TEST(io, uniform_many)
 {
   typedef sltl::io::block<
-    sltl::io::variable<sltl::scalar<float>>,
-    sltl::io::variable<sltl::scalar<double>>,
-    sltl::io::variable<sltl::scalar<int>>,
-    sltl::io::variable<sltl::scalar<unsigned int>>,
-    sltl::io::variable<sltl::scalar<bool>>,
-    sltl::io::variable<sltl::vector<float, 2>>,
-    sltl::io::variable<sltl::vector<float, 3>>,
-    sltl::io::variable<sltl::vector<float, 4>>> io_block_uniform;
+    sltl::io::variable<sltl::scalar<float>, sltl::core::semantic::user, 0U>,
+    sltl::io::variable<sltl::scalar<double>, sltl::core::semantic::user, 1U>,
+    sltl::io::variable<sltl::scalar<int>, sltl::core::semantic::user, 2U>,
+    sltl::io::variable<sltl::scalar<unsigned int>, sltl::core::semantic::user, 3U>,
+    sltl::io::variable<sltl::scalar<bool>, sltl::core::semantic::user, 4U>,
+    sltl::io::variable<sltl::vector<float, 2>, sltl::core::semantic::user, 5U>,
+    sltl::io::variable<sltl::vector<float, 3>, sltl::core::semantic::user, 6U>,
+    sltl::io::variable<sltl::vector<float, 4>, sltl::core::semantic::user, 7U>> io_block_uniform;
 
-  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, sltl::io::block<>)
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, sltl::io::block<>)
   {
     io_block_uniform uniform(sltl::core::qualifier_storage::uniform);
   };
@@ -228,7 +235,7 @@ TEST(io, uniform_ref_single)
 {
   typedef sltl::io::block<sltl::io::variable<sltl::vector<float, 2>, sltl::core::semantic::texcoord>> io_block_uniform;
 
-  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, sltl::io::block<>)
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, sltl::io::block<>)
   {
     io_block_uniform uniform(sltl::core::qualifier_storage::uniform);
     sltl::vector<float, 2> local = uniform.get<sltl::core::semantic::texcoord>();
@@ -252,7 +259,7 @@ TEST(io, uniform_introspection)
     sltl::io::variable<sltl::vector<float, 2>, sltl::core::semantic::texcoord, 0>,
     sltl::io::variable<sltl::vector<float, 2>, sltl::core::semantic::texcoord, 1>> io_block_uniform;
 
-  auto test_shader = [](sltl::shader::tag<sltl::shader::fragment>, sltl::io::block<>)
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, sltl::io::block<>)
   {
     io_block_uniform uniform(sltl::core::qualifier_storage::uniform);
   };
@@ -272,10 +279,10 @@ TEST(io, uniform_introspection)
 
 TEST(io, inout_single)
 {
-  typedef sltl::io::block<sltl::io::variable<sltl::scalar<float>>> io_block_in;
-  typedef sltl::io::block<sltl::io::variable<sltl::scalar<float>>> io_block_out;
+  typedef sltl::io::block<sltl::io::variable<sltl::scalar<float>, sltl::core::semantic::user>> io_block_in;
+  typedef sltl::io::block<sltl::io::variable<sltl::scalar<float>, sltl::core::semantic::user>> io_block_out;
 
-  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, io_block_in)
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, io_block_in)
   {
     return io_block_out();
   };
@@ -295,26 +302,26 @@ void main()
 TEST(io, inout_many)
 {
   typedef sltl::io::block<
-    sltl::io::variable<sltl::scalar<float>>,
-    sltl::io::variable<sltl::scalar<double>>,
-    sltl::io::variable<sltl::scalar<int>>,
-    sltl::io::variable<sltl::scalar<unsigned int>>,
-    sltl::io::variable<sltl::scalar<bool>>,
-    sltl::io::variable<sltl::vector<float, 2>>,
-    sltl::io::variable<sltl::vector<float, 3>>,
-    sltl::io::variable<sltl::vector<float, 4>>> io_block_in;
+    sltl::io::variable<sltl::scalar<float>, sltl::core::semantic::user, 0U>,
+    sltl::io::variable<sltl::scalar<double>, sltl::core::semantic::user, 1U>,
+    sltl::io::variable<sltl::scalar<int>, sltl::core::semantic::user, 2U>,
+    sltl::io::variable<sltl::scalar<unsigned int>, sltl::core::semantic::user, 3U>,
+    sltl::io::variable<sltl::scalar<bool>, sltl::core::semantic::user, 4U>,
+    sltl::io::variable<sltl::vector<float, 2>, sltl::core::semantic::user, 5U>,
+    sltl::io::variable<sltl::vector<float, 3>, sltl::core::semantic::user, 6U>,
+    sltl::io::variable<sltl::vector<float, 4>, sltl::core::semantic::user, 7U>> io_block_in;
 
   typedef sltl::io::block<
-    sltl::io::variable<sltl::scalar<float>>,
-    sltl::io::variable<sltl::scalar<double>>,
-    sltl::io::variable<sltl::scalar<int>>,
-    sltl::io::variable<sltl::scalar<unsigned int>>,
-    sltl::io::variable<sltl::scalar<bool>>,
-    sltl::io::variable<sltl::vector<float, 2>>,
-    sltl::io::variable<sltl::vector<float, 3>>,
-    sltl::io::variable<sltl::vector<float, 4>>> io_block_out;
+    sltl::io::variable<sltl::scalar<float>, sltl::core::semantic::user, 0U>,
+    sltl::io::variable<sltl::scalar<double>, sltl::core::semantic::user, 1U>,
+    sltl::io::variable<sltl::scalar<int>, sltl::core::semantic::user, 2U>,
+    sltl::io::variable<sltl::scalar<unsigned int>, sltl::core::semantic::user, 3U>,
+    sltl::io::variable<sltl::scalar<bool>, sltl::core::semantic::user, 4U>,
+    sltl::io::variable<sltl::vector<float, 2>, sltl::core::semantic::user, 5U>,
+    sltl::io::variable<sltl::vector<float, 3>, sltl::core::semantic::user, 6U>,
+    sltl::io::variable<sltl::vector<float, 4>, sltl::core::semantic::user, 7U>> io_block_out;
 
-  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, io_block_in)
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, io_block_in)
   {
     return io_block_out();
   };
@@ -350,7 +357,7 @@ TEST(io, inout_ref_single)
   typedef sltl::io::block<sltl::io::variable<sltl::vector<float, 2>, sltl::core::semantic::texcoord>> io_block_in;
   typedef sltl::io::block<sltl::io::variable<sltl::vector<float, 2>, sltl::core::semantic::texcoord>> io_block_out;
 
-  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, io_block_in input)
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, io_block_in input)
   {
     io_block_out output;
     output.get<sltl::core::semantic::texcoord>() = input.get<sltl::core::semantic::texcoord>();
@@ -376,7 +383,7 @@ TEST(io, semantic_built_in)
     sltl::io::variable<sltl::vector<float, 4>, sltl::core::semantic::position>,
     sltl::io::variable<sltl::scalar<float>, sltl::core::semantic::depth>> io_block_out;
 
-  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, sltl::io::block<>)
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, sltl::io::block<>)
   {
     io_block_out output;
     output.get<sltl::core::semantic::position>() = sltl::vector<float, 4>(0.0f, 0.0f, 0.0f, 0.0f);
@@ -395,3 +402,176 @@ void main()
 
   ASSERT_EQ(expected, actual);
 }
+
+TEST(io, layout_single)
+{
+  typedef sltl::io::block<sltl::io::variable<sltl::vector<float, 4>, sltl::core::semantic::user>> io_block_in;
+  typedef sltl::io::block<sltl::io::variable<sltl::vector<float, 4>, sltl::core::semantic::user>> io_block_out;
+
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, io_block_in input)
+  {
+    return io_block_out();
+  };
+
+  const auto flags = sltl::output::layout_flags::flag_in |
+                     sltl::output::layout_flags::flag_out;
+
+  const std::wstring actual = ::to_string(sltl::make_shader(test_shader), flags);
+  const std::wstring expected = LR"(
+layout(location = 0) in vec4 i_v1;
+layout(location = 0) out vec4 o_v1;
+void main()
+{
+}
+)";
+
+  ASSERT_EQ(expected, actual);
+}
+
+TEST(io, layout_many)
+{
+  typedef sltl::io::block<
+    sltl::io::variable<sltl::scalar<float>,    sltl::core::semantic::user, 0U>,
+    sltl::io::variable<sltl::vector<float, 2>, sltl::core::semantic::user, 1U>,
+    sltl::io::variable<sltl::vector<float, 3>, sltl::core::semantic::user, 2U>,
+    sltl::io::variable<sltl::vector<float, 4>, sltl::core::semantic::user, 3U>> io_block_in;
+
+  typedef sltl::io::block<
+    sltl::io::variable<sltl::scalar<float>,    sltl::core::semantic::user, 0U>,
+    sltl::io::variable<sltl::vector<float, 2>, sltl::core::semantic::user, 1U>,
+    sltl::io::variable<sltl::vector<float, 3>, sltl::core::semantic::user, 2U>,
+    sltl::io::variable<sltl::vector<float, 4>, sltl::core::semantic::user, 3U>> io_block_out;
+
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, io_block_in input)
+  {
+    return io_block_out();
+  };
+
+  const auto flags = sltl::output::layout_flags::flag_in |
+                     sltl::output::layout_flags::flag_out;
+
+  const std::wstring actual = ::to_string(sltl::make_shader(test_shader), flags);
+  const std::wstring expected = LR"(
+layout(location = 0) in float i_f1;
+layout(location = 1) in vec2 i_v2;
+layout(location = 2) in vec3 i_v3;
+layout(location = 3) in vec4 i_v4;
+layout(location = 0) out float o_f1;
+layout(location = 1) out vec2 o_v2;
+layout(location = 2) out vec3 o_v3;
+layout(location = 3) out vec4 o_v4;
+void main()
+{
+}
+)";
+
+  ASSERT_EQ(expected, actual);
+}
+
+TEST(io, layout_many_double)
+{
+  typedef sltl::io::block<
+    sltl::io::variable<sltl::scalar<double>,    sltl::core::semantic::user, 0U>,
+    sltl::io::variable<sltl::vector<double, 2>, sltl::core::semantic::user, 1U>,
+    sltl::io::variable<sltl::vector<double, 3>, sltl::core::semantic::user, 2U>,
+    sltl::io::variable<sltl::vector<double, 4>, sltl::core::semantic::user, 3U>> io_block_in;
+
+  typedef sltl::io::block<
+    sltl::io::variable<sltl::scalar<double>,    sltl::core::semantic::user, 0U>,
+    sltl::io::variable<sltl::vector<double, 2>, sltl::core::semantic::user, 1U>,
+    sltl::io::variable<sltl::vector<double, 3>, sltl::core::semantic::user, 2U>,
+    sltl::io::variable<sltl::vector<double, 4>, sltl::core::semantic::user, 3U>> io_block_out;
+
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, io_block_in input)
+  {
+    return io_block_out();
+  };
+
+  const auto flags = sltl::output::layout_flags::flag_in |
+                     sltl::output::layout_flags::flag_out;
+
+  const std::wstring actual = ::to_string(sltl::make_shader(test_shader), flags);
+  const std::wstring expected = LR"(
+layout(location = 0) in double i_d1;
+layout(location = 1) in dvec2 i_v2;
+layout(location = 2) in dvec3 i_v3;
+layout(location = 4) in dvec4 i_v4;
+layout(location = 0) out double o_d1;
+layout(location = 1) out dvec2 o_v2;
+layout(location = 2) out dvec3 o_v3;
+layout(location = 4) out dvec4 o_v4;
+void main()
+{
+}
+)";
+
+  ASSERT_EQ(expected, actual);
+}
+
+TEST(io, layout_matrix)
+{
+  typedef sltl::io::block<
+    sltl::io::variable<sltl::matrix<float, 2, 2>, sltl::core::semantic::user, 0U>,
+    sltl::io::variable<sltl::matrix<float, 2, 3>, sltl::core::semantic::user, 1U>,
+    sltl::io::variable<sltl::matrix<float, 2, 4>, sltl::core::semantic::user, 2U>,
+    sltl::io::variable<sltl::matrix<float, 3, 2>, sltl::core::semantic::user, 3U>,
+    sltl::io::variable<sltl::matrix<float, 3>,    sltl::core::semantic::user, 4U>,
+    sltl::io::variable<sltl::matrix<float, 4, 2>, sltl::core::semantic::user, 5U>,
+    sltl::io::variable<sltl::matrix<float, 4>,    sltl::core::semantic::user, 6U>> io_block_in;
+
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, io_block_in input)
+  {
+  };
+
+  const std::wstring actual = ::to_string(sltl::make_shader(test_shader), sltl::output::layout_flags::flag_in);
+  const std::wstring expected = LR"(
+layout(location = 0) in mat2x2 i_m1;
+layout(location = 2) in mat3x2 i_m2;
+layout(location = 5) in mat4x2 i_m3;
+layout(location = 9) in mat2x3 i_m4;
+layout(location = 11) in mat3x3 i_m5;
+layout(location = 14) in mat2x4 i_m6;
+layout(location = 16) in mat4x4 i_m7;
+void main()
+{
+}
+)";
+
+  ASSERT_EQ(expected, actual);
+}
+
+TEST(io, layout_matrix_double)
+{
+  typedef sltl::io::block<
+    sltl::io::variable<sltl::matrix<double, 2, 2>, sltl::core::semantic::user, 0U>,
+    sltl::io::variable<sltl::matrix<double, 2, 3>, sltl::core::semantic::user, 1U>,
+    sltl::io::variable<sltl::matrix<double, 2, 4>, sltl::core::semantic::user, 2U>,
+    sltl::io::variable<sltl::matrix<double, 3, 2>, sltl::core::semantic::user, 3U>,
+    sltl::io::variable<sltl::matrix<double, 3>,    sltl::core::semantic::user, 4U>,
+    sltl::io::variable<sltl::matrix<double, 4, 2>, sltl::core::semantic::user, 5U>,
+    sltl::io::variable<sltl::matrix<double, 4>,    sltl::core::semantic::user, 6U>> io_block_in;
+
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, io_block_in input)
+  {
+  };
+
+  const std::wstring actual = ::to_string(sltl::make_shader(test_shader), sltl::output::layout_flags::flag_in);
+  const std::wstring expected = LR"(
+layout(location = 0) in dmat2x2 i_m1;
+layout(location = 2) in dmat3x2 i_m2;
+layout(location = 5) in dmat4x2 i_m3;
+layout(location = 9) in dmat2x3 i_m4;
+layout(location = 13) in dmat3x3 i_m5;
+layout(location = 19) in dmat2x4 i_m6;
+layout(location = 23) in dmat4x4 i_m7;
+void main()
+{
+}
+)";
+
+  ASSERT_EQ(expected, actual);
+}
+
+//TODO: add tests for uniform variables
+
+//TODO: add tests for 'skipping' locations using semantic::none

@@ -30,7 +30,7 @@ TEST(shader, empty)
 
 TEST(shader, empty_shader)
 {
-  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, sltl::io::block<>){};
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, sltl::io::block<>){};
 
   const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
   const std::wstring expected = LR"(

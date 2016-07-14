@@ -12,7 +12,8 @@ namespace core
     depth,
     normal,
     texcoord,
-    target
+    target,
+    user
   };
 
   typedef unsigned short semantic_index_t;

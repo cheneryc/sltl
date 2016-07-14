@@ -1,8 +1,10 @@
 #include "shader.h"
 #include "output.h"
 
-#include "core/qualifier.h"
 #include "io/io.h"
+
+#include "core/qualifier.h"
+#include "core/shader_stage.h"
 
 #include <iostream>
 
@@ -11,7 +13,7 @@ namespace
 {
   using namespace sltl;
 
-  io::block<> shader_fn(shader::tag<shader::test>, io::block<>)
+  io::block<> shader_fn(shader::tag<core::shader_stage::test>, io::block<>)
   {
     return io::block<>(core::qualifier_storage::out);
   }

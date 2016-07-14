@@ -46,7 +46,7 @@ namespace
 
 TEST(call, call_fn_empty_returns_void)
 {
-  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, io_block_empty) -> void
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, io_block_empty) -> void
   {
     sltl::call(fn_empty_returns_void);
   };
@@ -68,7 +68,7 @@ void main()
 
 TEST(call, call_fn_empty_returns_int)
 {
-  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, io_block_empty) -> void
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, io_block_empty) -> void
   {
     sltl::call(fn_empty_returns_int);
   };
@@ -91,7 +91,7 @@ void main()
 
 TEST(call, call_with_assignment_fn_empty_returns_int)
 {
-  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, io_block_empty) -> void
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, io_block_empty) -> void
   {
     sltl::scalar<int> test_assignment = sltl::call(fn_empty_returns_int);
   };
@@ -114,7 +114,7 @@ void main()
 
 TEST(call, call_with_assignment_fn_empty_returns_vector)
 {
-  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, io_block_empty) -> void
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, io_block_empty) -> void
   {
     sltl::vector<float, 3> test_assignment = sltl::call(fn_empty_returns_vector);
   };
@@ -137,7 +137,7 @@ void main()
 
 TEST(call, call_with_assignment_fn_empty_returns_vector_default)
 {
-  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, io_block_empty) -> void
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, io_block_empty) -> void
   {
     sltl::vector<float, 3> test_assignment = sltl::call(fn_empty_returns_vector_default);
   };
@@ -160,7 +160,7 @@ void main()
 
 TEST(call, call_with_assignment_fn_simple_returns_vector_variable_reference)
 {
-  auto test_shader = [](sltl::shader::tag<sltl::shader::test>, io_block_empty) -> void
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, io_block_empty) -> void
   {
     sltl::vector<float, 3> test_assignment = sltl::call(fn_simple_returns_vector_variable_reference);
   };

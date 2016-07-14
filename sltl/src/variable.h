@@ -2,10 +2,10 @@
 
 #include "element.h"
 
+#include "syntax/expression.h"
+
 #include "core/semantic.h"
 #include "core/qualifier.h"
-
-#include "syntax/expression.h"
 
 
 namespace sltl

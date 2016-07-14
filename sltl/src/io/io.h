@@ -1,10 +1,10 @@
 #pragma once
 
-#include "core/qualifier.h"
-#include "core/semantic.h"
-
 #include "syntax/io_block.h"
 #include "syntax/io_block_manager.h"
+
+#include "core/qualifier.h"
+#include "core/semantic.h"
 
 #include "detail/variadic_algorithm.h"
 
@@ -21,14 +21,18 @@ namespace io
   public:
     variable_key(core::semantic s, core::semantic_index_t index) : _s(s), _idx(index) {}
 
+    // Non-assignable
+    variable_key& operator=(variable_key&&) = delete;
+    variable_key& operator=(const variable_key&) = delete;
+
     bool operator<(const variable_key& rhs) const
     {
       return ((_s < rhs._s) || (!(rhs._s < _s) && (_idx < rhs._idx)));
     }
 
   private:
-    core::semantic _s;
-    core::semantic_index_t _idx;
+    const core::semantic _s;
+    const core::semantic_index_t _idx;
   };
 
   // Types deriving from sltl::variable don't define virtual destructors so

@@ -3,13 +3,13 @@
 #include "traits.h"
 #include "variable.h"
 
-#include "core/semantic.h"
-#include "core/qualifier.h"
-
 #include "syntax/literal.h"
 #include "syntax/operator.h"
 #include "syntax/reference.h"
 #include "syntax/expression_statement.h"
+
+#include "core/semantic.h"
+#include "core/qualifier.h"
 
 #include "detail/variadic_traits.h"
 
