@@ -11,19 +11,10 @@ namespace sltl
 {
 namespace syntax
 {
-  //TODO: maybe have a less generic class e.g. binary_operator, unary_operator etc?
   class operator_base : public expression
   {
   protected:
-    operator_base(expression::ptr&& lhs, expression::ptr&& rhs) : expression(),
-      _lhs(add_parentheses(std::move(lhs))),
-      _rhs(add_parentheses(std::move(rhs))) {}
-
-    const expression::ptr _lhs;
-    const expression::ptr _rhs;
-
-  private:
-    expression::ptr add_parentheses(expression::ptr&& e)
+    static expression::ptr add_parentheses(expression::ptr&& e)
     {
       if(dynamic_cast<operator_base*>(e.get()))
       {
@@ -36,36 +27,46 @@ namespace syntax
     }
   };
 
-  class binary_operator : public operator_base
+  template<typename E>
+  class operator_base_id : public operator_base
   {
+    static_assert(std::is_enum<E>::value, "sltl::syntax::operator_base_id: template parameter E must be an enumeration type.");
+
   public:
-    binary_operator(language::operator_id id, expression::ptr&& lhs, expression::ptr&& rhs) : operator_base(std::move(lhs), std::move(rhs)), _id(id) {}
+    const E _operator_id;
 
-    virtual bool apply_action(action& act) override
-    {
-      return apply_action(act, *this);
-    }
-
-    virtual bool apply_action(const_action& cact) const override
-    {
-      return apply_action(cact, *this);
-    }
-
-    const language::operator_id _id;
-
-  private:
-    template<typename A, typename T>
-    static auto apply_action(A& act, T& type) -> typename std::enable_if<std::is_same<typename std::remove_const<T>::type, binary_operator>::value, bool>::type
-    {
-      return (type._lhs->apply_action(act) && apply_action_impl(act, type) && type._rhs->apply_action(act));
-    }
+  protected:
+    operator_base_id(E operator_id) : _operator_id(operator_id) {}
   };
 
-  //TODO: can combine the binary and assignment operator classes into one?
-  class assignment_operator : public operator_base
+  class operator_unary : public operator_base_id<language::operator_unary_id>
   {
+    typedef operator_base_id<language::operator_unary_id> super_t;
+
   public:
-    assignment_operator(language::assignment_operator_id id, expression::ptr&& lhs, expression::ptr&& rhs) : operator_base(std::move(lhs), std::move(rhs)), _id(id) {}
+    operator_unary(language::operator_unary_id id, expression::ptr&& operand) : super_t(id), _operand(add_parentheses(std::move(operand))) {}
+
+    virtual bool apply_action(action& act) override
+    {
+      return apply_action_impl(act, *this, _operand.get());
+    }
+
+    virtual bool apply_action(const_action& cact) const override
+    {
+      return apply_action_impl(cact, *this, _operand.get());
+    }
+
+    const expression::ptr _operand;
+  };
+
+  class operator_binary : public operator_base_id<language::operator_binary_id>
+  {
+    typedef operator_base_id<language::operator_binary_id> super_t;
+
+  public:
+    operator_binary(language::operator_binary_id id, expression::ptr&& lhs, expression::ptr&& rhs) : super_t(id),
+      _operand_lhs(add_parentheses(std::move(lhs))),
+      _operand_rhs(add_parentheses(std::move(rhs))) {}
 
     virtual bool apply_action(action& act) override
     {
@@ -77,13 +78,21 @@ namespace syntax
       return apply_action(cact, *this);
     }
 
-    const language::assignment_operator_id _id;
+    const expression::ptr _operand_lhs;
+    const expression::ptr _operand_rhs;
 
   private:
     template<typename A, typename T>
-    static auto apply_action(A& act, T& type) -> typename std::enable_if<std::is_same<typename std::remove_const<T>::type, assignment_operator>::value, bool>::type
+    static auto apply_action(A& act, T& type) -> typename std::enable_if<std::is_same<typename std::remove_const<T>::type, operator_binary>::value, bool>::type
     {
-      return (type._lhs->apply_action(act) && apply_action_impl(act, type) && type._rhs->apply_action(act));
+      expression* op_lhs = type._operand_lhs.get();
+      expression* op_rhs = type._operand_rhs.get();
+      expression* ops[] = { op_lhs, op_rhs };
+
+      assert(op_lhs);
+      assert(op_rhs);
+
+      return apply_action_impl(act, type, std::begin(ops), std::end(ops));
     }
   };
 }

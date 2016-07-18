@@ -331,16 +331,60 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::temporary& t, b
                     ns::syntax::action_return_t::step_out;
 }
 
-ns::syntax::action_return_t ns::output::operator()(const syntax::assignment_operator& op)
+ns::syntax::action_return_t ns::output::operator()(const syntax::operator_unary& ou, bool is_start)
 {
-  _ss << L' ' << language::to_assignment_operator_string(op._id) << ' ';
-  return ns::syntax::action_return_t::step_out;
+  ns::syntax::action_return_t return_val;
+
+  if(is_start)
+  {
+    if(language::is_prefix_operator(ou._operator_id))
+    {
+      _ss << language::to_operator_unary_string(ou._operator_id);
+    }
+
+    return_val = syntax::action_return_t::step_in;
+  }
+  else
+  {
+    if(language::is_postfix_operator(ou._operator_id))
+    {
+      _ss << language::to_operator_unary_string(ou._operator_id);
+    }
+
+    return_val = syntax::action_return_t::step_out;
+  }
+
+  return return_val;
 }
 
-ns::syntax::action_return_t ns::output::operator()(const syntax::binary_operator& op)
+ns::syntax::action_return_t ns::output::operator()(const syntax::operator_binary& ob, bool is_start)
 {
-  _ss << L' ' << language::to_operator_string(op._id) << ' ';
-  return ns::syntax::action_return_t::step_out;
+  ns::syntax::action_return_t return_val;
+
+  if(is_start)
+  {
+    bool is_continuing = false;
+
+    if(ob._operand_lhs->apply_action(*this))
+    {
+      _ss << L' ';
+      _ss << language::to_operator_binary_string(ob._operator_id);
+      _ss << L' ';
+
+      is_continuing = ob._operand_rhs->apply_action(*this);
+    }
+
+    // The 'success' return value is 'step_over' as all child nodes have already been traversed
+    return_val = (is_continuing ?
+      ns::syntax::action_return_t::step_over :
+      ns::syntax::action_return_t::stop);
+  }
+  else
+  {
+    return_val = ns::syntax::action_return_t::step_out;
+  }
+
+  return return_val;
 }
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::conditional& c, bool is_start)

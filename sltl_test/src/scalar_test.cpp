@@ -203,3 +203,95 @@ TEST(scalar, subtraction_operator)
 
   ASSERT_EQ(expected, actual);
 }
+
+TEST(scalar, prefix_operators)
+{
+  auto test_shader = []()
+  {
+    sltl::scalar<float> ftest1;
+    sltl::scalar<float> ftest2 = ++ftest1;
+    sltl::scalar<float> ftest3 = --ftest2;
+
+    ++ftest3;
+    ++(ftest1 + ftest2);
+    --ftest3;
+    --(ftest1 - ftest2);
+
+    sltl::scalar<int> itest1;
+    sltl::scalar<int> itest2 = ++itest1;
+    sltl::scalar<int> itest3 = --itest2;
+
+    ++itest3;
+    ++(itest1 + itest2);
+    --itest3;
+    --(itest1 - itest2);
+  };
+
+  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
+  const std::wstring expected = LR"(
+{
+  float f1;
+  float f2(++f1);
+  float f3(--f2);
+  ++f3;
+  ++(f1 + f2);
+  --f3;
+  --(f1 - f2);
+  int i4;
+  int i5(++i4);
+  int i6(--i5);
+  ++i6;
+  ++(i4 + i5);
+  --i6;
+  --(i4 - i5);
+}
+)";
+
+  ASSERT_EQ(expected, actual);
+}
+
+TEST(scalar, postfix_operators)
+{
+  auto test_shader = []()
+  {
+    sltl::scalar<float> ftest1;
+    sltl::scalar<float> ftest2 = ftest1++;
+    sltl::scalar<float> ftest3 = ftest2--;
+
+    ftest3++;
+    (ftest1 + ftest2)++;
+    ftest3--;
+    (ftest1 - ftest2)--;
+
+    sltl::scalar<int> itest1;
+    sltl::scalar<int> itest2 = itest1++;
+    sltl::scalar<int> itest3 = itest2--;
+
+    itest3++;
+    (itest1 + itest2)++;
+    itest3--;
+    (itest1 - itest2)--;
+  };
+
+  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
+  const std::wstring expected = LR"(
+{
+  float f1;
+  float f2(f1++);
+  float f3(f2--);
+  f3++;
+  (f1 + f2)++;
+  f3--;
+  (f1 - f2)--;
+  int i4;
+  int i5(i4++);
+  int i6(i5--);
+  i6++;
+  (i4 + i5)++;
+  i6--;
+  (i4 - i5)--;
+}
+)";
+
+  ASSERT_EQ(expected, actual);
+}

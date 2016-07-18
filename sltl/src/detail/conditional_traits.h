@@ -16,5 +16,8 @@ namespace detail
   {
     typedef T2 type;
   };
+
+  template<typename T>
+  using negate = typename conditional<T::value, std::false_type, std::true_type>::type;
 }
 }

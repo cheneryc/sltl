@@ -162,16 +162,23 @@ namespace language
     type_helper() : type_helper<T>({D...}) {}
   };
 
-  enum operator_id
+  enum operator_unary_id
+  {
+    id_increment_pre,
+    id_increment_post,
+    id_decrement_pre,
+    id_decrement_post
+  };
+
+  bool is_prefix_operator(operator_unary_id id);
+  bool is_postfix_operator(operator_unary_id id);
+
+  enum operator_binary_id
   {
     id_addition,
     id_subtraction,
     id_multiplication,
-    id_division
-  };
-
-  enum assignment_operator_id
-  {
+    id_division,
     id_assignment,
     id_assignment_addition,
     id_assignment_subtraction,
@@ -194,8 +201,8 @@ namespace language
   std::wstring to_type_string(const type& t);
   std::wstring to_type_prefix_string(const type& t);
 
-  const wchar_t* to_operator_string(operator_id id);
-  const wchar_t* to_assignment_operator_string(assignment_operator_id id);
+  const wchar_t* to_operator_unary_string(operator_unary_id id);
+  const wchar_t* to_operator_binary_string(operator_binary_id id);
   const wchar_t* to_conditional_string(conditional_id id);
   const wchar_t* to_keyword_string(keyword_id id);
   const wchar_t* to_qualifier_string(core::qualifier_storage id);

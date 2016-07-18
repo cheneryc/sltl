@@ -10,6 +10,16 @@ namespace
   namespace ns = sltl::language;
 }
 
+bool ns::is_prefix_operator(operator_unary_id id)
+{
+  return ((id == ns::id_increment_pre) || (id == ns::id_decrement_pre));
+}
+
+bool ns::is_postfix_operator(operator_unary_id id)
+{
+  return ((id == ns::id_increment_post) || (id == ns::id_decrement_post));
+}
+
 std::wstring ns::to_type_string(const type& t)
 {
   std::wstringstream ss;
@@ -156,37 +166,43 @@ std::wstring ns::to_type_prefix_string(const type& t)
   return std::move(prefix_string);
 }
 
-const wchar_t* ns::to_operator_string(operator_id id)
+const wchar_t* ns::to_operator_unary_string(operator_unary_id id)
 {
   switch(id)
   {
-  case id_addition:
-    return L"+";
-   case id_subtraction:
-    return L"-";
-   case id_multiplication:
-    return L"*";
-   case id_division:
-    return L"/";
+  case id_increment_pre:
+  case id_increment_post:
+    return L"++";
+   case id_decrement_pre:
+   case id_decrement_post:
+    return L"--";
   }
 
   return nullptr;
 }
 
-const wchar_t* ns::to_assignment_operator_string(assignment_operator_id id)
+const wchar_t* ns::to_operator_binary_string(operator_binary_id id)
 {
   switch(id)
   {
-  case id_assignment:
-    return L"=";
-  case id_assignment_addition:
-    return L"+=";
-   case id_assignment_subtraction:
-    return L"-=";
-   case id_assignment_multiplication:
-    return L"*=";
-   case id_assignment_division:
-    return L"/=";
+    case id_addition:
+      return L"+";
+    case id_subtraction:
+      return L"-";
+    case id_multiplication:
+      return L"*";
+    case id_division:
+      return L"/";
+    case id_assignment:
+      return L"=";
+    case id_assignment_addition:
+      return L"+=";
+    case id_assignment_subtraction:
+      return L"-=";
+    case id_assignment_multiplication:
+      return L"*=";
+    case id_assignment_division:
+      return L"/=";
   }
 
   return nullptr;

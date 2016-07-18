@@ -11,6 +11,7 @@
 #include "core/semantic.h"
 #include "core/qualifier.h"
 
+#include "detail/conditional_traits.h"
 #include "detail/variadic_traits.h"
 
 #include <cassert>
@@ -69,7 +70,7 @@ namespace sltl
         // occur (if it does then it will put the tree in an invalid/corrupt state)
         assert(this != &p);
 
-        return make_proxy<syntax::assignment_operator>(language::id_assignment, move(), p.move());
+        return make_proxy<syntax::operator_binary>(language::id_assignment, move(), p.move());
       }
     };
 
@@ -93,30 +94,62 @@ namespace sltl
         // occur (if it does then it will put the tree in an invalid/corrupt state)
         assert(this != &p);
 
-        return make_proxy<syntax::assignment_operator>(language::id_assignment, move(), p.move());
+        return make_proxy<syntax::operator_binary>(language::id_assignment, move(), p.move());
       }
     };
 
     typedef proxy_t<detail::is_empty<D...>::value> proxy;
 
+    // unary operator overloads
+
+    friend proxy operator++(proxy&& p)
+    {
+      static_assert(detail::negate<std::is_same<T, bool>>::value, "sltl::basic: prefix increment and decrement operators are not valid if template parameter T is type bool");
+
+      return make_proxy<syntax::operator_unary>(language::id_increment_pre, p.move());
+    }
+
+    friend proxy operator--(proxy&& p)
+    {
+      static_assert(detail::negate<std::is_same<T, bool>>::value, "sltl::basic: prefix increment and decrement operators are not valid if template parameter T is type bool");
+
+      return make_proxy<syntax::operator_unary>(language::id_decrement_pre, p.move());
+    }
+
+    friend proxy operator++(proxy&& p, int)
+    {
+      static_assert(detail::negate<std::is_same<T, bool>>::value, "sltl::basic: postfix increment and decrement operators are not valid if template parameter T is type bool");
+
+      return make_proxy<syntax::operator_unary>(language::id_increment_post, p.move());
+    }
+
+    friend proxy operator--(proxy&& p, int)
+    {
+      static_assert(detail::negate<std::is_same<T, bool>>::value, "sltl::basic: postfix increment and decrement operators are not valid if template parameter T is type bool");
+
+      return make_proxy<syntax::operator_unary>(language::id_decrement_post, p.move());
+    }
+
+    // binary operator overloads
+
     proxy operator+=(proxy&& p)
     {
-      return make_proxy<syntax::assignment_operator>(language::id_assignment_addition, make_reference(), p.move());
+      return make_proxy<syntax::operator_binary>(language::id_assignment_addition, make_reference(), p.move());
     }
 
     friend proxy operator+(proxy&& lhs, proxy&& rhs)
     {
-      return make_proxy<syntax::binary_operator>(language::id_addition, lhs.move(), rhs.move());
+      return make_proxy<syntax::operator_binary>(language::id_addition, lhs.move(), rhs.move());
     }
 
     proxy operator-=(proxy&& p)
     {
-      return make_proxy<syntax::assignment_operator>(language::id_assignment_subtraction, make_reference(), p.move());
+      return make_proxy<syntax::operator_binary>(language::id_assignment_subtraction, make_reference(), p.move());
     }
 
     friend proxy operator-(proxy&& lhs, proxy&& rhs)
     {
-      return make_proxy<syntax::binary_operator>(language::id_subtraction, lhs.move(), rhs.move());
+      return make_proxy<syntax::operator_binary>(language::id_subtraction, lhs.move(), rhs.move());
     }
 
   protected:
