@@ -44,19 +44,19 @@ namespace sltl
     }
 
     template<int N, typename ...A>
-    syntax::expression_list unpack(typename sltl::vector<T, 2>::proxy&& p, A&&... a)
+    syntax::expression_list unpack(typename vector<T, 2>::proxy&& p, A&&... a)
     {
       return syntax::expression_list(p.move(), unpack<N - 2>(std::forward<A>(a)...));
     }
 
     template<int N, typename ...A>
-    syntax::expression_list unpack(typename sltl::vector<T, 3>::proxy&& p, A&&... a)
+    syntax::expression_list unpack(typename vector<T, 3>::proxy&& p, A&&... a)
     {
       return syntax::expression_list(p.move(), unpack<N - 3>(std::forward<A>(a)...));
     }
 
     template<int N, typename ...A>
-    syntax::expression_list unpack(typename sltl::vector<T, 4>::proxy&& p, A&&... a)
+    syntax::expression_list unpack(typename vector<T, 4>::proxy&& p, A&&... a)
     {
       return syntax::expression_list(p.move(), unpack<N - 4>(std::forward<A>(a)...));
     }

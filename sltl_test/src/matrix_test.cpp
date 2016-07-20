@@ -79,3 +79,55 @@ TEST(matrix, variable_naming)
 
   ASSERT_EQ(expected, actual);
 }
+
+TEST(matrix, operator_multiplication)
+{
+  auto test_shader = []()
+  {
+    sltl::matrix<float, 4, 3> m1;
+    sltl::matrix<float, 3, 2> m2;
+    sltl::matrix<float, 4, 2> m3 = m1 * m2;
+    sltl::matrix<float, 2, 3> m4;
+    sltl::matrix<float, 4, 3> m5 = (m1 * m2) * m4;
+    sltl::matrix<float, 4, 2> m6 = (m1 * m2) * (m4 * m2);
+    sltl::matrix<float, 4, 4> m7 = (m1 * m2) * sltl::matrix<float, 2, 4>();
+  };
+
+  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
+  const std::wstring expected = LR"(
+{
+  mat3x4 m1;
+  mat2x3 m2;
+  mat2x4 m3(m1 * m2);
+  mat3x2 m4;
+  mat3x4 m5((m1 * m2) * m4);
+  mat2x4 m6((m1 * m2) * (m4 * m2));
+  mat4x4 m8((m1 * m2) * mat4x2());
+}
+)";
+
+  ASSERT_EQ(expected, actual);
+}
+
+TEST(matrix, operator_multiplication_vector)
+{
+  auto test_shader = []()
+  {
+    sltl::matrix<float, 4, 3> m1;
+    sltl::vector<float, 4> v1;
+    sltl::vector<float, 3> v2 = v1 * m1;
+    sltl::vector<float, 3> v3 = sltl::vector<float, 4>() * m1;
+  };
+
+  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
+  const std::wstring expected = LR"(
+{
+  mat3x4 m1;
+  vec4 v2;
+  vec3 v3(v2 * m1);
+  vec3 v5(vec4() * m1);
+}
+)";
+
+  ASSERT_EQ(expected, actual);
+}

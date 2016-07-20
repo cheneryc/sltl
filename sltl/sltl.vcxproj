@@ -22,6 +22,7 @@
     <ClInclude Include="src\detail\variadic_algorithm.h" />
     <ClInclude Include="src\detail\variadic_traits.h" />
     <ClInclude Include="src\element.h" />
+    <ClInclude Include="src\expression\expression.h" />
     <ClInclude Include="src\if.h" />
     <ClInclude Include="src\io\io.h" />
     <ClInclude Include="src\language.h" />

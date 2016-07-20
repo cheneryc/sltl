@@ -31,6 +31,9 @@
     <Filter Include="Source Files\core">
       <UniqueIdentifier>{0756941c-f505-499a-8dd2-6f75f7ad9520}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\expression">
+      <UniqueIdentifier>{61dcc72a-b82c-4b0b-a9f2-cad8f2d638c4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\scope.h">
@@ -176,6 +179,9 @@
     </ClInclude>
     <ClInclude Include="src\core\shader_stage.h">
       <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\expression\expression.h">
+      <Filter>Header Files\expression</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

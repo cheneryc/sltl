@@ -10,7 +10,7 @@ namespace sltl
   //TODO: add bool template parameter for switching from row-major/vector to column-major/vector?
 
   template<typename T, size_t M, size_t N = M>
-  class matrix : basic<sltl::matrix, T, M, N>
+  class matrix : public basic<sltl::matrix, T, M, N>
   {
     static_assert(is_real<T>::value, "sltl::matrix: Type T is not a valid template parameter type");
     static_assert((M >=2) && (M <= 4), "sltl::matrix: template parameter M is only valid for values of 2, 3 and 4");
@@ -52,19 +52,19 @@ namespace sltl
     }
 
     template<int N, typename ...A>
-    syntax::expression_list unpack(typename sltl::vector<T, 2>::proxy&& p, A&&... a)
+    syntax::expression_list unpack(typename vector<T, 2>::proxy&& p, A&&... a)
     {
       return syntax::expression_list(p.move(), unpack<N - 2>(std::forward<A>(a)...));
     }
 
     template<int N, typename ...A>
-    syntax::expression_list unpack(typename sltl::vector<T, 3>::proxy&& p, A&&... a)
+    syntax::expression_list unpack(typename vector<T, 3>::proxy&& p, A&&... a)
     {
       return syntax::expression_list(p.move(), unpack<N - 3>(std::forward<A>(a)...));
     }
 
     template<int N, typename ...A>
-    syntax::expression_list unpack(typename sltl::vector<T, 4>::proxy&& p, A&&... a)
+    syntax::expression_list unpack(typename vector<T, 4>::proxy&& p, A&&... a)
     {
       return syntax::expression_list(p.move(), unpack<N - 4>(std::forward<A>(a)...));
     }
@@ -80,4 +80,45 @@ namespace sltl
 
     static const size_t elements = M * N;
   };
+
+  namespace detail
+  {
+    template<template<typename, size_t...> class V, typename T, size_t ...D>
+    auto as_proxy(V<T, D...>&& v) -> expression::expression<V, T, D...>
+    {
+      return expression::expression<V, T, D...>(std::move(v));
+    }
+
+    template<template<typename, size_t...> class V, typename T, size_t ...D>
+    auto as_proxy(const V<T, D...>& v) -> expression::expression<V, T, D...>
+    {
+      return expression::expression<V, T, D...>(v);
+    }
+
+    template<template<typename, size_t...> class V, typename T, size_t ...D>
+    auto as_proxy(expression::expression<V, T, D...>&& p) -> expression::expression<V, T, D...>
+    {
+      return std::move(p);
+    }
+
+    // vector * matrix
+    template<typename T, size_t M, size_t N>
+    auto as_proxy_mul(expression::expression<vector, T, M>&& lhs, expression::expression<matrix, T, M, N>&& rhs) -> expression::expression<vector, T, N>
+    {
+      return expression::expression<vector, T, N>(syntax::expression::make<syntax::operator_binary>(language::id_multiplication, lhs.move(), rhs.move()));
+    }
+
+    // matrix * matrix
+    template<typename T, size_t M, size_t N, size_t P>
+    auto as_proxy_mul(expression::expression<matrix, T, M, N>&& lhs, expression::expression<matrix, T, N, P>&& rhs) -> expression::expression<matrix, T, M, P>
+    {
+      return expression::expression<matrix, T, M, P>(syntax::expression::make<syntax::operator_binary>(language::id_multiplication, lhs.move(), rhs.move()));
+    }
+  }
+
+  template<typename T1, typename T2>
+  auto operator*(T1&& lhs, T2&& rhs) -> decltype(detail::as_proxy_mul(detail::as_proxy(std::forward<T1>(lhs)), detail::as_proxy(std::forward<T2>(rhs))))
+  {
+    return detail::as_proxy_mul(detail::as_proxy(std::forward<T1>(lhs)), detail::as_proxy(std::forward<T2>(rhs)));
+  }
 }

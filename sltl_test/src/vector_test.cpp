@@ -284,3 +284,95 @@ TEST(vector, subtraction_operator)
 
   ASSERT_EQ(expected, actual);
 }
+
+TEST(vector, prefix_operators)
+{
+  auto test_shader = []()
+  {
+    sltl::vector<float, 4> ftest1;
+    sltl::vector<float, 4> ftest2 = ++ftest1;
+    sltl::vector<float, 4> ftest3 = --ftest2;
+
+    ++ftest3;
+    ++(ftest1 + ftest2);
+    --ftest3;
+    --(ftest1 - ftest2);
+
+    sltl::vector<int, 4> itest1;
+    sltl::vector<int, 4> itest2 = ++itest1;
+    sltl::vector<int, 4> itest3 = --itest2;
+
+    ++itest3;
+    ++(itest1 + itest2);
+    --itest3;
+    --(itest1 - itest2);
+  };
+
+  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
+  const std::wstring expected = LR"(
+{
+  vec4 v1;
+  vec4 v2(++v1);
+  vec4 v3(--v2);
+  ++v3;
+  ++(v1 + v2);
+  --v3;
+  --(v1 - v2);
+  ivec4 v4;
+  ivec4 v5(++v4);
+  ivec4 v6(--v5);
+  ++v6;
+  ++(v4 + v5);
+  --v6;
+  --(v4 - v5);
+}
+)";
+
+  ASSERT_EQ(expected, actual);
+}
+
+TEST(vector, postfix_operators)
+{
+  auto test_shader = []()
+  {
+    sltl::vector<float, 4> ftest1;
+    sltl::vector<float, 4> ftest2 = ftest1++;
+    sltl::vector<float, 4> ftest3 = ftest2--;
+
+    ftest3++;
+    (ftest1 + ftest2)++;
+    ftest3--;
+    (ftest1 - ftest2)--;
+
+    sltl::vector<int, 4> itest1;
+    sltl::vector<int, 4> itest2 = itest1++;
+    sltl::vector<int, 4> itest3 = itest2--;
+
+    itest3++;
+    (itest1 + itest2)++;
+    itest3--;
+    (itest1 - itest2)--;
+  };
+
+  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
+  const std::wstring expected = LR"(
+{
+  vec4 v1;
+  vec4 v2(v1++);
+  vec4 v3(v2--);
+  v3++;
+  (v1 + v2)++;
+  v3--;
+  (v1 - v2)--;
+  ivec4 v4;
+  ivec4 v5(v4++);
+  ivec4 v6(v5--);
+  v6++;
+  (v4 + v5)++;
+  v6--;
+  (v4 - v5)--;
+}
+)";
+
+  ASSERT_EQ(expected, actual);
+}
