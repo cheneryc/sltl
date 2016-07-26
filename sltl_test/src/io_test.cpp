@@ -14,13 +14,13 @@ namespace
   std::wstring to_string(const sltl::shader& shader)
   {
     // Prepend a newline character to exactly match the raw string literals
-    return L'\n' + shader.str<sltl::output>(false);
+    return L'\n' + shader.str<sltl::output>(sltl::output_version::none, false);
   }
 
   std::wstring to_string(const sltl::shader& shader, sltl::detail::enum_flags<sltl::output::layout_flags> layout_flags)
   {
     // Prepend a newline character to exactly match the raw string literals
-    return L'\n' + shader.str<sltl::output>(sltl::output::layout_manager(layout_flags), false);
+    return L'\n' + shader.str<sltl::output>(sltl::output::layout_manager(layout_flags), sltl::output_version::none, false);
   }
 }
 

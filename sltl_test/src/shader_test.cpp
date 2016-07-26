@@ -11,7 +11,7 @@ namespace
   std::wstring to_string(const sltl::shader& shader)
   {
     // Prepend a newline character to exactly match the raw string literals
-    return L'\n' + shader.str<sltl::output>(false);
+    return L'\n' + shader.str<sltl::output>(sltl::output_version::none, false);
   }
 }
 

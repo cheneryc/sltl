@@ -15,6 +15,13 @@
 
 namespace sltl
 {
+  // According to the glsl spec shaders that do not include a version directive will be treated as targeting version 1.10
+  enum class output_version
+  {
+    none,
+    v330
+  };
+
   class output : public syntax::const_action_result<std::wstring>
   {
   public:
@@ -93,8 +100,8 @@ namespace sltl
       layout_map _layout_uniform;
     };
 
-    output(core::shader_stage stage, bool is_indent_tab = true);
-    output(core::shader_stage stage, layout_manager&& manager, bool is_indent_tab = true);
+    output(core::shader_stage stage, output_version version = output_version::v330, bool is_indent_tab = true);
+    output(core::shader_stage stage, layout_manager&& manager, output_version version = output_version::v330, bool is_indent_tab = true);
 
     // Non-copyable and non-assignable
     output(const output&) = delete;

@@ -119,6 +119,19 @@ namespace
     return ss.str();
   }
 
+  const wchar_t* to_version_string(ns::output_version version)
+  {
+    switch(version)
+    {
+      case ns::output_version::v330:
+        return L"#version 330";
+      default:
+        assert(version == ns::output_version::none);
+    }
+
+    return nullptr;
+  }
+
   std::wstring get_variable_name(const ns::syntax::variable_declaration& vd)
   {
     std::wstringstream ss;
@@ -201,12 +214,16 @@ namespace
 
 // output definitions
 
-ns::output::output(core::shader_stage stage, bool is_indent_tab) : output(stage, layout_manager(get_default_layout_flags(stage)), is_indent_tab)
+ns::output::output(core::shader_stage stage, output_version version, bool is_indent_tab) : output(stage, layout_manager(get_default_layout_flags(stage)), version, is_indent_tab)
 {
 }
 
-ns::output::output(core::shader_stage stage, layout_manager&& manager, bool is_indent_tab) : _indent_count(0), _is_indent_tab(is_indent_tab), _stage(stage), _layout_manager(std::move(manager))
+ns::output::output(core::shader_stage stage, layout_manager&& manager, output_version version, bool is_indent_tab) : _indent_count(0), _is_indent_tab(is_indent_tab), _stage(stage), _layout_manager(std::move(manager))
 {
+  if(const auto v_str = to_version_string(version))
+  {
+    _ss << v_str << std::endl;
+  }
 }
 
 std::wstring ns::output::get_result() const

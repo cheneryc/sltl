@@ -119,6 +119,21 @@ namespace io
     }
   };
 
+  namespace detail
+  {
+    template<typename V>
+    struct is_variable
+    {
+      static const bool value = false;
+    };
+
+    template<typename T, core::semantic S, core::semantic_index_t N>
+    struct is_variable<variable<T, S, N>>
+    {
+      static const bool value = true;
+    };
+  }
+
   template<typename ...A>
   class block
   {
@@ -149,6 +164,12 @@ namespace io
       return get_impl<S, N, A...>();
     }
 
+    template<typename T>
+    auto get() -> typename std::enable_if<detail::is_variable<T>::value, typename T::type::proxy>::type
+    {
+      return get_impl<T::_semantic, T::_index, A...>();
+    }
+
   private:
     enum variable_none_t {};
 
@@ -172,17 +193,17 @@ namespace io
 
     void init(core::qualifier_storage qualifier)
     {
-      init_impl(qualifier, detail::variadic_guard<A...>());
+      init_impl(qualifier, sltl::detail::variadic_guard<A...>());
     }
 
     template<typename ...A2>
-    void init_impl(core::qualifier_storage, detail::variadic_guard<>) {}
+    void init_impl(core::qualifier_storage, sltl::detail::variadic_guard<>) {}
 
     template<typename T, typename ...A2>
-    void init_impl(core::qualifier_storage qualifier, detail::variadic_guard<T, A2...>)
+    void init_impl(core::qualifier_storage qualifier, sltl::detail::variadic_guard<T, A2...>)
     {
       init_type<T>(qualifier);
-      init_impl(qualifier, detail::variadic_guard<A2...>());
+      init_impl(qualifier, sltl::detail::variadic_guard<A2...>());
     }
 
     template<typename T>
