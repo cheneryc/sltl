@@ -2,6 +2,8 @@
 
 #include "scalar.h"
 
+#include "syntax/constructor_call.h"
+
 
 namespace sltl
 {
@@ -15,11 +17,12 @@ namespace sltl
     vector(core::qualifier_storage qualifier = core::qualifier_storage::default, core::semantic_pair semantic = core::semantic_pair::none) : basic(core::qualifier::make<core::storage_qualifier>(qualifier), semantic) {}
 
     vector(vector&& v) : vector(proxy(std::move(v))) {}
+    vector(vector& v) : vector(proxy(v)) {}//TODO: remove/replace with std::enable_if solution
     vector(const vector& v) : vector(proxy(v)) {}
 
     // The extra T2 argument stops this conflicting with the default constructor
     template<typename T2, typename ...A>
-    explicit vector(T2&& t, A&&... a) : vector(proxy(syntax::expression::make<syntax::expression_list>(unpack<D>(std::forward<T2>(t), std::forward<A>(a)...)))) {}
+    explicit vector(T2&& t, A&&... a) : vector(proxy(syntax::expression::make<syntax::constructor_call>(language::type_helper<T>{D}, unpack<D>(std::forward<T2>(t), std::forward<A>(a)...)))) {}
 
     proxy operator=(proxy&& p)
     {

@@ -6,13 +6,16 @@
 #include "syntax/temporary.h"
 #include "syntax/operator.h"
 #include "syntax/conditional.h"
+#include "syntax/constructor_call.h"
 #include "syntax/function_call.h"
 #include "syntax/function_definition.h"
 #include "language.h"
+#include "traits.h"
+
+#include "detail/numeric.h"
 
 #include <numeric>
 
-#include <cmath>
 #include <cassert>
 
 
@@ -85,6 +88,46 @@ namespace
       default:
         return false;
     }
+  }
+
+  template<typename T>
+  auto to_string(T t) -> typename std::enable_if<std::is_floating_point<T>::value, std::wstring>::type
+  {
+    std::wstringstream ss;
+
+    // Output a decimal point when the floating point value has no fractional part
+    if(ns::detail::has_fractional_part(t))
+    {
+      ss << t;
+    }
+    else
+    {
+      ss << t << L".0";
+    }
+
+    return ss.str();
+  }
+
+  std::wstring to_string(float f)
+  {
+    return to_string<float>(f) + L'f';
+  }
+
+  std::wstring to_string(int i)
+  {
+    return std::to_wstring(i);
+  }
+
+  std::wstring to_string(unsigned int ui)
+  {
+    return std::to_wstring(ui) + L'U';
+  }
+
+  std::wstring to_string(bool b)
+  {
+    std::wstringstream ss;
+    ss << std::boolalpha << b;
+    return ss.str();
   }
 
   std::wstring to_built_in_string(ns::core::semantic semantic, ns::core::semantic_index_t index)
@@ -187,6 +230,34 @@ namespace
     return ns::language::to_qualifier_string(static_cast<const ns::core::storage_qualifier&>(vd.get_qualifier())._value);
   }
 
+  std::wstring get_zero_initialization(const ns::language::type& type)
+  {
+    std::wstring value;
+
+    switch(type._id)
+    {
+      case ns::language::id_float:
+        value = to_string(float());
+        break;
+      case ns::language::id_double:
+        value = to_string(double());
+        break;
+      case ns::language::id_int:
+        value = to_string(int());
+        break;
+      case ns::language::id_uint:
+        value = to_string(unsigned int());
+        break;
+      case ns::language::id_bool:
+        value = to_string(bool());
+        break;
+      default:
+        assert((type._id != ns::language::id_unknown) && (type._id != ns::language::id_void));
+    }
+
+    return value;
+  }
+
   ns::detail::enum_flags<ns::output::layout_flags> get_default_layout_flags(ns::core::shader_stage stage)
   {
     ns::detail::enum_flags<ns::output::layout_flags> flags = ns::output::layout_flags::flag_none;
@@ -285,7 +356,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::variable_declar
 
       if(vd.has_initializer())
       {
-        _ss << (vd.is_direct_initialized() ? L"(" : L" = ");
+        _ss << L" = ";
       }
 
       return_val = ns::syntax::action_return_t::step_in;
@@ -299,11 +370,6 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::variable_declar
   {
     if(!is_variable_omitted(vd, _layout_manager))
     {
-      if(vd.has_initializer() && vd.is_direct_initialized())
-      {
-        _ss << L')';
-      }
-
       line_end();
     }
 
@@ -335,13 +401,26 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::reference& r)
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::temporary& t, bool is_start)
 {
+  const syntax::expression* initializer = t.get_initializer();
+
   if(is_start)
   {
-    _ss << language::to_type_string(t._type) << L'(';
+    if(!initializer || !sltl::is_type<syntax::constructor_call>(initializer))
+    {
+      _ss << language::to_type_string(t._type) << L'(';
+    }
+
+    if(!initializer)
+    {
+      _ss << get_zero_initialization(t._type);
+    }
   }
   else
   {
-    _ss << L')';
+    if(!initializer || !sltl::is_type<syntax::constructor_call>(initializer))
+    {
+      _ss << L')';
+    }
   }
 
   return is_start ? ns::syntax::action_return_t::step_in :
@@ -454,6 +533,21 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::conditional& c,
   return return_val;
 }
 
+ns::syntax::action_return_t ns::output::operator()(const syntax::constructor_call& cc, bool is_start)
+{
+  if(is_start)
+  {
+    _ss << language::to_type_string(cc._type) << L'(';
+  }
+  else
+  {
+    _ss << L')';
+  }
+
+  return is_start ? ns::syntax::action_return_t::step_in :
+                    ns::syntax::action_return_t::step_out;
+}
+
 ns::syntax::action_return_t ns::output::operator()(const syntax::expression_statement&, bool is_start)
 {
   if(is_start)
@@ -564,53 +658,31 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::return_statemen
 
 ns::syntax::action_return_t ns::output::operator()(float f)
 {
-  float integral;
-
-  // Output a decimal point when the float has no fractional part, otherwise appending 'f' will result in a syntax error
-  if(std::modf(f, &integral) == 0.0f)
-  {
-    _ss << f << L".0f";
-  }
-  else
-  {
-    _ss << f << L'f';
-  }
-
+  _ss << to_string(f);
   return ns::syntax::action_return_t::step_out;
 }
 
 ns::syntax::action_return_t ns::output::operator()(double d)
 {
-  double integral;
-
-  // Output a decimal point when the double has no fractional part
-  if(std::modf(d, &integral) == 0.0)
-  {
-    _ss << d << L".0";
-  }
-  else
-  {
-    _ss << d;
-  }
-
+  _ss << to_string(d);
   return ns::syntax::action_return_t::step_out;
 }
 
 ns::syntax::action_return_t ns::output::operator()(int i)
 {
-  _ss << i;
+  _ss << to_string(i);
   return ns::syntax::action_return_t::step_out;
 }
 
 ns::syntax::action_return_t ns::output::operator()(unsigned int ui)
 {
-  _ss << ui << L'U';
+  _ss << to_string(ui);
   return ns::syntax::action_return_t::step_out;
 }
 
 ns::syntax::action_return_t ns::output::operator()(bool b)
 {
-  _ss << std::boolalpha << b;
+  _ss << to_string(b);
   return ns::syntax::action_return_t::step_out;
 }
 

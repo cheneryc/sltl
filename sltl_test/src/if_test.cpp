@@ -106,7 +106,7 @@ TEST(if_, if_condition)
   const std::wstring actual = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
-  bool b1(true);
+  bool b1 = true;
   if(b1)
   {
   }
@@ -135,8 +135,8 @@ TEST(if_, if_body)
   const std::wstring actual = ::to_string(sltl::make_test(test_shader));
   const std::wstring expected = LR"(
 {
-  bool b1(true);
-  int i2(0);
+  bool b1 = true;
+  int i2 = 0;
   if(b1)
   {
     i2 += 1;

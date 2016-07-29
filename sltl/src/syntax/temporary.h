@@ -31,6 +31,11 @@ namespace syntax
       return apply_action_impl(cact, *this, _initializer.get());
     }
 
+    const expression* get_initializer() const
+    {
+      return _initializer.get();
+    }
+
     const language::type _type;
 
   private:

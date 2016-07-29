@@ -91,7 +91,7 @@ TEST(io, in_ref_single)
 in vec2 i_v1;
 void main()
 {
-  vec2 v1(i_v1);
+  vec2 v1 = i_v1;
 }
 )";
 
@@ -246,7 +246,7 @@ TEST(io, uniform_ref_single)
 uniform vec2 u_v1;
 void main()
 {
-  vec2 v1(u_v1);
+  vec2 v1 = u_v1;
 }
 )";
 

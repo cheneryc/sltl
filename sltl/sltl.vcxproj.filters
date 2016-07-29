@@ -183,6 +183,12 @@
     <ClInclude Include="src\expression\expression.h">
       <Filter>Header Files\expression</Filter>
     </ClInclude>
+    <ClInclude Include="src\syntax\constructor_call.h">
+      <Filter>Header Files\syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="src\detail\numeric.h">
+      <Filter>Header Files\detail</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\scope.cpp">

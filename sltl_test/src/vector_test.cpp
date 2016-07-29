@@ -68,31 +68,31 @@ TEST(vector, constructor)
   vec2 v1;
   vec3 v2;
   vec4 v3;
-  vec2 v4(1.0f, 1.0f);
-  vec3 v5(1.0f, 1.0f, 1.0f);
-  vec4 v6(1.0f, 1.0f, 1.0f, 1.0f);
-  vec2 v7(1.0f, 1.0f);
-  vec3 v8(1.0f, 1.0f, 1.0f);
-  vec4 v9(1.0f, 1.0f, 1.0f, 1.0f);
-  vec2 v10(v7);
-  vec3 v11(v8);
-  vec4 v12(v9);
-  vec2 v13(v10);
-  vec3 v14(v11);
-  vec4 v15(v12);
-  vec2 v16(1.0f, 1.0f);
-  vec3 v17(1.0f, 1.0f, 1.0f);
-  vec4 v18(1.0f, 1.0f, 1.0f, 1.0f);
+  vec2 v4 = vec2(1.0f, 1.0f);
+  vec3 v5 = vec3(1.0f, 1.0f, 1.0f);
+  vec4 v6 = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+  vec2 v7 = vec2(1.0f, 1.0f);
+  vec3 v8 = vec3(1.0f, 1.0f, 1.0f);
+  vec4 v9 = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+  vec2 v10 = v7;
+  vec3 v11 = v8;
+  vec4 v12 = v9;
+  vec2 v13 = v10;
+  vec3 v14 = v11;
+  vec4 v15 = v12;
+  vec2 v16 = vec2(1.0f, 1.0f);
+  vec3 v17 = vec3(1.0f, 1.0f, 1.0f);
+  vec4 v18 = vec4(1.0f, 1.0f, 1.0f, 1.0f);
   vec2 v19;
-  vec3 v21(1.0f, vec2(1.0f, 1.0f));
-  vec3 v22(1.0f, v19);
-  vec3 v24(vec2(1.0f, 1.0f), 1.0f);
-  vec3 v25(v19, 1.0f);
-  vec4 v27(1.0f, vec3(1.0f, 1.0f, 1.0f));
-  vec4 v30(vec2(1.0f, 1.0f), vec2(1.0f, 1.0f));
-  vec4 v32(v19, vec2(1.0f, 1.0f));
-  vec4 v33(v19, v19);
-  vec4 v34(v19 + v19, v19 + v19);
+  vec3 v21 = vec3(1.0f, vec2(1.0f, 1.0f));
+  vec3 v22 = vec3(1.0f, v19);
+  vec3 v24 = vec3(vec2(1.0f, 1.0f), 1.0f);
+  vec3 v25 = vec3(v19, 1.0f);
+  vec4 v27 = vec4(1.0f, vec3(1.0f, 1.0f, 1.0f));
+  vec4 v30 = vec4(vec2(1.0f, 1.0f), vec2(1.0f, 1.0f));
+  vec4 v32 = vec4(v19, vec2(1.0f, 1.0f));
+  vec4 v33 = vec4(v19, v19);
+  vec4 v34 = vec4(v19 + v19, v19 + v19);
 }
 )";
 
@@ -188,7 +188,7 @@ TEST(vector, assignment_operator)
   vec2 v1;
   vec2 v2;
   v1 = v2;
-  v1 = vec2();
+  v1 = vec2(0.0f);
   v1 = vec2(1.0f, 1.0f);
   v1 = (v2 = v1);
 }
@@ -215,6 +215,7 @@ TEST(vector, addition_operator)
     vec2() + test1;
 
     test1 += test2 + vec2();
+    test1 += vec2() + vec2();
     test1 += test2 + test3;
     test1 += (test2 + test3) + test4;
   };
@@ -227,12 +228,13 @@ TEST(vector, addition_operator)
   vec2 v3;
   vec2 v4;
   v1 += v2;
-  v1 += vec2();
+  v1 += vec2(0.0f);
   v1 += vec2(1.0f, 1.0f);
   v1 + v2;
-  v1 + vec2();
-  vec2() + v1;
-  v1 += (v2 + vec2());
+  v1 + vec2(0.0f);
+  vec2(0.0f) + v1;
+  v1 += (v2 + vec2(0.0f));
+  v1 += (vec2(0.0f) + vec2(0.0f));
   v1 += (v2 + v3);
   v1 += ((v2 + v3) + v4);
 }
@@ -259,6 +261,7 @@ TEST(vector, subtraction_operator)
     vec2() - test1;
 
     test1 -= test2 - vec2();
+    test1 -= vec2() - vec2();
     test1 -= test2 - test3;
     test1 -= (test2 - test3) - test4;
   };
@@ -271,12 +274,13 @@ TEST(vector, subtraction_operator)
   vec2 v3;
   vec2 v4;
   v1 -= v2;
-  v1 -= vec2();
+  v1 -= vec2(0.0f);
   v1 -= vec2(1.0f, 1.0f);
   v1 - v2;
-  v1 - vec2();
-  vec2() - v1;
-  v1 -= (v2 - vec2());
+  v1 - vec2(0.0f);
+  vec2(0.0f) - v1;
+  v1 -= (v2 - vec2(0.0f));
+  v1 -= (vec2(0.0f) - vec2(0.0f));
   v1 -= (v2 - v3);
   v1 -= ((v2 - v3) - v4);
 }
@@ -312,15 +316,15 @@ TEST(vector, prefix_operators)
   const std::wstring expected = LR"(
 {
   vec4 v1;
-  vec4 v2(++v1);
-  vec4 v3(--v2);
+  vec4 v2 = ++v1;
+  vec4 v3 = --v2;
   ++v3;
   ++(v1 + v2);
   --v3;
   --(v1 - v2);
   ivec4 v4;
-  ivec4 v5(++v4);
-  ivec4 v6(--v5);
+  ivec4 v5 = ++v4;
+  ivec4 v6 = --v5;
   ++v6;
   ++(v4 + v5);
   --v6;
@@ -358,15 +362,15 @@ TEST(vector, postfix_operators)
   const std::wstring expected = LR"(
 {
   vec4 v1;
-  vec4 v2(v1++);
-  vec4 v3(v2--);
+  vec4 v2 = v1++;
+  vec4 v3 = v2--;
   v3++;
   (v1 + v2)++;
   v3--;
   (v1 - v2)--;
   ivec4 v4;
-  ivec4 v5(v4++);
-  ivec4 v6(v5--);
+  ivec4 v5 = v4++;
+  ivec4 v6 = v5--;
   v6++;
   (v4 + v5)++;
   v6--;

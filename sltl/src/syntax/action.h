@@ -16,6 +16,7 @@ namespace syntax
   class operator_unary;
   class operator_binary;
   class conditional;
+  class constructor_call;
   class expression_statement;
   class expression_list;
   class parentheses;
@@ -47,6 +48,7 @@ namespace syntax
     virtual action_return_t operator()(syntax::operator_unary&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(syntax::operator_binary&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(syntax::conditional&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(syntax::constructor_call&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(syntax::expression_statement&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(syntax::expression_list&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(syntax::parentheses&, bool is_start = true) { return get_default(is_start); }
@@ -90,6 +92,7 @@ namespace syntax
     virtual action_return_t operator()(const syntax::operator_unary&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(const syntax::operator_binary&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(const syntax::conditional&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(const syntax::constructor_call&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(const syntax::expression_statement&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(const syntax::expression_list&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(const syntax::parentheses&, bool is_start = true) { return get_default(is_start); }

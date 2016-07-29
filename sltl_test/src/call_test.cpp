@@ -105,7 +105,7 @@ int fn1()
 }
 void main()
 {
-  int i1(fn1());
+  int i1 = fn1();
 }
 )";
 
@@ -128,7 +128,7 @@ vec3 fn1()
 }
 void main()
 {
-  vec3 v1(fn1());
+  vec3 v1 = fn1();
 }
 )";
 
@@ -147,11 +147,11 @@ TEST(call, call_with_assignment_fn_empty_returns_vector_default)
   const std::wstring expected = LR"(
 vec3 fn1()
 {
-  return vec3();
+  return vec3(0.0f);
 }
 void main()
 {
-  vec3 v1(fn1());
+  vec3 v1 = fn1();
 }
 )";
 
@@ -170,13 +170,13 @@ TEST(call, call_with_assignment_fn_simple_returns_vector_variable_reference)
   const std::wstring expected = LR"(
 vec3 fn1()
 {
-  vec3 v1(0.0f, 0.0f, 0.0f);
+  vec3 v1 = vec3(0.0f, 0.0f, 0.0f);
   v1 += vec3(1.0f, 1.0f, 1.0f);
   return v1;
 }
 void main()
 {
-  vec3 v1(fn1());
+  vec3 v1 = fn1();
 }
 )";
 

@@ -4,6 +4,8 @@
 #include "scalar.h"
 #include "vector.h"
 
+#include "syntax/constructor_call.h"
+
 
 namespace sltl
 {
@@ -21,11 +23,15 @@ namespace sltl
     matrix(core::qualifier_storage qualifier = core::qualifier_storage::default, core::semantic_pair semantic = core::semantic_pair::none) : basic(core::qualifier::make<core::storage_qualifier>(qualifier), semantic) {}
 
     matrix(matrix&& m) : matrix(proxy(std::move(m))) {}
+    matrix(matrix& m) : matrix(proxy(m)) {}//TODO: remove/replace with std::enable_if solution
     matrix(const matrix& m) : matrix(proxy(m)) {}
 
+    //TODO: this has been causing issues with the other constructors for some time. See the following for solutions:
+    //https://rmf.io/cxx11/is_related/
+    //http://stackoverflow.com/questions/13296461/imperfect-forwarding-with-variadic-templates/13328507#13328507
     // The extra T2 argument stops this conflicting with the default constructor
     template<typename T2, typename ...A>
-    explicit matrix(T2&& t, A&&... a) : matrix(proxy(syntax::expression::make<syntax::expression_list>(unpack<elements>(std::forward<T2>(t), std::forward<A>(a)...)))) {}
+    explicit matrix(T2&& t, A&&... a) : matrix(proxy(syntax::expression::make<syntax::constructor_call>(language::type_helper<T>{M, N}, unpack<elements>(std::forward<T2>(t), std::forward<A>(a)...)))) {}
 
     proxy operator=(proxy&& p)
     {
@@ -119,6 +125,9 @@ namespace sltl
   template<typename T1, typename T2>
   auto operator*(T1&& lhs, T2&& rhs) -> decltype(detail::as_proxy_mul(detail::as_proxy(std::forward<T1>(lhs)), detail::as_proxy(std::forward<T2>(rhs))))
   {
-    return detail::as_proxy_mul(detail::as_proxy(std::forward<T1>(lhs)), detail::as_proxy(std::forward<T2>(rhs)));
+    auto lhs_proxy = detail::as_proxy(std::forward<T1>(lhs));
+    auto rhs_proxy = detail::as_proxy(std::forward<T2>(rhs));
+
+    return detail::as_proxy_mul(std::move(lhs_proxy), std::move(rhs_proxy));
   }
 }

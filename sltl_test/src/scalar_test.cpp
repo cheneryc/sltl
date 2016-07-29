@@ -32,12 +32,12 @@ TEST(scalar, constructor)
   const std::wstring expected = LR"(
 {
   float f1;
-  float f2(1.0f);
-  float f3(1.0f);
-  float f4(1.0f);
-  float f5(f4);
-  float f6(f5);
-  float f7(1.0f);
+  float f2 = 1.0f;
+  float f3 = 1.0f;
+  float f4 = 1.0f;
+  float f5 = f4;
+  float f6 = f5;
+  float f7 = 1.0f;
 }
 )";
 
@@ -97,7 +97,7 @@ TEST(scalar, assignment_operator)
   float f2;
   f1 = 1.0f;
   f1 = f2;
-  f1 = float();
+  f1 = float(0.0f);
   f1 = float(1.0f);
   f1 = (f2 = f1);
 }
@@ -138,15 +138,15 @@ TEST(scalar, addition_operator)
   float f3;
   f1 += 1.0f;
   f1 += f2;
-  f1 += float();
+  f1 += float(0.0f);
   f1 += float(1.0f);
   f1 + 1.0f;
   f1 + f2;
-  f1 + float();
+  f1 + float(0.0f);
   1.0f + f1;
-  float() + f1;
+  float(0.0f) + f1;
   f1 += (f2 + 1.0f);
-  f1 += (f2 + float());
+  f1 += (f2 + float(0.0f));
   f1 += (f2 + f3);
   f1 += ((f2 + 1.0f) + f3);
 }
@@ -187,15 +187,15 @@ TEST(scalar, subtraction_operator)
   float f3;
   f1 -= 1.0f;
   f1 -= f2;
-  f1 -= float();
+  f1 -= float(0.0f);
   f1 -= float(1.0f);
   f1 - 1.0f;
   f1 - f2;
-  f1 - float();
+  f1 - float(0.0f);
   1.0f - f1;
-  float() - f1;
+  float(0.0f) - f1;
   f1 -= (f2 - 1.0f);
-  f1 -= (f2 - float());
+  f1 -= (f2 - float(0.0f));
   f1 -= (f2 - f3);
   f1 -= ((f2 - 1.0f) - f3);
 }
@@ -231,15 +231,15 @@ TEST(scalar, prefix_operators)
   const std::wstring expected = LR"(
 {
   float f1;
-  float f2(++f1);
-  float f3(--f2);
+  float f2 = ++f1;
+  float f3 = --f2;
   ++f3;
   ++(f1 + f2);
   --f3;
   --(f1 - f2);
   int i4;
-  int i5(++i4);
-  int i6(--i5);
+  int i5 = ++i4;
+  int i6 = --i5;
   ++i6;
   ++(i4 + i5);
   --i6;
@@ -277,15 +277,15 @@ TEST(scalar, postfix_operators)
   const std::wstring expected = LR"(
 {
   float f1;
-  float f2(f1++);
-  float f3(f2--);
+  float f2 = f1++;
+  float f3 = f2--;
   f3++;
   (f1 + f2)++;
   f3--;
   (f1 - f2)--;
   int i4;
-  int i5(i4++);
-  int i6(i5--);
+  int i5 = i4++;
+  int i6 = i5--;
   i6++;
   (i4 + i5)++;
   i6--;

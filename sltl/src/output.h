@@ -118,6 +118,7 @@ namespace sltl
     virtual syntax::action_return_t operator()(const syntax::operator_unary& ou, bool is_start = true) override;
     virtual syntax::action_return_t operator()(const syntax::operator_binary& ob, bool is_start = true) override;
     virtual syntax::action_return_t operator()(const syntax::conditional& c, bool is_start = true) override;
+    virtual syntax::action_return_t operator()(const syntax::constructor_call& cc, bool is_start = true) override;
     virtual syntax::action_return_t operator()(const syntax::expression_statement& es, bool is_start = true) override;
     virtual syntax::action_return_t operator()(const syntax::expression_list& el, bool is_start = true) override;
     virtual syntax::action_return_t operator()(const syntax::parentheses& p, bool is_start = true) override;

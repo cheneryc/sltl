@@ -26,9 +26,9 @@ namespace syntax
     expression() = default;
   };
 
-  class expression_list : public list<expression, expression>
+  class expression_list : public list<expression, node>
   {
-    typedef list<expression, expression> super_t;
+    typedef list<expression, node> super_t;
 
   public:
     expression_list() : super_t() {}

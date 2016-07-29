@@ -24,4 +24,10 @@ namespace sltl
   {
     static const bool value = (is_integer<T>::value || is_real<T>::value || std::is_same<bool, T>::value);
   };
+
+  template<typename T1, typename T2>
+  bool is_type(T2* t)
+  {
+    return (dynamic_cast<T1*>(const_cast<std::remove_const<T2>::type*>(t)) != nullptr);
+  }
 }

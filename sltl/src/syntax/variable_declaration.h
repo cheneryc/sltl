@@ -34,12 +34,6 @@ namespace syntax
       _initializer(std::move(initializer)),
       _ref_count(0) {}
 
-    bool is_direct_initialized() const
-    {
-      //TODO: this should be based on the type? For scalar types return false, otherwise true?
-      return true;//true - Constructor initializer syntax, false - assignment operator syntax
-    }
-
     bool has_initializer() const
     {
       return static_cast<bool>(_initializer);

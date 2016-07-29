@@ -46,7 +46,7 @@ TEST(matrix, constructor)
   mat2x4 m7;
   mat3x4 m8;
   mat4x4 m9;
-  mat2x2 m10(1.0f, 1.0f, 1.0f, 1.0f);
+  mat2x2 m10 = mat2x2(1.0f, 1.0f, 1.0f, 1.0f);
 }
 )";
 
@@ -91,6 +91,7 @@ TEST(matrix, operator_multiplication)
     sltl::matrix<float, 4, 3> m5 = (m1 * m2) * m4;
     sltl::matrix<float, 4, 2> m6 = (m1 * m2) * (m4 * m2);
     sltl::matrix<float, 4, 4> m7 = (m1 * m2) * sltl::matrix<float, 2, 4>();
+    sltl::matrix<float, 2, 3> m8 = sltl::matrix<float, 2, 3>() * sltl::matrix<float, 3, 3>();
   };
 
   const std::wstring actual = ::to_string(sltl::make_test(test_shader));
@@ -98,11 +99,12 @@ TEST(matrix, operator_multiplication)
 {
   mat3x4 m1;
   mat2x3 m2;
-  mat2x4 m3(m1 * m2);
+  mat2x4 m3 = m1 * m2;
   mat3x2 m4;
-  mat3x4 m5((m1 * m2) * m4);
-  mat2x4 m6((m1 * m2) * (m4 * m2));
-  mat4x4 m8((m1 * m2) * mat4x2());
+  mat3x4 m5 = (m1 * m2) * m4;
+  mat2x4 m6 = (m1 * m2) * (m4 * m2);
+  mat4x4 m8 = (m1 * m2) * mat4x2(0.0f);
+  mat3x2 m11 = mat3x2(0.0f) * mat3x3(0.0f);
 }
 )";
 
@@ -124,8 +126,8 @@ TEST(matrix, operator_multiplication_vector)
 {
   mat3x4 m1;
   vec4 v2;
-  vec3 v3(v2 * m1);
-  vec3 v5(vec4() * m1);
+  vec3 v3 = v2 * m1;
+  vec3 v5 = vec4(0.0f) * m1;
 }
 )";
 

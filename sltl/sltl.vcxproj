@@ -19,6 +19,7 @@
     <ClInclude Include="src\detail\conditional_traits.h" />
     <ClInclude Include="src\detail\enum_flags.h" />
     <ClInclude Include="src\detail\function_traits.h" />
+    <ClInclude Include="src\detail\numeric.h" />
     <ClInclude Include="src\detail\variadic_algorithm.h" />
     <ClInclude Include="src\detail\variadic_traits.h" />
     <ClInclude Include="src\element.h" />
@@ -35,6 +36,7 @@
     <ClInclude Include="src\syntax\block.h" />
     <ClInclude Include="src\syntax\block_manager.h" />
     <ClInclude Include="src\syntax\conditional.h" />
+    <ClInclude Include="src\syntax\constructor_call.h" />
     <ClInclude Include="src\syntax\declaration.h" />
     <ClInclude Include="src\syntax\declaration_statement.h" />
     <ClInclude Include="src\syntax\elide.h" />
