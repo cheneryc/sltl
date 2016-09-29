@@ -1,23 +1,25 @@
 #pragma once
 
+#include <type_traits>
+
 
 namespace sltl
 {
 namespace detail
 {
-  template<bool, typename T1, typename T2>
-  struct conditional
+  template<typename T>
+  using negate = typename std::conditional<T::value, std::false_type, std::true_type>::type;
+
+  enum class enable_if_tag
   {
-    typedef T1 type;
   };
 
-  template<typename T1, typename T2>
-  struct conditional<false, T1, T2>
-  {
-    typedef T2 type;
-  };
+  static const enable_if_tag default_tag = {};
 
   template<typename T>
-  using negate = typename conditional<T::value, std::false_type, std::true_type>::type;
+  using enable_if = typename std::enable_if<T::value, enable_if_tag>::type;
+
+  template<typename T>
+  using disable_if = enable_if<negate<T>>;
 }
 }

@@ -6,6 +6,8 @@
 
 #include "syntax/constructor_call.h"
 
+#include "detail/variadic_traits.h"
+
 
 namespace sltl
 {
@@ -30,7 +32,7 @@ namespace sltl
     //https://rmf.io/cxx11/is_related/
     //http://stackoverflow.com/questions/13296461/imperfect-forwarding-with-variadic-templates/13328507#13328507
     // The extra T2 argument stops this conflicting with the default constructor
-    template<typename T2, typename ...A>
+    template<typename T2, typename ...A/*, detail::disable_if<detail::is_empty<A...>> = detail::default_tag*/>
     explicit matrix(T2&& t, A&&... a) : matrix(proxy(syntax::expression::make<syntax::constructor_call>(language::type_helper<T>{M, N}, unpack<elements>(std::forward<T2>(t), std::forward<A>(a)...)))) {}
 
     proxy operator=(proxy&& p)

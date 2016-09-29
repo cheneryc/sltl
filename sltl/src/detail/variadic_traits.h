@@ -1,5 +1,7 @@
 #pragma once
 
+#include <type_traits>
+
 
 namespace sltl
 {
@@ -55,8 +57,7 @@ namespace detail
     static const T1 value = get_value<N, T1, V...>::value;
   };
 
-  // Useful for enabling class template specialization on empty parameter packs
-  template<size_t ...D>
+  template<typename ...A>
   struct is_empty
   {
     static const bool value = false;
@@ -66,6 +67,28 @@ namespace detail
   struct is_empty<>
   {
     static const bool value = true;
+  };
+
+  template<size_t ...D>
+  struct is_empty_values
+  {
+    static const bool value = false;
+  };
+
+  template<>
+  struct is_empty_values<>
+  {
+    static const bool value = true;
+  };
+
+  template<typename ...A>
+  struct all : std::true_type
+  {
+  };
+
+  template<typename T, typename ...A>
+  struct all<T, A...> : std::conditional<T::value, all<A...>, std::false_type>::type
+  {
   };
 }
 }

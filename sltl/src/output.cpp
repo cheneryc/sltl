@@ -113,6 +113,11 @@ namespace
     return to_string<float>(f) + L'f';
   }
 
+  std::wstring to_string(double d)
+  {
+    return to_string<double>(d) + L"lf";
+  }
+
   std::wstring to_string(int i)
   {
     return std::to_wstring(i);

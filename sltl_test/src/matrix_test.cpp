@@ -30,6 +30,7 @@ TEST(matrix, constructor)
     sltl::matrix<float, 4, 4> test_construct9;
 
     sltl::matrix<float, 2> test_construct10(1.0f, 1.0f, 1.0f, 1.0f);
+    sltl::matrix<float, 2> test_construct11(test_construct10);
 
     //TODO: add constructor test cases equivalent to those in vector/scalar_test.cpp
   };
@@ -47,6 +48,7 @@ TEST(matrix, constructor)
   mat3x4 m8;
   mat4x4 m9;
   mat2x2 m10 = mat2x2(1.0f, 1.0f, 1.0f, 1.0f);
+  mat2x2 m11 = m10;
 }
 )";
 
