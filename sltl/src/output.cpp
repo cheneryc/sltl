@@ -784,6 +784,10 @@ ns::output::layout_map_key::layout_map_key(const ns::syntax::variable_declaratio
          qualifier_storage == ns::core::qualifier_storage::uniform);
 }
 
+ns::output::layout_map_key::layout_map_key(const layout_map_key& key) : _s(key._s), _idx(key._idx)
+{
+}
+
 bool ns::output::layout_map_key::operator<(const ns::output::layout_map_key& rhs) const
 {
   return ((_s < rhs._s) || (!(rhs._s < _s) && (_idx < rhs._idx)));

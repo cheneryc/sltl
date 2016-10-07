@@ -39,6 +39,7 @@ namespace sltl
     {
     public:
       layout_map_key(const syntax::variable_declaration& vd);
+      layout_map_key(const layout_map_key& key);
 
       // Non-assignable
       layout_map_key& operator=(layout_map_key&&) = delete;

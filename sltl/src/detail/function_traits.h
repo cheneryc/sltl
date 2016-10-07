@@ -9,7 +9,7 @@ namespace detail
 {
   // The default function_traits class. Used by lambdas and functors (but not function pointers).
   template<typename Fn>
-  struct function_traits : public function_traits<decltype(&Fn::operator())>
+  struct function_traits : function_traits<decltype(&Fn::operator())>
   {
     // Inherits from the specialization for a pointer-to-member-function (passing
     // the type of the object's function call operator as the template parameter)

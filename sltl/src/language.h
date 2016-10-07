@@ -136,28 +136,28 @@ namespace language
   };
 
   template<typename T>
-  struct type_helper : public type
+  struct type_helper : type
   {
     type_helper(std::initializer_list<type_index_t> l = {1U}) : type(type_id_helper<T>::value, std::vector<type_index_t>(l.begin(), l.end())) {}
   };
 
   // Specialization for void type, stops vectors and matrices of void type from being defined
   template<>
-  struct type_helper<void> : public type
+  struct type_helper<void> : type
   {
     type_helper() : type(type_id_helper<void>::value, {1U}) {}
   };
 
   // Specialization for scalar types derived from sltl::basic
   template<template<typename> class V, typename T>
-  struct type_helper<V<T>> : public type_helper<T>
+  struct type_helper<V<T>> : type_helper<T>
   {
     type_helper() : type_helper<T>() {}
   };
 
   // Specialization for vector and matrix types derived from sltl::basic
   template<template<typename, type_index_t...> class V, typename T, type_index_t ...D>
-  struct type_helper<V<T, D...>> : public type_helper<T>
+  struct type_helper<V<T, D...>> : type_helper<T>
   {
     type_helper() : type_helper<T>({D...}) {}
   };

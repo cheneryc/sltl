@@ -50,7 +50,7 @@ namespace sltl
 
   // The default shader traits class. Used by lambdas and functors (but not function pointers).
   template<typename Fn>
-  struct shader_traits : public shader_traits<decltype(&Fn::operator())>
+  struct shader_traits : shader_traits<decltype(&Fn::operator())>
   {
     // Inherits _stage from the specialization for a pointer-to-member-function (passing
     // the type of the object's function call operator as the template parameter)

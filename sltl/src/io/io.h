@@ -20,6 +20,7 @@ namespace io
   {
   public:
     variable_key(core::semantic s, core::semantic_index_t index) : _s(s), _idx(index) {}
+    variable_key(const variable_key& key) : _s(key._s), _idx(key._idx) {}
 
     // Non-assignable
     variable_key& operator=(variable_key&&) = delete;
@@ -121,6 +122,8 @@ namespace io
 
   namespace detail
   {
+    enum variable_none_t {};
+
     template<typename V>
     struct is_variable
     {
@@ -131,6 +134,12 @@ namespace io
     struct is_variable<variable<T, S, N>>
     {
       static const bool value = true;
+    };
+
+    template<typename V, core::semantic S, core::semantic_index_t N>
+    constexpr bool is_variable_match()
+    {
+      return (S == V::_semantic) && (N == V::_index);
     };
   }
 
@@ -171,22 +180,20 @@ namespace io
     }
 
   private:
-    enum variable_none_t {};
-
-    template<core::semantic S, core::semantic_index_t N, typename T, typename ...A2>
-    auto get_impl() -> typename std::enable_if<(S == T::_semantic) && (N == T::_index), typename T::type::proxy>::type
+    template<core::semantic S, core::semantic_index_t N, typename V, typename ...A2>
+    auto get_impl() -> typename std::enable_if< detail::is_variable_match<V, S, N>(), typename V::type::proxy>::type
     {
-      return T::type::proxy(_variable_map.at(T::create_key()).get<T::type>());
+      return V::type::proxy(_variable_map.at(V::create_key()).get<V::type>());
     }
 
-    template<core::semantic S, core::semantic_index_t N, typename T, typename ...A2>
-    auto get_impl() -> typename std::enable_if<(S != T::_semantic) || (N != T::_index), decltype(get_impl<S, N, A2...>())>::type
+    template<core::semantic S, core::semantic_index_t N, typename V, typename ...A2>
+    auto get_impl() -> typename std::enable_if<!detail::is_variable_match<V, S, N>(), decltype(get_impl<S, N, A2...>())>::type
     {
       return get_impl<S, N, A2...>();
     }
 
     template<core::semantic S, core::semantic_index_t N>
-    auto get_impl() -> variable_none_t
+    auto get_impl() -> detail::variable_none_t
     {
       static_assert(false, "sltl::io::block::get: the specified semantic and/or index is not valid for this io::block");
     }

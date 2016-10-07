@@ -1,8 +1,12 @@
 #pragma once
 
+#include "basic.h"
 #include "scalar.h"
 
 #include "syntax/constructor_call.h"
+
+#include "detail/variadic_traits.h"
+#include "detail/conditional_traits.h"
 
 
 namespace sltl
@@ -17,11 +21,11 @@ namespace sltl
     vector(core::qualifier_storage qualifier = core::qualifier_storage::default, core::semantic_pair semantic = core::semantic_pair::none) : basic(core::qualifier::make<core::storage_qualifier>(qualifier), semantic) {}
 
     vector(vector&& v) : vector(proxy(std::move(v))) {}
-    vector(vector& v) : vector(proxy(v)) {}//TODO: remove/replace with std::enable_if solution
     vector(const vector& v) : vector(proxy(v)) {}
 
-    // The extra T2 argument stops this conflicting with the default constructor
-    template<typename T2, typename ...A>
+    // The T2 argument stops this conflicting with the default constructor
+    // The disable_if is necessary to stop conflicts with the copy constructor. Ensuring is_empty is false is a good enough requirement as sltl doesn't allow 1D vectors
+    template<typename T2, typename ...A, detail::disable_if<detail::is_empty<A...>> = detail::default_tag>
     explicit vector(T2&& t, A&&... a) : vector(proxy(syntax::expression::make<syntax::constructor_call>(language::type_helper<T>{D}, unpack<D>(std::forward<T2>(t), std::forward<A>(a)...)))) {}
 
     proxy operator=(proxy&& p)

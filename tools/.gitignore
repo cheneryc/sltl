@@ -1,4 +1,7 @@
 # Allow lib and pdb files to be tracked 
 
+![Dd]ebug/
+![Rr]elease/
+
 !*.lib
 !*.pdb

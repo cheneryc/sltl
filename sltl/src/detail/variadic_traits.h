@@ -9,7 +9,7 @@ namespace detail
 {
   // Gets the nth type template parameter from the specified parameter pack
   template<size_t N, typename T, typename ...A>
-  struct get : public get<N - 1, A...>
+  struct get : get<N - 1, A...>
   {
     static_assert(sizeof...(A) >= N, "sltl::detail::get: the index parameter N is greater than the number of type template parameters");
   };
@@ -22,7 +22,7 @@ namespace detail
 
   // Gets the nth value template parameter from the specified parameter pack
   template<size_t N, typename T, T V1, T ...V>
-  struct get_value : public get_value<N - 1, T, V...>
+  struct get_value : get_value<N - 1, T, V...>
   {
     static_assert(sizeof...(V) >= N, "sltl::detail::get_value: the index parameter N is greater than the number of value template parameters");
   };
