@@ -3,6 +3,8 @@
 #include "action.h"
 #include "expression.h"
 
+#include "../language.h"
+
 
 namespace sltl
 {
@@ -21,6 +23,11 @@ namespace syntax
     virtual bool apply_action(const_action& cact) const override
     {
       return apply_action_impl(cact, *this, _e.get());
+    }
+
+    virtual language::type get_type() const override
+    {
+      return _e->get_type();
     }
 
   private:

@@ -26,7 +26,7 @@ namespace sltl
     // The T2 argument stops this conflicting with the default constructor
     // The disable_if is necessary to stop conflicts with the copy constructor. Ensuring is_empty is false is a good enough requirement as sltl doesn't allow 1D vectors
     template<typename T2, typename ...A, detail::disable_if<detail::is_empty<A...>> = detail::default_tag>
-    explicit vector(T2&& t, A&&... a) : vector(proxy(syntax::expression::make<syntax::constructor_call>(language::type_helper<T>{D}, unpack<D>(std::forward<T2>(t), std::forward<A>(a)...)))) {}
+    explicit vector(T2&& t, A&&... a) : vector(proxy(syntax::expression::make<syntax::constructor_call>(language::type_helper<vector>(), unpack<D>(std::forward<T2>(t), std::forward<A>(a)...)))) {}
 
     proxy operator=(proxy&& p)
     {

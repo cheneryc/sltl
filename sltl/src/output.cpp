@@ -14,8 +14,6 @@
 
 #include "detail/numeric.h"
 
-#include <numeric>
-
 #include <cassert>
 
 
@@ -196,7 +194,7 @@ namespace
         ss << qualifier << L'_';
       }
 
-      ss << ns::language::to_type_prefix_string(vd._type) << vd._name;
+      ss << ns::language::to_type_prefix_string(vd.get_type()) << vd._name;
     }
 
     return ss.str();
@@ -239,7 +237,7 @@ namespace
   {
     std::wstring value;
 
-    switch(type._id)
+    switch(type.get_id())
     {
       case ns::language::id_float:
         value = to_string(float());
@@ -257,7 +255,7 @@ namespace
         value = to_string(bool());
         break;
       default:
-        assert((type._id != ns::language::id_unknown) && (type._id != ns::language::id_void));
+        assert((type.get_id() != ns::language::id_unknown) && (type.get_id() != ns::language::id_void));
     }
 
     return value;
@@ -357,7 +355,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::variable_declar
         _ss << qualifier_storage << L' ';
       }
 
-      _ss << language::to_type_string(vd._type) << L' ' << get_variable_name(vd);
+      _ss << language::to_type_string(vd.get_type()) << L' ' << get_variable_name(vd);
 
       if(vd.has_initializer())
       {
@@ -410,14 +408,16 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::temporary& t, b
 
   if(is_start)
   {
+    const language::type type = t.get_type();
+
     if(!initializer || !sltl::is_type<syntax::constructor_call>(initializer))
     {
-      _ss << language::to_type_string(t._type) << L'(';
+      _ss << language::to_type_string(type) << L'(';
     }
 
     if(!initializer)
     {
-      _ss << get_zero_initialization(t._type);
+      _ss << get_zero_initialization(type);
     }
   }
   else
@@ -542,7 +542,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::constructor_cal
 {
   if(is_start)
   {
-    _ss << language::to_type_string(cc._type) << L'(';
+    _ss << language::to_type_string(cc.get_type()) << L'(';
   }
   else
   {
@@ -633,7 +633,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::function_defini
   if(is_start)
   {
     line_begin();
-    _ss << language::to_type_string(fd._type_return) << L' ' << fd._name << L'(';
+    _ss << language::to_type_string(fd.get_type()) << L' ' << fd._name << L'(';
   }
   else
   {
@@ -869,16 +869,31 @@ ns::output::layout_index_t ns::output::layout_map::get_location_next(const synta
   // types other than dvec3 or dvec4 - which require two slots each.
 
   // Types: matrix
-  // The matrix type and first dimension value are considered as if they were a
-  // vector type. This value is then multiplied by each subsequent dimension value.
+  // The matrix component type and 'm' dimension value are considered as if
+  // they were a vector type. This value is then multiplied by the 'n'
+  // dimension value.
 
   //TODO: according to the glsl 4.4 spec this slot size doubling isn't applied to vertex shader input. Test this!
-  const layout_index_t slots = (((vd._type._id == sltl::language::type_id::id_double) && (vd._type.front() > 2U)) ? 2U : 1U);
 
-  return _location_next + std::accumulate(std::next(vd._type.cbegin()), vd._type.cend(), slots, [](layout_index_t lhs, layout_index_t rhs)
+  language::type_dimension_t d1 = 1U;
+  language::type_dimension_t d2 = 1U;
+
+  const language::type type = vd.get_type();
+
+  const language::type_id id = type.get_id();
+  const language::type_dimensions& dimensions = type.get_dimensions();
+
+  if(dimensions.is_matrix())
   {
-    return (lhs * rhs);
-  });
+    d1 = dimensions.m();
+    d2 = dimensions.n();
+  }
+  else if(dimensions.is_vector())
+  {
+    d1 = (language::is_row_vector(dimensions) ? dimensions.n() : dimensions.m());
+  }
+
+  return _location_next + ((((id == language::id_double) && (d1 > 2U)) ? 2U : 1U) * d2);
 }
 
 // output::layout_manager definitions
@@ -915,6 +930,36 @@ ns::output::layout_map& ns::output::layout_manager::get_layout_map(const syntax:
     default:
       throw std::exception();//TODO: exception type and message...
   }
+}
+
+ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::operator_binary& ob, bool is_start)
+{
+  //TODO: check is_start to ensure that we only do the swapping once!
+  //TODO: when is_start is false all the dimension swapping will also have been done so this would be a good opportunity to do some sanity checking asserts!
+
+  if (ob._operator_id == language::id_multiplication)
+  {
+    const language::type type_lhs = ob._operand_lhs->get_type();
+    const language::type type_rhs = ob._operand_rhs->get_type();
+
+    // matrix-matrix and vector-matrix multiplication need converting from row-order to column-order
+    if((type_lhs.get_dimensions().is_matrix() || type_lhs.get_dimensions().is_vector()) &&
+       (type_rhs.get_dimensions().is_matrix() || type_rhs.get_dimensions().is_vector()))
+    {
+      assert(!(type_lhs.get_dimensions().is_vector() && type_rhs.get_dimensions().is_vector()));//TODO: this shouldn't be allowed by the constructor of operator_binary?
+
+      ob.swap();//TODO: rename this swap_operands
+
+      //TODO: the type_dimensions of each matrix type need swapping as well!
+      //TODO: add operator overloads for constructor_call, function_definition, temporary and variable_declaration
+      //TODO: if the node has a type then call set type with the dimensions of the existing type transposed
+      //TODO: what about matrix/vector initializers -> think this should be fine for vectors as there are the same number of elements, some matrix constructors (i.e. those that specify the individual elements) will need the order changing
+      //TODO: what about io_block definitions?
+      //TODO: update elide() so it works correctly with the new get_type capabilities
+    }
+  }
+
+  return syntax::action_return_t::step_in;
 }
 
 // non-member definitions

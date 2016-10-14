@@ -177,6 +177,12 @@ namespace sltl
     std::wstring _name;
   };
 
+  class output_matrix_order : public syntax::action
+  {
+  public:
+    virtual syntax::action_return_t operator()(syntax::operator_binary& ob, bool is_start = true) override;
+  };
+
   // Overloaded bitwise operators make the detail::enum_flags helper class more useful
   detail::enum_flags<output::layout_flags> operator|(detail::enum_flags<output::layout_flags> lhs, output::layout_flags rhs);
   detail::enum_flags<output::layout_flags> operator&(detail::enum_flags<output::layout_flags> lhs, output::layout_flags rhs);

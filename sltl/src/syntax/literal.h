@@ -3,6 +3,7 @@
 #include "expression.h"
 
 #include "../traits.h"
+#include "../language.h"
 
 
 namespace sltl
@@ -15,7 +16,7 @@ namespace syntax
     static_assert(is_scalar<T>::value, "sltl::literal: Type T is not a valid template parameter type");
 
   public:
-    literal(T t) : _t(t) {}
+    literal(T t) : _t(t), _type(language::type_helper<T>()) {}
 
     virtual bool apply_action(action& act) override
     {
@@ -27,7 +28,15 @@ namespace syntax
       return apply_action_impl(cact, *this);
     }
 
+    virtual language::type get_type() const override
+    {
+      return _type;
+    }
+
     const T _t;
+
+  private:
+    const language::type _type;
   };
 }
 }

@@ -1,4 +1,5 @@
 #include "reference.h"
+#include "variable_declaration.h"
 
 
 namespace
@@ -6,9 +7,7 @@ namespace
   namespace ns = sltl::syntax;
 }
 
-ns::reference::reference(const variable_declaration& declaration) : expression(), _declaration(declaration)
-{
-}
+ns::reference::reference(const variable_declaration& declaration) : _declaration(declaration) {}
 
 bool ns::reference::apply_action(action& act)
 {
@@ -18,4 +17,9 @@ bool ns::reference::apply_action(action& act)
 bool ns::reference::apply_action(const_action& cact) const
 {
   return apply_action_impl(cact, *this);
+}
+
+sltl::language::type ns::reference::get_type() const
+{
+  return _declaration.get_type();
 }

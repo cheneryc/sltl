@@ -1,6 +1,7 @@
 #pragma once
 
 #include "expression.h"
+
 #include "../language.h"
 
 
@@ -23,9 +24,18 @@ namespace syntax
       return apply_action_impl(cact, *this, &_args);
     }
 
-    const language::type _type;
+    void set_type(const language::type& type)
+    {
+      _type = type;
+    }
+
+    virtual language::type get_type() const override
+    {
+      return _type;
+    }
 
   private:
+    language::type _type;
     expression_list _args;
   };
 }

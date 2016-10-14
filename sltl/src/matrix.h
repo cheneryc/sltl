@@ -31,7 +31,7 @@ namespace sltl
     // The T2 argument stops this conflicting with the default constructor
     // The disable_if is necessary to stop conflicts with the copy constructor. Ensuring is_empty is false is a good enough requirement as sltl doesn't allow 1x1 matrices
     template<typename T2, typename ...A, detail::disable_if<detail::is_empty<A...>> = detail::default_tag>
-    explicit matrix(T2&& t, A&&... a) : matrix(proxy(syntax::expression::make<syntax::constructor_call>(language::type_helper<T>{M, N}, unpack<elements>(std::forward<T2>(t), std::forward<A>(a)...)))) {}
+    explicit matrix(T2&& t, A&&... a) : matrix(proxy(syntax::expression::make<syntax::constructor_call>(language::type_helper<matrix>(), unpack<elements>(std::forward<T2>(t), std::forward<A>(a)...)))) {}
 
     proxy operator=(proxy&& p)
     {

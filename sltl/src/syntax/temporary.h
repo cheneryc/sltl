@@ -3,6 +3,8 @@
 #include "expression.h"
 #include "variable_declaration.h"
 
+#include "../language.h"
+
 
 namespace sltl
 {
@@ -11,12 +13,22 @@ namespace syntax
   class temporary : public expression
   {
   public:
-    temporary(variable_declaration&& declaration) : expression(), _type(declaration._type), _initializer(declaration.move())
+    temporary(variable_declaration&& declaration) : _type(declaration.has_type() ? new language::type(declaration.get_type()) : nullptr), _initializer(declaration.move())
     {
       syntax::get_current_block().erase(declaration);
     }
 
-    expression::ptr&& move()
+    bool has_type() const
+    {
+      return static_cast<bool>(_type);
+    }
+
+    bool has_initializer() const
+    {
+      return static_cast<bool>(_initializer);
+    }
+
+    expression::ptr&& move()//TODO: all functions like this (e.g. variable_declaration.move()) should only be callable for r-value references?
     {
       return std::move(_initializer);
     }
@@ -31,14 +43,29 @@ namespace syntax
       return apply_action_impl(cact, *this, _initializer.get());
     }
 
+    void set_type(const language::type& type)
+    {
+      if(_initializer)
+      {
+        throw std::exception();//TODO: exception type and message
+      }
+
+      *_type = type;
+    }
+
+    virtual language::type get_type() const override
+    {
+      return (_type ? *_type : _initializer->get_type());
+    }
+
     const expression* get_initializer() const
     {
       return _initializer.get();
     }
 
-    const language::type _type;
-
   private:
+    //TODO: make this std::optional once available (C++17)
+    std::unique_ptr<language::type> _type;//TODO: const (ptr or expression or both)?
     expression::ptr _initializer;//TODO: const (ptr or expression or both)?
   };
 }

@@ -23,7 +23,7 @@ namespace
     {
       if(is_start)
       {
-        return do_action(t._type, [&]
+        return do_action(t.get_type(), [&]
         {
           _action_state = matching;
           _action_target = &t;
@@ -40,7 +40,7 @@ namespace
 
     virtual action_return_t operator()(syntax::reference& r) override
     {
-      return do_action(r._declaration._type, [&]{ _action_state = ((_action_state == matching) ? omitted : different); return action_return_t::stop; });
+      return do_action(r._declaration.get_type(), [&]{ _action_state = ((_action_state == matching) ? omitted : different); return action_return_t::stop; });
     }
 
     expression::ptr&& get_result(expression::ptr&& exp)

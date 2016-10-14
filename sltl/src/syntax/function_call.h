@@ -1,14 +1,17 @@
 #pragma once
 
-#include "action.h"
 #include "expression.h"
 #include "function_definition.h"
+
+#include "../language.h"
 
 
 namespace sltl
 {
 namespace syntax
 {
+  class action;
+
   class function_call : public expression
   {
   public:
@@ -22,6 +25,11 @@ namespace syntax
     virtual bool apply_action(const_action& cact) const override
     {
       return apply_action_impl(cact, *this, static_cast<const node*>(nullptr));
+    }
+
+    virtual language::type get_type() const override
+    {
+      return _fd.get_type();
     }
 
     const wchar_t* get_function_name() const

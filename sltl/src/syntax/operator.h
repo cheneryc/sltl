@@ -14,6 +14,8 @@ namespace syntax
   class operator_base : public expression
   {
   protected:
+    operator_base() = default;
+
     static expression::ptr add_parentheses(expression::ptr&& e)
     {
       if(dynamic_cast<operator_base*>(e.get()))
@@ -56,7 +58,17 @@ namespace syntax
       return apply_action_impl(cact, *this, _operand.get());
     }
 
-    const expression::ptr _operand;
+    void reset(expression::ptr&& operand)
+    {
+      _operand = std::move(operand);
+    }
+
+    virtual language::type get_type() const override
+    {
+      return _operand->get_type();
+    }
+
+    expression::ptr _operand;
   };
 
   class operator_binary : public operator_base_id<language::operator_binary_id>
@@ -78,8 +90,30 @@ namespace syntax
       return apply_action(cact, *this);
     }
 
-    const expression::ptr _operand_lhs;
-    const expression::ptr _operand_rhs;
+    void swap()
+    {
+      _operand_lhs.swap(_operand_rhs);
+    }
+
+    virtual language::type get_type() const override
+    {
+      const language::type type_lhs = _operand_lhs->get_type();
+      const language::type type_rhs = _operand_rhs->get_type();
+
+      //TODO: create a new id for vector-matrix and matrix-matrix multiplication and leave id_multiplication for component-wise operators
+      assert(_operator_id == language::id_multiplication || type_lhs == type_rhs);
+
+      assert(type_lhs.get_id() == type_rhs.get_id());
+      assert(type_lhs.get_dimensions().n() == type_rhs.get_dimensions().m());
+
+      // This determines the return type for vector-matrix and matrix-matrix multiplication
+      // but should work fine for all other currently supported operators (as their operand
+      // types should be equal).
+      return language::type(type_lhs.get_id(), type_lhs.get_dimensions().m(), type_rhs.get_dimensions().n());
+    }
+
+    expression::ptr _operand_lhs;
+    expression::ptr _operand_rhs;
 
   private:
     template<typename A, typename T>

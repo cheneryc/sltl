@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../language.h"
+
 #include <string>
 
 
@@ -17,6 +19,9 @@ namespace syntax
     virtual ~declaration()
     {
     }
+
+    // Returns a copy, rather than reference, as the type may need to be calculated on demand (e.g. operator_binary)
+    virtual language::type get_type() const = 0;
 
     const std::wstring _name;
 

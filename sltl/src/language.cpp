@@ -10,6 +10,18 @@ namespace
   namespace ns = sltl::language;
 }
 
+bool ns::is_row_vector(const type_dimensions& td)
+{
+  assert(td.is_vector());
+  return td.m() == 1U;
+}
+
+bool ns::is_column_vector(const type_dimensions& td)
+{
+  assert(td.is_vector());
+  return td.n() == 1U;
+}
+
 bool ns::is_prefix_operator(operator_unary_id id)
 {
   return ((id == ns::id_increment_pre) || (id == ns::id_decrement_pre));
@@ -24,71 +36,21 @@ std::wstring ns::to_type_string(const type& t)
 {
   std::wstringstream ss;
 
-  if(t.get_dimension_count() > 1)
+  const type_id id = t.get_id();
+  const type_dimensions& dimensions = t.get_dimensions();
+
+  if(dimensions.is_void())
   {
-    switch(t._id)
-    {
-    case id_float:
-      ss << L"mat";
-      break;
-    case id_double:
-      ss << L"dmat";
-      break;
-    default:
-      assert((t._id == id_float) || (t._id == id_double));
-    }
+    assert(id == id_void);
+    assert(dimensions.m() == 0U);
+    assert(dimensions.n() == 0U);
 
-    const auto it_end = t.crend();
-
-    // use reverse iterators as glsl matrices are column-major
-    for(auto it = t.crbegin(); it != it_end; ++it)
-    {
-      ss << *it;
-
-      if(std::next(it) != it_end)
-      {
-        ss << L'x';
-      }
-    }
+    ss << L"void";
   }
-  else
+  else if(dimensions.is_scalar())
   {
-    assert(t.get_dimension_count() == 1U);
-
-    if(t.front() > 1)
+    switch(id)
     {
-      switch(t._id)
-      {
-      case id_float:
-        ss << L"vec";
-        break;
-      case id_double:
-        ss << L"dvec";
-        break;
-      case id_int:
-        ss << L"ivec";
-        break;
-      case id_uint:
-        ss << L"uvec";
-        break;
-      case id_bool:
-        ss << L"bvec";
-        break;
-      default:
-        assert((t._id != id_unknown) && (t._id != id_void));
-      }
-
-      ss << t.front();
-    }
-    else
-    {
-      assert(t.front() != 0);
-
-      switch(t._id)
-      {
-      case id_void:
-        ss << L"void";
-        break;
       case id_float:
         ss << L"float";
         break;
@@ -105,9 +67,54 @@ std::wstring ns::to_type_string(const type& t)
         ss << L"bool";
         break;
       default:
-        assert(t._id != id_unknown);
-      }
+        assert((id != id_unknown) && (id != id_void));
     }
+  }
+  else if(dimensions.is_vector())
+  {
+    switch(id)
+    {
+      case id_float:
+        ss << L"vec";
+        break;
+      case id_double:
+        ss << L"dvec";
+        break;
+      case id_int:
+        ss << L"ivec";
+        break;
+      case id_uint:
+        ss << L"uvec";
+        break;
+      case id_bool:
+        ss << L"bvec";
+        break;
+      default:
+        assert((id != id_unknown) && (id != id_void));
+    }
+
+    ss << (is_row_vector(dimensions) ? dimensions.n() : dimensions.m());
+  }
+  else if(dimensions.is_matrix())
+  {
+    switch(id)
+    {
+      case id_float:
+        ss << L"mat";
+        break;
+      case id_double:
+        ss << L"dmat";
+        break;
+      default:
+        assert((id == id_float) || (id == id_double));
+    }
+
+    // GLSL has column-major matrices so always output 'nxm'
+    ss << dimensions.n() << L'x' << dimensions.m();
+  }
+  else
+  {
+    assert(dimensions.is_void() || dimensions.is_scalar() || dimensions.is_vector() || dimensions.is_matrix());
   }
 
   return ss.str();
@@ -118,30 +125,13 @@ std::wstring ns::to_type_prefix_string(const type& t)
   // Variable names can't begin with a numeral so we need a type specific prefix
   std::wstring prefix_string;
 
-  if(t.get_dimension_count() > 1)
+  const language::type_id id = t.get_id();
+  const language::type_dimensions& dimensions = t.get_dimensions();
+
+  if(dimensions.is_scalar())
   {
-    assert((t._id == id_float) ||
-           (t._id == id_double));
-
-    prefix_string = L'm';
-  }
-  else
-  {
-    assert(t.get_dimension_count() == 1U);
-
-    if(t.front() > 1)
+    switch(id)
     {
-      assert(t._id != id_void);
-      assert(t._id != id_unknown);
-
-      prefix_string = L'v';
-    }
-    else
-    {
-      assert(t.front() != 0);
-
-      switch(t._id)
-      {
       case id_float:
         prefix_string = L'f';
         break;
@@ -158,9 +148,26 @@ std::wstring ns::to_type_prefix_string(const type& t)
         prefix_string = L'b';
         break;
       default:
-        assert((t._id != id_unknown) && (t._id != id_void));
-      }
+        assert((id != id_unknown) && (id != id_void));
     }
+  }
+  else if(dimensions.is_vector())
+  {
+    assert(id != id_void);
+    assert(id != id_unknown);
+
+    prefix_string = L'v';
+  }
+  else if(dimensions.is_matrix())
+  {
+    assert((id == id_float) ||
+           (id == id_double));
+
+    prefix_string = L'm';
+  }
+  else
+  {
+    assert(false);
   }
 
   return std::move(prefix_string);

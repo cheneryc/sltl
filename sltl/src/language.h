@@ -67,60 +67,95 @@ namespace language
     static const language::type_id value = language::id_bool;
   };
 
-  typedef size_t type_index_t;
+  typedef size_t type_dimension_t;
+
+  class type_dimensions
+  {
+  public:
+    type_dimensions(type_dimension_t m, type_dimension_t n) : _m(m), _n(n)
+    {
+      assert(is_void() || is_scalar() || is_vector() || is_matrix());
+      assert(m <= max_dimensions);
+      assert(n <= max_dimensions);
+    }
+
+    static const type_dimension_t max_dimensions = 4U;
+
+    bool is_void() const
+    {
+      // m and n must both be zero
+      return ((_m == 0U) && (_n == 0U));
+    }
+
+    bool is_scalar() const
+    {
+      // m and n must both be one
+      return ((_m == 1U) && (_n == 1U));
+    }
+
+    bool is_vector() const
+    {
+      // m or n, but not both, must be one.
+      // m or n must not be zero
+      // Using != operator here for logical XOR equivalent behaviour
+      return ((_m == 1U) != (_n == 1U)) &&
+             ((_m != 0U) && (_n != 0U));
+    }
+
+    bool is_matrix() const
+    {
+      // m and n must both be greater than one
+      return ((_m >= 2U) && (_n >= 2U));
+    }
+
+    type_dimension_t m() const
+    {
+      return _m;
+    }
+
+    type_dimension_t n() const
+    {
+      return _n;
+    }
+
+    friend bool operator==(const type_dimensions& td1, const type_dimensions& td2)
+    {
+      return ((td1._m == td2._m) && (td1._n == td2._n));
+    }
+
+    friend bool operator!=(const type_dimensions& td1, const type_dimensions& td2)
+    {
+      return !(td1 == td2);
+    }
+
+  private:
+    // m - number of rows
+    // n - number of columns
+    type_dimension_t _m;
+    type_dimension_t _n;
+  };
+
+  bool is_row_vector(const type_dimensions& td);
+  bool is_column_vector(const type_dimensions& td);
 
   class type
   {
   public:
-    type(type_id id, std::vector<type_index_t>&& dimensions) : _id(id), _dimensions(std::move(dimensions))
+    type(type_id id, type_dimension_t m, type_dimension_t n) : _id(id), _dimensions(m, n) {}
+
+    type_id get_id() const
     {
-      assert(get_dimension_count() > 0U);
-      assert(std::all_of(cbegin(), cend(), [](type_index_t d){ return (d > 0U) && (d <= 4U); }));
+      return _id;
     }
 
-    type& operator=(const type&) = delete;
-
-    typedef std::vector<type_index_t>::const_iterator const_iterator;
-    typedef std::vector<type_index_t>::const_reverse_iterator const_reverse_iterator;
-
-    const_iterator cbegin() const
+    const type_dimensions& get_dimensions() const
     {
-      return _dimensions.cbegin();
-    }
-
-    const_iterator cend() const
-    {
-      return _dimensions.cend();
-    }
-
-    const_reverse_iterator crbegin() const
-    {
-      return _dimensions.crbegin();
-    }
-
-    const_reverse_iterator crend() const
-    {
-      return _dimensions.crend();
-    }
-
-    type_index_t front() const
-    {
-      return _dimensions.front();
-    }
-
-    type_index_t back() const
-    {
-      return _dimensions.back();
-    }
-
-    size_t get_dimension_count() const
-    {
-      return _dimensions.size();
+      return _dimensions;
     }
 
     friend bool operator==(const type& t1, const type& t2)
     {
-      return ((t1._id == t2._id) && (t1._dimensions.size() == t2._dimensions.size()) && std::equal(t1._dimensions.begin(), t1._dimensions.end(), t2._dimensions.begin()));
+      return ((t1._id == t2._id) && (t1._dimensions == t2._dimensions));
     }
 
     friend bool operator!=(const type& t1, const type& t2)
@@ -128,38 +163,48 @@ namespace language
       return !(t1 == t2);
     }
 
-    const type_id _id;
+    //TODO: add support for array types by adding a std::dynarray member (turns out dynarray will not be standardized so create something similar) to store each array dimension
 
   private:
-    //TODO: the vector isn't ideal, would prefer dynarray when (if?) it becomes available
-    const std::vector<type_index_t> _dimensions;
+    type_id _id;
+    type_dimensions _dimensions;
   };
 
   template<typename T>
   struct type_helper : type
   {
-    type_helper(std::initializer_list<type_index_t> l = {1U}) : type(type_id_helper<T>::value, std::vector<type_index_t>(l.begin(), l.end())) {}
+    type_helper() : type(type_id_helper<T>::value, 1U, 1U) {}
   };
 
-  // Specialization for void type, stops vectors and matrices of void type from being defined
+  // Specialization for void type
   template<>
   struct type_helper<void> : type
   {
-    type_helper() : type(type_id_helper<void>::value, {1U}) {}
+    type_helper() : type(type_id_helper<void>::value, 0U, 0U) {}
   };
 
-  // Specialization for scalar types derived from sltl::basic
+  // Specialization used by scalar types derived from sltl::basic
+  //TODO: check/ensure that template parameter V is derived from sltl::basic
   template<template<typename> class V, typename T>
-  struct type_helper<V<T>> : type_helper<T>
+  struct type_helper<V<T>> : type
   {
-    type_helper() : type_helper<T>() {}
+    type_helper() : type(type_id_helper<T>::value, 1U, 1U) {}
   };
 
-  // Specialization for vector and matrix types derived from sltl::basic
-  template<template<typename, type_index_t...> class V, typename T, type_index_t ...D>
-  struct type_helper<V<T, D...>> : type_helper<T>
+  // Specialization used by vector types derived from sltl::basic
+  //TODO: check/ensure that template parameter V is derived from sltl::basic
+  template<template<typename, type_dimension_t> class V, typename T, type_dimension_t D>
+  struct type_helper<V<T, D>> : type
   {
-    type_helper() : type_helper<T>({D...}) {}
+    type_helper() : type(type_id_helper<T>::value, 1U, D) {}
+  };
+
+  // Specialization used by matrix types derived from sltl::basic
+  //TODO: check/ensure that template parameter V is derived from sltl::basic
+  template<template<typename, type_dimension_t, type_dimension_t> class V, typename T, type_dimension_t M, type_dimension_t N>
+  struct type_helper<V<T, M, N>> : type
+  {
+    type_helper() : type(type_id_helper<T>::value, M, N) {}
   };
 
   enum operator_unary_id

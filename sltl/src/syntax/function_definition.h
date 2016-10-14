@@ -40,7 +40,15 @@ namespace syntax
       return apply_action(cact, *this);
     }
 
-    const language::type _type_return;
+    void set_type(const language::type& type)
+    {
+      _type_return = type;
+    }
+
+    virtual language::type get_type() const override
+    {
+      return _type_return;
+    }
 
   private:
     template<typename A, typename T>
@@ -61,6 +69,7 @@ namespace syntax
       syntax::get_current_block().add<syntax::return_statement>(elide(detail::function_traits<Fn>::return_t::proxy(fn()).move(), _type_return));
     }
 
+    language::type _type_return;
     parameter_list _parameters;
     block _function_body;
   };

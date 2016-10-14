@@ -19,7 +19,7 @@ namespace syntax
   {
   public:
     variable_declaration(const language::type& type, core::qualifier::ptr&& qualifier, core::semantic_pair semantic) : declaration_statement(get_current_block().get_child_name()),
-      _type(type),
+      _type(std::make_unique<language::type>(type)),
       _semantic(semantic._semantic),
       _semantic_index(semantic._index),
       _qualifier(std::move(qualifier)),
@@ -27,12 +27,21 @@ namespace syntax
       _ref_count(0) {}
 
     variable_declaration(const language::type& type, core::qualifier::ptr&& qualifier, core::semantic_pair semantic, expression::ptr&& initializer) : declaration_statement(get_current_block().get_child_name()),
-      _type(type),
+      _type(),
       _semantic(semantic._semantic),
       _semantic_index(semantic._index),
       _qualifier(std::move(qualifier)),
       _initializer(std::move(initializer)),
-      _ref_count(0) {}
+      _ref_count(0)
+    {
+      assert(_initializer);
+      assert(_initializer->get_type() == type);
+    }
+
+    bool has_type() const
+    {
+      return static_cast<bool>(_type);
+    }
 
     bool has_initializer() const
     {
@@ -64,17 +73,32 @@ namespace syntax
       return apply_action_impl(cact, *this, _initializer.get());
     }
 
-    const core::qualifier& get_qualifier() const
+    void set_type(const language::type& type)
     {
-      return *_qualifier;
+      if(_initializer)
+      {
+        throw std::exception();//TODO: exception type and message
+      }
+
+      *_type = type;
     }
 
-    const language::type _type;
+    virtual language::type get_type() const override
+    {
+      return (_type ? *_type : _initializer->get_type());
+    }
+
+    const core::qualifier& get_qualifier() const
+    {
+      return *_qualifier;//TODO: use a variant here rather than a pointer and require dynamic casting?
+    }
 
     const core::semantic _semantic;
     const core::semantic_index_t _semantic_index;
 
   private:
+    //TODO: make this std::optional once available (C++17)
+    std::unique_ptr<language::type> _type;//TODO: const (ptr or expression or both)?
     core::qualifier::ptr _qualifier;//TODO: const (ptr or expression or both)?
     expression::ptr _initializer;//TODO: const (ptr or expression or both)?
     mutable size_t _ref_count;//TODO: this is not a great design, try and improve it...

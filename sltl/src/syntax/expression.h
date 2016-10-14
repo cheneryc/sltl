@@ -3,6 +3,8 @@
 #include "node.h"
 #include "list.h"
 
+#include "../language.h"
+
 #include <memory>
 #include <utility>
 
@@ -21,6 +23,9 @@ namespace syntax
     {
       return ptr(new T(std::forward<A>(a)...));
     }
+
+    // Returns a copy, rather than reference, as the type may need to be calculated on demand (e.g. operator_binary)
+    virtual language::type get_type() const = 0;
 
   protected:
     expression() = default;
