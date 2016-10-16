@@ -85,6 +85,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\call_test.cpp" />
+    <ClCompile Include="src\elide_test.cpp" />
     <ClCompile Include="src\if_test.cpp" />
     <ClCompile Include="src\io_test.cpp" />
     <ClCompile Include="src\matrix_test.cpp" />

@@ -12,15 +12,25 @@ namespace
   namespace ns = sltl;
 }
 
+ns::variable::variable(syntax::expression::ptr&& initializer) : _declaration(&(syntax::get_current_block().add<syntax::variable_declaration>(std::move(initializer)))) {}
 ns::variable::variable(const language::type& type, core::qualifier::ptr&& qualifier, core::semantic_pair semantic) : _declaration(&(syntax::get_current_block().add<syntax::variable_declaration>(type, std::move(qualifier), semantic))) {}
-ns::variable::variable(const language::type& type, core::qualifier::ptr&& qualifier, core::semantic_pair semantic, syntax::expression::ptr&& initializer) : _declaration(&(syntax::get_current_block().add<syntax::variable_declaration>(type, std::move(qualifier), semantic, std::move(initializer)))) {}
 
 ns::syntax::expression::ptr ns::variable::make_temporary()
 {
-  syntax::variable_declaration* decl_tmp = _declaration; _declaration = nullptr;
+  assert(_declaration);
+  assert(_declaration->get_ref_count() == 0);
 
-  assert(decl_tmp);
-  assert(decl_tmp->get_ref_count() == 0);
+  syntax::expression::ptr exp;
 
-  return syntax::expression::make<syntax::temporary>(std::move(*decl_tmp));
+  {
+    syntax::variable_declaration& declaration = *_declaration; _declaration = nullptr;
+
+    exp = (declaration.has_type() ?
+      syntax::expression::make<syntax::temporary>(declaration.get_type()) :
+      syntax::expression::make<syntax::temporary>(declaration.move()));
+
+    syntax::get_current_block().erase(declaration);
+  }
+
+  return std::move(exp);
 }

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "expression.h"
-#include "variable_declaration.h"
 
 #include "../language.h"
 
@@ -13,10 +12,8 @@ namespace syntax
   class temporary : public expression
   {
   public:
-    temporary(variable_declaration&& declaration) : _type(declaration.has_type() ? new language::type(declaration.get_type()) : nullptr), _initializer(declaration.move())
-    {
-      syntax::get_current_block().erase(declaration);
-    }
+    temporary(const language::type& type) : _type(std::make_unique<language::type>(type)), _initializer() {}
+    temporary(expression::ptr&& initializer) : _type(), _initializer(std::move(initializer)) {}
 
     bool has_type() const
     {

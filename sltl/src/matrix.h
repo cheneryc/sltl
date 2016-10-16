@@ -22,7 +22,7 @@ namespace sltl
     static_assert((N >=2) && (N <= 4), "sltl::matrix: template parameter N is only valid for values of 2, 3 and 4");
 
   public:
-    matrix(proxy&& p) : basic(core::qualifier::make<core::storage_qualifier>(core::qualifier_storage::default), core::semantic_pair::none, p.move()) {}
+    matrix(proxy&& p) : basic(p.move()) {}
     matrix(core::qualifier_storage qualifier = core::qualifier_storage::default, core::semantic_pair semantic = core::semantic_pair::none) : basic(core::qualifier::make<core::storage_qualifier>(qualifier), semantic) {}
 
     matrix(matrix&& m) : matrix(proxy(std::move(m))) {}

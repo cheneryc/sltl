@@ -29,8 +29,8 @@ namespace sltl
     variable& operator=(const variable&) = delete;
 
   protected:
+    variable(syntax::expression::ptr&& initializer);
     variable(const language::type& type, core::qualifier::ptr&& qualifier, core::semantic_pair semantic);
-    variable(const language::type& type, core::qualifier::ptr&& qualifier, core::semantic_pair semantic, syntax::expression::ptr&& initializer);
 
     syntax::expression::ptr make_temporary();
 

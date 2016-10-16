@@ -3,6 +3,7 @@
 #include "action.h"
 #include "temporary.h"
 #include "reference.h"
+#include "variable_declaration.h"
 
 #include "../language.h"
 

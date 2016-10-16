@@ -23,7 +23,7 @@ namespace sltl
   class scalar : public basic<sltl::scalar, T>
   {
   public:
-    scalar(proxy&& p) : basic(core::qualifier::make<core::storage_qualifier>(core::qualifier_storage::default), core::semantic_pair::none, p.move()) {}
+    scalar(proxy&& p) : basic(p.move()) {}
     scalar(core::qualifier_storage qualifier = core::qualifier_storage::default, core::semantic_pair semantic = core::semantic_pair::none) : basic(core::qualifier::make<core::storage_qualifier>(qualifier), semantic) {}
 
     scalar(scalar&& s) : scalar(proxy(std::move(s))) {}
