@@ -2,8 +2,6 @@
 
 #include "action.h"
 #include "temporary.h"
-#include "reference.h"
-#include "variable_declaration.h"
 
 #include "../language.h"
 
@@ -18,112 +16,83 @@ namespace
   class elide_action : public action
   {
   public:
-    elide_action(const language::type& type) : _type(type), _action_state(unknown), _action_target(nullptr) {}
+    elide_action(const language::type& type) : _type(type),
+      _action_state(state_unknown),
+      _action_target(nullptr) {}
 
     virtual action_return_t operator()(temporary& t, bool is_start = true) override
     {
+      action_return_t return_val = action_return_t::stop;
+
       if(is_start)
       {
-        return do_action(t.get_type(), [&]
+        assert(((_action_state == state_unknown)  && !_action_target) ||
+               ((_action_state == state_matching) &&  _action_target));
+
+        const language::type type = t.get_type();
+
+        if(_type == type)
         {
-          _action_state = matching;
-          _action_target = &t;
+          if(t.has_initializer())
+          {
+            return_val = action_return_t::step_in;
 
-          // The elide action only continues when the expression is a temporary node of matching type
-          return action_return_t::step_in;
-        });
-      }
-      else
-      {
-        return action_return_t::stop;
-      }
-    }
+            _action_state = state_matching;
+            _action_target = &t;
+          }
+          else
+          {
+            _action_state = ((_action_state == state_matching) ? state_omitted : state_different);
+          }
+        }
+        else
+        {
+          assert(_type == type);
 
-    virtual action_return_t operator()(syntax::reference& r) override
-    {
-      return do_action(r._declaration.get_type(), [&]{ _action_state = ((_action_state == matching) ? omitted : different); return action_return_t::stop; });
+          // The syntax tree is in an invalid state, do not perform any elision
+          _action_state = state_different;
+          _action_target = nullptr;
+        }
+      }
+
+      return return_val;
     }
 
     expression::ptr&& get_result(expression::ptr&& exp)
     {
-      assert(_action_state != unknown);
+      assert(((_action_state == state_omitted)   &&  _action_target) ||
+             ((_action_state == state_different) && !_action_target));
 
-      if(_action_state == omitted)
+      if(_action_state == state_omitted)
       {
-        return _action_target->move();
+        exp = _action_target->move();// Destruction of elided temporary nodes happens during this assignment
       }
-      else
-      {
-        return std::move(exp);
-      }
+
+      return std::move(exp);
     }
 
     const language::type _type;
 
   protected:
-    virtual action_return_t operator()(float) override
+    virtual action_return_t get_default(bool) override
     {
-      return do_action(language::type_helper<float>(), [&]{ _action_state = ((_action_state == matching) ? omitted : different); return action_return_t::stop; });
-    }
+      assert(((_action_state == state_unknown)  && !_action_target) ||
+             ((_action_state == state_matching) &&  _action_target));
 
-    virtual action_return_t operator()(double) override
-    {
-      return do_action(language::type_helper<double>(), [&]{ _action_state = ((_action_state == matching) ? omitted : different); return action_return_t::stop; });
-    }
-
-    virtual action_return_t operator()(int) override
-    {
-      return do_action(language::type_helper<int>(), [&]{ _action_state = ((_action_state == matching) ? omitted : different); return action_return_t::stop; });
-    }
-
-    virtual action_return_t operator()(unsigned int) override
-    {
-      return do_action(language::type_helper<unsigned int>(), [&]{ _action_state = ((_action_state == matching) ? omitted : different); return action_return_t::stop; });
-    }
-
-    virtual action_return_t operator()(bool) override
-    {
-      return do_action(language::type_helper<bool>(), [&]{ _action_state = ((_action_state == matching) ? omitted : different); return action_return_t::stop; });
-    }
-
-    virtual action_return_t get_default(bool is_start) override
-    {
-      assert(is_start);
-
-      _action_state = different;
-      _action_target = nullptr;
+      _action_state = ((_action_state == state_matching) ?
+        state_omitted :
+        state_different);
 
       return action_return_t::stop;
     }
 
   private:
-    template<typename Fn>
-    action_return_t do_action(const language::type& type, Fn fn)
-    {
-      assert(((_action_state == unknown)  && !_action_target) ||
-             ((_action_state == matching) &&  _action_target));
-
-      action_return_t is_continuing = action_return_t::stop;
-
-      if(_type == type)
-      {
-        is_continuing = fn();
-      }
-      else
-      {
-        _action_state = different;
-        _action_target = nullptr;
-      }
-
-      return is_continuing;
-    }
-
     enum
     {
-      unknown,
-      matching,
-      different,
-      omitted
+      state_unknown,
+      state_matching,
+      state_different,
+      state_omitted
     } _action_state;
 
     temporary* _action_target;
@@ -139,5 +108,5 @@ ns::expression::ptr&& ns::elide(expression::ptr&& exp, const language::type& typ
   exp->apply_action(elider);
   exp = elider.get_result(std::move(exp));
 
-  return std::move(exp);//TODO: check the elided node's destructor(s) runs when elision takes place
+  return std::move(exp);
 }

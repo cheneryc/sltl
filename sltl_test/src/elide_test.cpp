@@ -35,13 +35,11 @@ namespace
 
   std::wstring to_string(const sltl::syntax::node& node)
   {
-    //TODO: Rather than use output to check a result there should be a way to compare equality between nodes
-    //TODO: Either use an action or add an operator== and/or equals member function to syntax::node
     sltl::output o(sltl::core::shader_stage::test, sltl::output_version::none, false);
     node.apply_action(o);
 
     std::wstring result = o.get_result();
-    rtrim(result);
+    rtrim(result);// trim the trailing newline
 
     return std::move(result);
   }
@@ -120,6 +118,41 @@ TEST(elide, elide_temporary_single)
   blk.pop();
 }
 
+TEST(elide, elide_temporary_single_leaf)
+{
+  using namespace sltl::syntax;
+
+  expression::ptr exp;
+  expression::ptr exp_result;
+
+  block blk(block::global);
+
+  {
+    auto& vd1 = blk.add<variable_declaration>(expression::make<temporary>(sltl::language::type_helper<float>()));
+
+    const std::wstring actual = ::to_string(vd1);
+    const std::wstring expected = L"float f1 = float(0.0f);";// The temporary has no initializer, the glsl output action is adding the zero-initialization
+
+    ASSERT_EQ(expected, actual);
+
+    exp = vd1.move();
+    exp_result = elide(std::move(exp), exp->get_type());
+
+    blk.erase(vd1);
+  }
+
+  {
+    auto& vd2 = blk.add<variable_declaration>(std::move(exp_result));
+
+    const std::wstring actual = ::to_string(vd2);
+    const std::wstring expected = L"float f2 = float(0.0f);";// The temporary has no initializer, the glsl output action is adding the zero-initialization
+
+    ASSERT_EQ(expected, actual);
+  }
+
+  blk.pop();
+}
+
 TEST(elide, elide_temporary_multiple)
 {
   using namespace sltl::syntax;
@@ -153,6 +186,45 @@ TEST(elide, elide_temporary_multiple)
 
     const std::wstring actual = ::to_string(vd2);
     const std::wstring expected = L"float f2 = 1.0f;";
+
+    ASSERT_EQ(expected, actual);
+  }
+
+  blk.pop();
+}
+
+TEST(elide, elide_temporary_multiple_leaf)
+{
+  using namespace sltl::syntax;
+
+  expression::ptr exp;
+  expression::ptr exp_result;
+
+  block blk(block::global);
+
+  {
+    exp = expression::make<temporary>(
+          expression::make<temporary>(
+          expression::make<temporary>(sltl::language::type_helper<float>())));
+
+    auto& vd1 = blk.add<variable_declaration>(std::move(exp));
+
+    const std::wstring actual = ::to_string(vd1);
+    const std::wstring expected = L"float f1 = float(float(float(0.0f)));";// The temporary has no initializer, the glsl output action is adding the zero-initialization
+
+    ASSERT_EQ(expected, actual);
+
+    exp = vd1.move();
+    exp_result = elide(std::move(exp), exp->get_type());
+
+    blk.erase(vd1);
+  }
+
+  {
+    auto& vd2 = blk.add<variable_declaration>(std::move(exp_result));
+
+    const std::wstring actual = ::to_string(vd2);
+    const std::wstring expected = L"float f2 = float(0.0f);";// The temporary has no initializer, the glsl output action is adding the zero-initialization
 
     ASSERT_EQ(expected, actual);
   }
