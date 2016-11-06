@@ -16,9 +16,13 @@ namespace sltl
   {
     static_assert((D >=2) && (D <= 4), "sltl::vector: template parameter D is only valid for values of 2, 3 and 4");
 
+    typedef basic<sltl::vector, T, D> super_t;
+
   public:
-    vector(proxy&& p) : basic(p.move()) {}
-    vector(core::qualifier_storage qualifier = core::qualifier_storage::default, core::semantic_pair semantic = core::semantic_pair::none) : basic(core::qualifier::make<core::storage_qualifier>(qualifier), semantic) {}
+    typedef super_t::proxy proxy;
+
+    vector(proxy&& p) : super_t(p.move()) {}
+    vector(core::qualifier_storage qualifier = core::qualifier_storage::default, core::semantic_pair semantic = core::semantic_pair::none) : super_t(core::qualifier::make<core::storage_qualifier>(qualifier), semantic) {}
 
     vector(vector&& v) : vector(proxy(std::move(v))) {}
     vector(const vector& v) : vector(proxy(v)) {}
@@ -30,7 +34,7 @@ namespace sltl
 
     proxy operator=(proxy&& p)
     {
-      return make_proxy<syntax::operator_binary>(language::id_assignment, make_reference(), p.move());
+      return super_t::make_proxy<syntax::operator_binary>(language::id_assignment, super_t::make_reference(), p.move());
     }
 
     proxy operator=(vector&& v)

@@ -22,16 +22,20 @@ namespace sltl
   template<typename T>
   class scalar : public basic<sltl::scalar, T>
   {
+    typedef basic<sltl::scalar, T> super_t;
+
   public:
-    scalar(proxy&& p) : basic(p.move()) {}
-    scalar(core::qualifier_storage qualifier = core::qualifier_storage::default, core::semantic_pair semantic = core::semantic_pair::none) : basic(core::qualifier::make<core::storage_qualifier>(qualifier), semantic) {}
+    typedef super_t::proxy proxy;
+
+    scalar(proxy&& p) : super_t(p.move()) {}
+    scalar(core::qualifier_storage qualifier = core::qualifier_storage::default, core::semantic_pair semantic = core::semantic_pair::none) : super_t(core::qualifier::make<core::storage_qualifier>(qualifier), semantic) {}
 
     scalar(scalar&& s) : scalar(proxy(std::move(s))) {}
     scalar(const scalar& s) : scalar(proxy(s)) {}
 
     proxy operator=(proxy&& p)
     {
-      return make_proxy<syntax::operator_binary>(language::id_assignment, make_reference(), p.move());
+      return super_t::make_proxy<syntax::operator_binary>(language::id_assignment, super_t::make_reference(), p.move());
     }
 
     proxy operator=(scalar&& s)

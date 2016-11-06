@@ -21,9 +21,13 @@ namespace sltl
     static_assert((M >=2) && (M <= 4), "sltl::matrix: template parameter M is only valid for values of 2, 3 and 4");
     static_assert((N >=2) && (N <= 4), "sltl::matrix: template parameter N is only valid for values of 2, 3 and 4");
 
+    typedef basic<sltl::matrix, T, M, N> super_t;
+
   public:
-    matrix(proxy&& p) : basic(p.move()) {}
-    matrix(core::qualifier_storage qualifier = core::qualifier_storage::default, core::semantic_pair semantic = core::semantic_pair::none) : basic(core::qualifier::make<core::storage_qualifier>(qualifier), semantic) {}
+    typedef super_t::proxy proxy;
+
+    matrix(proxy&& p) : super_t(p.move()) {}
+    matrix(core::qualifier_storage qualifier = core::qualifier_storage::default, core::semantic_pair semantic = core::semantic_pair::none) : super_t(core::qualifier::make<core::storage_qualifier>(qualifier), semantic) {}
 
     matrix(matrix&& m) : matrix(proxy(std::move(m))) {}
     matrix(const matrix& m) : matrix(proxy(m)) {}
@@ -35,7 +39,7 @@ namespace sltl
 
     proxy operator=(proxy&& p)
     {
-      return make_proxy<syntax::assignment_operator>(language::id_assignment, make_reference(), p.move());
+      return super_t::make_proxy<syntax::assignment_operator>(language::id_assignment, super_t::make_reference(), p.move());
     }
 
     proxy operator=(matrix&& m)
