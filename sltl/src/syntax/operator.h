@@ -90,7 +90,7 @@ namespace syntax
       return apply_action(cact, *this);
     }
 
-    void swap()
+    void swap_operands()
     {
       _operand_lhs.swap(_operand_rhs);
     }
@@ -104,7 +104,8 @@ namespace syntax
       assert(_operator_id == language::id_multiplication || type_lhs == type_rhs);
 
       assert(type_lhs.get_id() == type_rhs.get_id());
-      assert(type_lhs.get_dimensions().n() == type_rhs.get_dimensions().m());
+      //TODO: re-instate somehow as this currently incorrectly fires during the type dimension swapping action
+      //assert(type_lhs.get_dimensions().n() == type_rhs.get_dimensions().m());
 
       // This determines the return type for vector-matrix and matrix-matrix multiplication
       // but should work fine for all other currently supported operators (as their operand

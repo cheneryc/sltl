@@ -178,6 +178,11 @@ namespace
     return nullptr;
   }
 
+  std::wstring get_type_name(const ns::language::type& type, ns::detail::enum_flags<ns::output_flags> flags)
+  {
+    return ns::language::to_type_string(flags.has_flag<ns::output_flags::flag_transpose_type>() ? type.transpose() : type);
+  }
+
   std::wstring get_variable_name(const ns::syntax::variable_declaration& vd)
   {
     std::wstringstream ss;
@@ -288,11 +293,11 @@ namespace
 
 // output definitions
 
-ns::output::output(core::shader_stage stage, output_version version, bool is_indent_tab) : output(stage, layout_manager(get_default_layout_flags(stage)), version, is_indent_tab)
+ns::output::output(core::shader_stage stage, output_version version, detail::enum_flags<output_flags> flags) : output(stage, layout_manager(get_default_layout_flags(stage)), version, flags)
 {
 }
 
-ns::output::output(core::shader_stage stage, layout_manager&& manager, output_version version, bool is_indent_tab) : _indent_count(0), _is_indent_tab(is_indent_tab), _stage(stage), _layout_manager(std::move(manager))
+ns::output::output(core::shader_stage stage, layout_manager&& manager, output_version version, detail::enum_flags<output_flags> flags) : _indent_count(0), _flags(flags), _stage(stage), _layout_manager(std::move(manager))
 {
   if(const auto v_str = to_version_string(version))
   {
@@ -311,12 +316,12 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::block&, bool is
 
   if(is_start)
   {
-    output_indent(_ss, _indent_count++, _is_indent_tab);
+    output_indent(_ss, _indent_count++, !_flags.has_flag<output_flags::flag_indent_space>());
     brace = L'{';
   }
   else
   {
-    output_indent(_ss, --_indent_count, _is_indent_tab);
+    output_indent(_ss, --_indent_count, !_flags.has_flag<output_flags::flag_indent_space>());
     brace = L'}';
   }
 
@@ -355,7 +360,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::variable_declar
         _ss << qualifier_storage << L' ';
       }
 
-      _ss << language::to_type_string(vd.get_type()) << L' ' << get_variable_name(vd);
+      _ss << get_type_name(vd.get_type(), _flags) << L' ' << get_variable_name(vd);
 
       if(vd.has_initializer())
       {
@@ -412,7 +417,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::temporary& t, b
 
     if(!initializer || !sltl::is_type<syntax::constructor_call>(initializer))
     {
-      _ss << language::to_type_string(type) << L'(';
+      _ss << get_type_name(type, _flags) << L'(';
     }
 
     if(!initializer)
@@ -542,7 +547,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::constructor_cal
 {
   if(is_start)
   {
-    _ss << language::to_type_string(cc.get_type()) << L'(';
+    _ss << get_type_name(cc.get_type(), _flags) << L'(';
   }
   else
   {
@@ -633,7 +638,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::function_defini
   if(is_start)
   {
     line_begin();
-    _ss << language::to_type_string(fd.get_type()) << L' ' << fd._name << L'(';
+    _ss << get_type_name(fd.get_type(), _flags) << L' ' << fd._name << L'(';
   }
   else
   {
@@ -701,7 +706,7 @@ ns::syntax::action_return_t ns::output::get_default(bool is_start)
 
 void ns::output::line_begin()
 {
-  output_indent(_ss, _indent_count, _is_indent_tab);
+  output_indent(_ss, _indent_count, !_flags.has_flag<output_flags::flag_indent_space>());
 }
 
 void ns::output::line_end(bool has_semi_colon)
@@ -768,6 +773,111 @@ std::wstring ns::output_introspector::get_result() const
 }
 
 ns::syntax::action_return_t ns::output_introspector::get_default(bool is_start)
+{
+  return is_start ? ns::syntax::action_return_t::step_in :
+                    ns::syntax::action_return_t::step_out;
+}
+
+// output_matrix_order definitions
+
+ns::output_matrix_order::output_matrix_order(core::shader_stage)
+{
+}
+
+ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::operator_binary& ob, bool is_start)
+{
+  ns::syntax::action_return_t return_val = ns::syntax::action_return_t::step_out;
+
+  if(is_start)
+  {
+    return_val = ns::syntax::action_return_t::step_in;
+
+    if(ob._operator_id == language::id_multiplication)
+    {
+      const language::type type_lhs = ob._operand_lhs->get_type();
+      const language::type type_rhs = ob._operand_rhs->get_type();
+
+      // matrix-matrix and vector-matrix multiplication need converting from row-order to column-order
+      if((type_lhs.get_dimensions().is_matrix() || type_lhs.get_dimensions().is_vector()) &&
+         (type_rhs.get_dimensions().is_matrix() || type_rhs.get_dimensions().is_vector()))
+      {
+        // both operands cannot be vectors
+        assert(type_lhs.get_dimensions().is_vector() !=
+               type_rhs.get_dimensions().is_vector());
+
+        ob.swap_operands();
+      }
+    }
+  }
+
+  return return_val;
+}
+
+ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::variable_declaration& vd, bool is_start)
+{
+  ns::syntax::action_return_t return_val = ns::syntax::action_return_t::step_out;
+
+  if(is_start)
+  {
+    const bool is_transposable = vd.has_type();
+
+    if(is_transposable)
+    {
+      vd.set_type(vd.get_type().transpose());
+    }
+
+    return_val = is_transposable ?
+      ns::syntax::action_return_t::step_over :
+      ns::syntax::action_return_t::step_in;
+  }
+
+  return return_val;
+}
+
+ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::temporary& t, bool is_start)
+{
+  ns::syntax::action_return_t return_val = ns::syntax::action_return_t::step_out;
+
+  if(is_start)
+  {
+    const bool is_transposable = t.has_type();
+
+    if(is_transposable)
+    {
+      t.set_type(t.get_type().transpose());
+    }
+
+    return_val = is_transposable ?
+      ns::syntax::action_return_t::step_over :
+      ns::syntax::action_return_t::step_in;
+  }
+
+  return return_val;
+}
+
+ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::constructor_call& cc, bool is_start)
+{
+  if(is_start)
+  {
+    cc.set_type(cc.get_type().transpose());
+  }
+
+  return is_start ? ns::syntax::action_return_t::step_in :
+                    ns::syntax::action_return_t::step_out;
+}
+
+ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::function_definition& fd, bool is_start)
+{
+  if(is_start)
+  {
+    fd.set_type(fd.get_type().transpose());
+  }
+
+  return is_start ? ns::syntax::action_return_t::step_in :
+                    ns::syntax::action_return_t::step_out;
+}
+
+ns::syntax::action_return_t ns::output_matrix_order::get_default(bool is_start)
 {
   return is_start ? ns::syntax::action_return_t::step_in :
                     ns::syntax::action_return_t::step_out;
@@ -930,36 +1040,6 @@ ns::output::layout_map& ns::output::layout_manager::get_layout_map(const syntax:
     default:
       throw std::exception();//TODO: exception type and message...
   }
-}
-
-ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::operator_binary& ob, bool is_start)
-{
-  //TODO: check is_start to ensure that we only do the swapping once!
-  //TODO: when is_start is false all the dimension swapping will also have been done so this would be a good opportunity to do some sanity checking asserts!
-
-  if (ob._operator_id == language::id_multiplication)
-  {
-    const language::type type_lhs = ob._operand_lhs->get_type();
-    const language::type type_rhs = ob._operand_rhs->get_type();
-
-    // matrix-matrix and vector-matrix multiplication need converting from row-order to column-order
-    if((type_lhs.get_dimensions().is_matrix() || type_lhs.get_dimensions().is_vector()) &&
-       (type_rhs.get_dimensions().is_matrix() || type_rhs.get_dimensions().is_vector()))
-    {
-      assert(!(type_lhs.get_dimensions().is_vector() && type_rhs.get_dimensions().is_vector()));//TODO: this shouldn't be allowed by the constructor of operator_binary?
-
-      ob.swap();//TODO: rename this swap_operands
-
-      //TODO: the type_dimensions of each matrix type need swapping as well!
-      //TODO: add operator overloads for constructor_call, function_definition, temporary and variable_declaration
-      //TODO: if the node has a type then call set type with the dimensions of the existing type transposed
-      //TODO: what about matrix/vector initializers -> think this should be fine for vectors as there are the same number of elements, some matrix constructors (i.e. those that specify the individual elements) will need the order changing
-      //TODO: what about io_block definitions?
-      //TODO: update elide() so it works correctly with the new get_type capabilities
-    }
-  }
-
-  return syntax::action_return_t::step_in;
 }
 
 // non-member definitions

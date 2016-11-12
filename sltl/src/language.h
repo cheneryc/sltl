@@ -143,6 +143,11 @@ namespace language
   public:
     type(type_id id, type_dimension_t m, type_dimension_t n) : _id(id), _dimensions(m, n) {}
 
+    type transpose() const
+    {
+      return type(_id, _dimensions.n(), _dimensions.m());
+    }
+
     type_id get_id() const
     {
       return _id;

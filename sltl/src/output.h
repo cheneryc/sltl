@@ -22,6 +22,13 @@ namespace sltl
     v330
   };
 
+  enum class output_flags
+  {
+    flag_none           = 0x0,
+    flag_indent_space   = 0x1,
+    flag_transpose_type = flag_indent_space << 1
+  };
+
   class output : public syntax::const_action_result<std::wstring>
   {
   public:
@@ -101,8 +108,9 @@ namespace sltl
       layout_map _layout_uniform;
     };
 
-    output(core::shader_stage stage, output_version version = output_version::v330, bool is_indent_tab = true);
-    output(core::shader_stage stage, layout_manager&& manager, output_version version = output_version::v330, bool is_indent_tab = true);
+    output(output&&) = default;
+    output(core::shader_stage stage, output_version version = output_version::v330, detail::enum_flags<output_flags> flags = output_flags::flag_none);
+    output(core::shader_stage stage, layout_manager&& manager, output_version version = output_version::v330, detail::enum_flags<output_flags> flags = output_flags::flag_none);
 
     // Non-copyable and non-assignable
     output(const output&) = delete;
@@ -144,7 +152,7 @@ namespace sltl
 
     size_t _indent_count;
     std::wstringstream _ss;
-    bool _is_indent_tab;
+    const detail::enum_flags<output_flags> _flags;
     const core::shader_stage _stage;
 
     layout_manager _layout_manager;
@@ -153,6 +161,7 @@ namespace sltl
   class output_introspector : public syntax::const_action_result<std::wstring>
   {
   public:
+    output_introspector(output_introspector&&) = default;
     output_introspector(core::shader_stage, core::qualifier_storage qualifier, core::semantic_pair semantic);
 
     // Non-copyable and non-assignable
@@ -180,7 +189,22 @@ namespace sltl
   class output_matrix_order : public syntax::action
   {
   public:
+    output_matrix_order(output_matrix_order&&) = default;
+    output_matrix_order(core::shader_stage);
+
+    // Non-copyable and non-assignable
+    output_matrix_order(const output_matrix_order&) = delete;
+    output_matrix_order& operator=(output_matrix_order&&) = delete;
+    output_matrix_order& operator=(const output_matrix_order&) = delete;
+
+    virtual syntax::action_return_t operator()(syntax::variable_declaration& vd, bool is_start = true) override;
+    virtual syntax::action_return_t operator()(syntax::temporary& t, bool is_start = true) override;
     virtual syntax::action_return_t operator()(syntax::operator_binary& ob, bool is_start = true) override;
+    virtual syntax::action_return_t operator()(syntax::constructor_call& cc, bool is_start = true) override;
+    virtual syntax::action_return_t operator()(syntax::function_definition& fd, bool is_start = true) override;
+
+  protected:
+    virtual syntax::action_return_t get_default(bool is_start) override;
   };
 
   // Overloaded bitwise operators make the detail::enum_flags helper class more useful

@@ -8,10 +8,10 @@
 
 namespace
 {
-  std::wstring to_string(const sltl::shader& shader)
+  std::wstring to_string(const sltl::shader& shader, sltl::detail::enum_flags<sltl::output_flags> flags = sltl::output_flags::flag_none)
   {
     // Prepend a newline character to exactly match the raw string literals
-    return L'\n' + shader.str<sltl::output>(sltl::output_version::none, false);
+    return L'\n' + shader.str<sltl::output>(sltl::output_version::none, flags | sltl::output_flags::flag_indent_space);
   }
 }
 
@@ -130,6 +130,81 @@ TEST(matrix, operator_multiplication_vector)
   vec4 v2;
   vec3 v3 = v2 * m1;
   vec3 v5 = vec4(0.0f) * m1;
+}
+)";
+
+  ASSERT_EQ(expected, actual);
+}
+
+TEST(matrix, operator_multiplication_associativity)
+{
+  auto test_shader = []()
+  {
+    sltl::matrix<float, 4, 4> m1, m2, m3;
+    sltl::vector<float, 4> v1;
+    sltl::vector<float, 4> v2 = v1 * m1 * m2 * m3;
+  };
+
+  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
+  const std::wstring expected = LR"(
+{
+  mat4x4 m1;
+  mat4x4 m2;
+  mat4x4 m3;
+  vec4 v4;
+  vec4 v5 = ((v4 * m1) * m2) * m3;
+}
+)";
+
+  ASSERT_EQ(expected, actual);
+}
+
+TEST(matrix, output_matrix_order)
+{
+  auto test_shader = []()
+  {
+    sltl::matrix<float, 4, 3> m1;
+    sltl::matrix<float, 3, 2> m2;
+    sltl::vector<float, 2> v1 = sltl::vector<float, 4>() * m1 * m2;
+  };
+
+  sltl::shader shader = sltl::make_test(test_shader);
+
+  // There is an issue with associativity when converting between row-major/vector
+  // and column-major/vector as both C++ and glsl define the '*' operator as having
+  // left-to-right associativity. Therefore, sltl code written in C++ like:
+  //
+  // m1 * m2 * m3
+  //
+  // is really:
+  //
+  // (m1 * m2) * m3
+  //
+  // Note that sltl will insert parentheses nodes into the syntax tree to make this
+  // explicit. However, when converted to column-major it will be stored as:
+  //
+  // m3 * (m2 * m1)
+  //
+  // Which is different than if the following code were written in glsl:
+  //
+  // m3 * m2 * m1
+  //
+  // Which is really
+  //
+  // (m3 * m2) * m1
+  //
+  // So, while matrix multiplication is associative (i.e. the order of the parentheses
+  // shouldn't matter) in practice there may be subtle differences due to floating-point
+  // rounding issues.
+
+  shader.apply_action<sltl::output_matrix_order>();
+
+  const std::wstring actual = ::to_string(shader, sltl::output_flags::flag_transpose_type);
+  const std::wstring expected = LR"(
+{
+  mat3x4 m1;
+  mat2x3 m2;
+  vec2 v4 = m2 * (m1 * vec4(0.0f));
 }
 )";
 

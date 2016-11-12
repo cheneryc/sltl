@@ -9,10 +9,20 @@
 #include "core/shader_stage.h"
 
 #include "detail/function_traits.h"
+#include "detail/conditional_traits.h"
 
 
 namespace sltl
 {
+  namespace detail
+  {
+    template<typename T>
+    using has_get_result_op = decltype(std::declval<T>().get_result());
+
+    template<typename T>
+    using has_get_result = detect<T, has_get_result_op>;
+  }
+
   class shader
   {
   public:
@@ -25,22 +35,57 @@ namespace sltl
     template<typename Fn, bool is_error = true, typename ...T>
     std::wstring str(T&& ...t) const
     {
-      static_assert(std::is_base_of<syntax::const_action_result<std::wstring>, Fn>::value, "sltl::shader::str: template parameter Fn must derive from sltl::syntax::const_action_result<std::wstring>");
-      //TODO: static assert that the type Fn is callable? Something similar to std::is_function, but works for functors & lambdas
+      return apply_action<Fn, is_error>(std::forward<T>(t)...);
+    }
 
-      Fn fn(_stage, std::forward<T>(t)...);
+    template<typename Fn, bool is_error = true, typename ...T>
+    auto apply_action(T&& ...t) -> typename std::enable_if<detail::negate<detail::has_get_result<Fn>>::value>::type
+    {
+      static_assert(std::is_base_of<syntax::action, Fn>::value, "sltl::shader::apply_action: template parameter Fn must derive from sltl::syntax::action");
 
-      if(!_tree->apply_action(fn) && is_error)
-      {
-        throw std::exception();//TODO: better exception type and message?
-      }
+      apply_action_impl<Fn>(*this, is_error, std::forward<T>(t)...);
+    }
 
-      return fn.get_result();
+    template<typename Fn, bool is_error = true, typename ...T>
+    auto apply_action(T&& ...t) const -> typename std::enable_if<detail::negate<detail::has_get_result<Fn>>::value>::type
+    {
+      static_assert(std::is_base_of<syntax::const_action, Fn>::value, "sltl::shader::apply_action: template parameter Fn must derive from sltl::syntax::const_action");
+
+      apply_action_impl<Fn>(*this, is_error, std::forward<T>(t)...);
+    }
+
+    template<typename Fn, bool is_error = true, typename ...T, typename R = detail::function_traits<decltype(&Fn::get_result)>::return_t>
+    R apply_action(T&& ...t)
+    {
+      static_assert(std::is_base_of<syntax::action_result<R>, Fn>::value, "sltl::shader::apply_action: template parameter Fn must derive from syntax::action_result<R>");
+
+      return apply_action_impl<Fn>(*this, is_error, std::forward<T>(t)...).get_result();
+    }
+
+    template<typename Fn, bool is_error = true, typename ...T, typename R = detail::function_traits<decltype(&Fn::get_result)>::return_t>
+    R apply_action(T&& ...t) const
+    {
+      static_assert(std::is_base_of<syntax::const_action_result<R>, Fn>::value, "sltl::shader::apply_action: template parameter Fn must derive from syntax::const_action_result<R>");
+
+      return apply_action_impl<Fn>(*this, is_error, std::forward<T>(t)...).get_result();
     }
 
     const core::shader_stage _stage;
 
   private:
+    template<typename Fn, typename S, typename ...T>
+    static auto apply_action_impl(S& s, bool is_error, T&& ...t) -> typename std::enable_if<std::is_same<typename std::remove_const<S>::type, shader>::value, Fn>::type
+    {
+      Fn fn(s._stage, std::forward<T>(t)...);
+
+      if(!s._tree->apply_action(fn) && is_error)
+      {
+        throw std::exception();//TODO: better exception type and message?
+      }
+
+      return std::move(fn);
+    }
+
     syntax::tree_base::ptr _tree;
   };
 
@@ -50,10 +95,11 @@ namespace sltl
 
   // The default shader traits class. Used by lambdas and functors (but not function pointers).
   template<typename Fn>
-  struct shader_traits : shader_traits<decltype(&Fn::operator())>
+  struct shader_traits
   {
-    // Inherits _stage from the specialization for a pointer-to-member-function (passing
-    // the type of the object's function call operator as the template parameter)
+    // Use the pointer-to-member-function specialization with the type
+    // of the object's function call operator as the template parameter
+    static const core::shader_stage _stage = shader_traits<decltype(&Fn::operator())>::_stage;
   };
 
   // The shader traits specialization for a pointer-to-function
@@ -71,13 +117,16 @@ namespace sltl
   };
 
   // Used to create a shader from a callable type without a shader type tag parameter
+  //TODO: constrain Fn using std::enable_if and std::is_callable (once available) (C++17)
   template<core::shader_stage S, typename TTree, typename Fn>
   shader make_shader(Fn fn)
   {
+    //TODO: the lifetime of all manager classes (block, io_block, function) should be controlled by this function, ideally via RAII idiom
     return shader(S, syntax::tree::make<TTree>(fn));
   }
 
   // Used to create a shader from a callable type when the first parameter is a shader type tag
+  //TODO: constrain Fn using std::enable_if and std::is_callable (once available) (C++17)
   template<typename Fn>
   shader make_shader(Fn fn)
   {

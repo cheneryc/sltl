@@ -35,7 +35,7 @@ namespace
 
   std::wstring to_string(const sltl::syntax::node& node)
   {
-    sltl::output o(sltl::core::shader_stage::test, sltl::output_version::none, false);
+    sltl::output o(sltl::core::shader_stage::test, sltl::output_version::none, sltl::output_flags::flag_indent_space);
     node.apply_action(o);
 
     std::wstring result = o.get_result();
