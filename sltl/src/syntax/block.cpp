@@ -25,7 +25,7 @@ namespace
 
 ns::block::block(type t) : _t(t), _current_child_id(0), _name(::create_name(_t == local))
 {
-  block_manager::get()._block_stack.emplace(*this);
+  block_manager::get().push({}, *this);
 }
 
 bool ns::block::operator==(const block& rhs) const
@@ -59,12 +59,7 @@ void ns::block::erase(const statement& s)
 
 void ns::block::pop()
 {
-  auto& block_stack = block_manager::get()._block_stack;
-
-  assert(block_stack.size() > 0);
-  assert(block_stack.top().get() == *this);
-
-  block_stack.pop();
+  block_manager::get().pop({}, *this);
 }
 
 std::wstring ns::block::get_child_name()
@@ -78,6 +73,50 @@ std::wstring ns::block::get_child_name()
 
   ss << std::to_wstring(++_current_child_id);
   return ss.str();
+}
+
+void ns::block::variable_info_add(const std::wstring& name)
+{
+  auto result = _variable_map.emplace(name, variable_info());
+
+  if(!(result.second))
+  {
+    throw std::exception();//TODO: exception type and message
+  }
+}
+
+ns::variable_info& ns::block::variable_info_find(const std::wstring& name)
+{
+  return variable_info_find(name, block_manager::get().get_block_stack());
+}
+
+ns::variable_info& ns::block::variable_info_find(const std::wstring& name, std::stack<std::reference_wrapper<block>> block_stack)
+{
+  auto it = _variable_map.find(name);
+
+  if(it != _variable_map.end())
+  {
+    return it->second;
+  }
+  else
+  {
+    if(block_stack.empty() || (block_stack.top().get() != *this))
+    {
+      throw std::exception();//TODO: exception type and message
+    }
+
+    block_stack.pop();
+
+    if(block_stack.empty())
+    {
+      throw std::exception();//TODO: exception type and message
+    }
+
+    auto& parent_block = block_stack.top().get();
+    auto& parent_vi = parent_block.variable_info_find(name, std::move(block_stack));
+
+    return parent_vi;
+  }
 }
 
 bool ns::block::apply_action(action& act)

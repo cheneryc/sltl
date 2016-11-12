@@ -4,7 +4,6 @@
 #include "variable.h"
 
 #include "syntax/operator.h"
-#include "syntax/reference.h"
 
 #include "expression/expression.h"
 
@@ -85,23 +84,6 @@ namespace sltl
     basic(core::qualifier::ptr&& qualifier, core::semantic_pair semantic) : variable(language::type_helper<V<T, D...>>(), std::move(qualifier), semantic) {}
 
     friend class expression::expression<V, T, D...>;
-
-    syntax::expression::ptr make_reference() const
-    {
-      return syntax::expression::make<syntax::reference>(get_declaration()->inc_ref_count());
-    }
-
-    syntax::expression::ptr make_reference_or_temporary()
-    {
-      if(get_declaration()->get_ref_count() > 0)
-      {
-        return make_reference();
-      }
-      else
-      {
-        return make_temporary();
-      }
-    }
 
     template<typename T, typename ...A>
     static proxy make_proxy(A&& ...a)

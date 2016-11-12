@@ -23,10 +23,11 @@ namespace syntax
       _semantic(core::semantic_pair::none._semantic),
       _semantic_index(core::semantic_pair::none._index),
       _qualifier(core::qualifier::make<core::storage_qualifier>(core::qualifier_storage::default)),
-      _initializer(std::move(initializer)),
-      _ref_count(0)
+      _initializer(std::move(initializer))
     {
       assert(_initializer);
+
+      get_current_block().variable_info_add(_name);
     }
 
     variable_declaration(const language::type& type, core::qualifier::ptr&& qualifier, core::semantic_pair semantic) : declaration_statement(get_current_block().get_child_name()),
@@ -34,8 +35,10 @@ namespace syntax
       _semantic(semantic._semantic),
       _semantic_index(semantic._index),
       _qualifier(std::move(qualifier)),
-      _initializer(),
-      _ref_count(0) {}
+      _initializer()
+    {
+      get_current_block().variable_info_add(_name);
+    }
 
     bool has_type() const
     {
@@ -50,16 +53,6 @@ namespace syntax
     expression::ptr&& move()
     {
       return std::move(_initializer);
-    }
-
-    size_t get_ref_count() const
-    {
-      return _ref_count;
-    }
-
-    const variable_declaration& inc_ref_count() const
-    {
-      ++_ref_count; return *this;
     }
 
     virtual bool apply_action(action& act) override
@@ -100,7 +93,6 @@ namespace syntax
     std::unique_ptr<language::type> _type;//TODO: const (ptr or expression or both)?
     core::qualifier::ptr _qualifier;//TODO: const (ptr or expression or both)?
     expression::ptr _initializer;//TODO: const (ptr or expression or both)?
-    mutable size_t _ref_count;//TODO: this is not a great design, try and improve it...
   };
 }
 }

@@ -1,7 +1,10 @@
 #include "variable.h"
 
+#include "syntax/block.h"
 #include "syntax/block_manager.h"
+#include "syntax/reference.h"
 #include "syntax/temporary.h"
+#include "syntax/variable_info.h"
 #include "syntax/variable_declaration.h"
 
 #include <cassert>
@@ -15,10 +18,28 @@ namespace
 ns::variable::variable(syntax::expression::ptr&& initializer) : _declaration(&(syntax::get_current_block().add<syntax::variable_declaration>(std::move(initializer)))) {}
 ns::variable::variable(const language::type& type, core::qualifier::ptr&& qualifier, core::semantic_pair semantic) : _declaration(&(syntax::get_current_block().add<syntax::variable_declaration>(type, std::move(qualifier), semantic))) {}
 
+ns::syntax::expression::ptr ns::variable::make_reference() const
+{
+  get_variable_info(_declaration).inc_ref();
+
+  return syntax::expression::make<syntax::reference>(*_declaration);
+}
+
+ns::syntax::expression::ptr ns::variable::make_reference_or_temporary()
+{
+  if(get_variable_info(_declaration).get_ref() > 0)
+  {
+    return make_reference();
+  }
+  else
+  {
+    return make_temporary();
+  }
+}
+
 ns::syntax::expression::ptr ns::variable::make_temporary()
 {
-  assert(_declaration);
-  assert(_declaration->get_ref_count() == 0);
+  assert(get_variable_info(_declaration).get_ref() == 0);
 
   syntax::expression::ptr exp;
 

@@ -189,6 +189,12 @@
     <ClInclude Include="src\detail\numeric.h">
       <Filter>Header Files\detail</Filter>
     </ClInclude>
+    <ClInclude Include="src\detail\pass_key.h">
+      <Filter>Header Files\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="src\syntax\variable_info.h">
+      <Filter>Header Files\syntax</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\scope.cpp">
@@ -223,6 +229,9 @@
     </ClCompile>
     <ClCompile Include="src\core\semantic.cpp">
       <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\syntax\variable_info.cpp">
+      <Filter>Source Files\syntax</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

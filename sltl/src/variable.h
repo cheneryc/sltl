@@ -32,12 +32,9 @@ namespace sltl
     variable(syntax::expression::ptr&& initializer);
     variable(const language::type& type, core::qualifier::ptr&& qualifier, core::semantic_pair semantic);
 
+    syntax::expression::ptr make_reference() const;
+    syntax::expression::ptr make_reference_or_temporary();
     syntax::expression::ptr make_temporary();
-
-    const syntax::variable_declaration* get_declaration() const
-    {
-      return _declaration;
-    }
 
   private:
     syntax::variable_declaration* _declaration;

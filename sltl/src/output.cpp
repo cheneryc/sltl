@@ -802,8 +802,8 @@ ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::operator
          (type_rhs.get_dimensions().is_matrix() || type_rhs.get_dimensions().is_vector()))
       {
         // both operands cannot be vectors
-        assert(type_lhs.get_dimensions().is_vector() !=
-               type_rhs.get_dimensions().is_vector());
+        assert(!(type_lhs.get_dimensions().is_vector() &&
+                 type_rhs.get_dimensions().is_vector()));
 
         ob.swap_operands();
       }
