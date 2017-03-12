@@ -12,6 +12,7 @@ namespace syntax
 {
   // Forward declarations - sltl::syntax namespace
   class block;
+  class block_base;
 
   //TODO: Manager (needs a better name?) is a singleton but might actually be better as thread-local?
   class block_manager
@@ -31,6 +32,7 @@ namespace syntax
     block_stack_t _block_stack;
   };
 
-  block& get_current_block();
+  block_base& get_current_block();
+  block_base* set_current_block(block_base* b);
 }
 }

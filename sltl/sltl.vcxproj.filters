@@ -195,6 +195,9 @@
     <ClInclude Include="src\syntax\variable_info.h">
       <Filter>Header Files\syntax</Filter>
     </ClInclude>
+    <ClInclude Include="src\syntax\block_base.h">
+      <Filter>Header Files\syntax</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\scope.cpp">
@@ -231,6 +234,15 @@
       <Filter>Source Files\core</Filter>
     </ClCompile>
     <ClCompile Include="src\syntax\variable_info.cpp">
+      <Filter>Source Files\syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="src\syntax\block_base.cpp">
+      <Filter>Source Files\syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="src\syntax\io_block_manager.cpp">
+      <Filter>Source Files\syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="src\syntax\io_block.cpp">
       <Filter>Source Files\syntax</Filter>
     </ClCompile>
   </ItemGroup>

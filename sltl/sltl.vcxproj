@@ -35,6 +35,7 @@
     <ClInclude Include="src\shader.h" />
     <ClInclude Include="src\syntax\action.h" />
     <ClInclude Include="src\syntax\block.h" />
+    <ClInclude Include="src\syntax\block_base.h" />
     <ClInclude Include="src\syntax\block_manager.h" />
     <ClInclude Include="src\syntax\conditional.h" />
     <ClInclude Include="src\syntax\constructor_call.h" />
@@ -72,9 +73,12 @@
     <ClCompile Include="src\output.cpp" />
     <ClCompile Include="src\scope.cpp" />
     <ClCompile Include="src\syntax\block.cpp" />
+    <ClCompile Include="src\syntax\block_base.cpp" />
     <ClCompile Include="src\syntax\block_manager.cpp" />
     <ClCompile Include="src\syntax\elide.cpp" />
     <ClCompile Include="src\syntax\expression_statement.cpp" />
+    <ClCompile Include="src\syntax\io_block.cpp" />
+    <ClCompile Include="src\syntax\io_block_manager.cpp" />
     <ClCompile Include="src\syntax\reference.cpp" />
     <ClCompile Include="src\syntax\variable_info.cpp" />
     <ClCompile Include="src\variable.cpp" />
