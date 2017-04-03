@@ -46,10 +46,15 @@ ns::io_block& ns::io_block_manager::add(sltl::core::qualifier_storage qualifier)
 
   statement::ptr& io_block_node = get_io_block_node(qualifier);
 
-  //TODO: might need to throw an exception here instead as this could be a user/programmer error
-  assert(!io_block_node);
+  if(io_block_node)
+  {
+    throw std::exception();//TODO: exception type and message
+  }
+  else
+  {
+    io_block_node.reset(new io_block({}, qualifier));
+  }
 
-  io_block_node = statement::make<io_block>(qualifier);
   return static_cast<io_block&>(*io_block_node);
 }
 

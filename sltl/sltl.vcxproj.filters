@@ -245,5 +245,8 @@
     <ClCompile Include="src\syntax\io_block.cpp">
       <Filter>Source Files\syntax</Filter>
     </ClCompile>
+    <ClCompile Include="src\syntax\variable_declaration.cpp">
+      <Filter>Source Files\syntax</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,4 +1,5 @@
 #include "io_block.h"
+#include "io_block_manager.h"
 #include "block_manager.h"
 #include "action.h"
 
@@ -24,10 +25,30 @@ namespace
   }
 }
 
-ns::io_block::io_block(sltl::core::qualifier_storage qualifier) : block_base(::create_name(qualifier)), _qualifier(qualifier)
+ns::io_block::io_block(sltl::detail::pass_key<io_block_manager>, sltl::core::qualifier_storage qualifier) : block_base(::create_name(qualifier)), _qualifier(qualifier)
 {
   block_base* b = set_current_block(this);
   assert(b == nullptr);
+}
+
+ns::statement& ns::io_block::add_impl(statement::ptr&&)
+{
+  throw std::exception();//TODO: exception type and message
+}
+
+ns::variable_declaration& ns::io_block::add_variable_declaration(expression::ptr&&)
+{
+  throw std::exception();//TODO: exception type and message
+}
+
+ns::variable_declaration& ns::io_block::add_variable_declaration(const sltl::language::type& type, sltl::core::semantic_pair semantic)
+{
+  if(semantic._semantic == core::semantic::none)
+  {
+    throw std::exception();//TODO: exception type and message
+  }
+
+  return add_variable_declaration_impl(statement::make<variable_declaration>(type, core::qualifier::make<core::storage_qualifier>(_qualifier), semantic));
 }
 
 void ns::io_block::pop()

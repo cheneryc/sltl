@@ -10,6 +10,8 @@ namespace syntax
 {
   class block_override
   {
+    friend bool is_override_active();
+
     friend block_base& get_current_block();
     friend block_base* set_current_block(block_base*);
 
@@ -57,6 +59,11 @@ ns::block_manager& ns::block_manager::get()
 {
   static block_manager _manager;
   return _manager;
+}
+
+bool ns::is_override_active()
+{
+  return block_override::_override != nullptr;
 }
 
 ns::block_base& ns::get_current_block()

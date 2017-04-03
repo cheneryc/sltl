@@ -5,7 +5,6 @@
 #include "syntax/expression.h"
 
 #include "core/semantic.h"
-#include "core/qualifier.h"
 
 
 namespace sltl
@@ -30,7 +29,7 @@ namespace sltl
 
   protected:
     variable(syntax::expression::ptr&& initializer);
-    variable(const language::type& type, core::qualifier::ptr&& qualifier, core::semantic_pair semantic);
+    variable(const language::type& type, core::semantic_pair semantic);
 
     syntax::expression::ptr make_reference() const;
     syntax::expression::ptr make_reference_or_temporary();

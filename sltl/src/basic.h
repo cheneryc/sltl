@@ -81,7 +81,7 @@ namespace sltl
 
   protected:
     basic(syntax::expression::ptr&& initializer) : variable(std::move(initializer)) {}
-    basic(core::qualifier::ptr&& qualifier, core::semantic_pair semantic) : variable(language::type_helper<V<T, D...>>(), std::move(qualifier), semantic) {}
+    basic(core::semantic_pair semantic) : variable(language::type_helper<V<T, D...>>(), semantic) {}
 
     friend class expression::expression<V, T, D...>;
 

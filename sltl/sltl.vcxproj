@@ -80,6 +80,7 @@
     <ClCompile Include="src\syntax\io_block.cpp" />
     <ClCompile Include="src\syntax\io_block_manager.cpp" />
     <ClCompile Include="src\syntax\reference.cpp" />
+    <ClCompile Include="src\syntax\variable_declaration.cpp" />
     <ClCompile Include="src\syntax\variable_info.cpp" />
     <ClCompile Include="src\variable.cpp" />
   </ItemGroup>

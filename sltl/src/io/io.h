@@ -156,9 +156,10 @@ namespace io
 
       // Default construct each of the io_variables (i.e. the template parameters) type. This
       // then adds a new variable_declaration node to the current block (i.e. this io_block)
-      init(qualifier);
+      init();
 
-      // Remove the block from the top of the block_manager's stack
+      // Popping the block will null the 'current' block override so
+      // this block isn't returned by the get_current_block function
       io_block.pop();
     }
 
@@ -198,33 +199,33 @@ namespace io
       static_assert(false, "sltl::io::block::get: the specified semantic and/or index is not valid for this io::block");
     }
 
-    void init(core::qualifier_storage qualifier)
+    void init()
     {
-      init_impl(qualifier, sltl::detail::variadic_guard<A...>());
+      init_impl(sltl::detail::variadic_guard<A...>());
     }
 
     template<typename ...A2>
-    void init_impl(core::qualifier_storage, sltl::detail::variadic_guard<>) {}
+    void init_impl(sltl::detail::variadic_guard<>) {}
 
     template<typename T, typename ...A2>
-    void init_impl(core::qualifier_storage qualifier, sltl::detail::variadic_guard<T, A2...>)
+    void init_impl(sltl::detail::variadic_guard<T, A2...>)
     {
-      init_type<T>(qualifier);
-      init_impl(qualifier, sltl::detail::variadic_guard<A2...>());
+      init_type<T>();
+      init_impl(sltl::detail::variadic_guard<A2...>());
     }
 
     template<typename T>
-    auto init_type(core::qualifier_storage qualifier) -> typename std::enable_if<T::_semantic == core::semantic::none>::type
+    auto init_type() -> typename std::enable_if<T::_semantic == core::semantic::none>::type
     {
-      T::type t(qualifier);
+      T::type t;
     }
 
     template<typename T>
-    auto init_type(core::qualifier_storage qualifier) -> typename std::enable_if<T::_semantic != core::semantic::none>::type
+    auto init_type() -> typename std::enable_if<T::_semantic != core::semantic::none>::type
     {
       // Throw an exception if the insertion failed as this means the
       // block has more than one variable bound to the same semantic.
-      if(!_variable_map.emplace(T::create_key(), variable_wrapper::make<T::type>(qualifier, T::create_semantic_pair())).second)
+      if(!_variable_map.emplace(T::create_key(), variable_wrapper::make<T::type>(T::create_semantic_pair())).second)
       {
         throw std::exception();//TODO: exception type and message
       }

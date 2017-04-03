@@ -25,16 +25,19 @@ ns::block::block(type t) : block_base(::create_name(t == local)), _t(t)
   block_manager::get().push({}, *this);
 }
 
-bool ns::block::operator==(const block& rhs) const
+ns::variable_declaration& ns::block::add_variable_declaration(expression::ptr&& initializer)
 {
-  // This is a suitable equality operator as block objects are
-  // unique (no two block objects should be considered equal).
-  return (this == &rhs);
+  return add_variable_declaration_impl(statement::make<variable_declaration>(std::move(initializer)));
 }
 
-bool ns::block::operator!=(const block& rhs) const
+ns::variable_declaration& ns::block::add_variable_declaration(const sltl::language::type& type, sltl::core::semantic_pair semantic)
 {
-  return !(this->operator==(rhs));
+  if(semantic._semantic != core::semantic::none)
+  {
+    throw std::exception();//TODO: exception type and message
+  }
+
+  return add_variable_declaration_impl(statement::make<variable_declaration>(type, core::qualifier::make<core::storage_qualifier>(core::qualifier_storage::default), semantic));
 }
 
 void ns::block::pop()
@@ -55,38 +58,32 @@ std::wstring ns::block::get_child_name()
   return ss.str();
 }
 
-ns::variable_info& ns::block::variable_info_find(const std::wstring& name)
+ns::variable_info* ns::block::variable_info_find(const std::wstring& name)
 {
   return variable_info_find(name, block_manager::get().get_block_stack());
 }
 
-ns::variable_info& ns::block::variable_info_find(const std::wstring& name, std::stack<std::reference_wrapper<block>> block_stack)
+ns::variable_info* ns::block::variable_info_find(const std::wstring& name, std::stack<std::reference_wrapper<block>> block_stack)
 {
-  auto it = _variable_map.find(name);
-
-  if(it != _variable_map.end())
+  if(block_stack.empty() || (block_stack.top().get() != *this))
   {
-    return it->second;
+    throw std::exception();//TODO: exception type and message
   }
-  else
-  {
-    if(block_stack.empty() || (block_stack.top().get() != *this))
-    {
-      throw std::exception();//TODO: exception type and message
-    }
 
+  variable_info* vi = block_base::variable_info_find(name);
+
+  if(!vi)
+  {
     block_stack.pop();
 
-    if(block_stack.empty())
+    if(!block_stack.empty())
     {
-      throw std::exception();//TODO: exception type and message
+      auto& parent_block = block_stack.top().get();
+      vi  = parent_block.variable_info_find(name, std::move(block_stack));
     }
-
-    auto& parent_block = block_stack.top().get();
-    auto& parent_vi = parent_block.variable_info_find(name, std::move(block_stack));
-
-    return parent_vi;
   }
+
+  return vi;
 }
 
 bool ns::block::apply_action(action& act)

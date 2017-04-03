@@ -22,11 +22,11 @@ ns::variable_info& ns::get_variable_info(const variable_declaration* vd)
 
   if(qualifier_storage == sltl::core::qualifier_storage::default)
   {
-    return ns::get_current_block().variable_info_find(vd->_name);
+    return *(ns::get_current_block().variable_info_find(vd->_name));
   }
   else if(auto io_block = ns::io_block_manager::get().get_io_block(qualifier_storage))
   {
-    return io_block->variable_info_find(vd->_name);
+    return *(io_block->variable_info_find(vd->_name));
   }
   else
   {

@@ -12,14 +12,37 @@ ns::block_base::block_base(std::wstring&& name) : _current_child_id(0), _name(st
 {
 }
 
-std::wstring ns::block_base::get_child_name()
+ns::statement& ns::block_base::add_impl(statement::ptr&& s)
 {
-  return std::to_wstring(++_current_child_id);
+  _statements.emplace_back(std::move(s));
+  return *_statements.back();
 }
 
-//TODO: make this private and add temporary::temporary as a friend?
+ns::variable_declaration& ns::block_base::add_variable_declaration_impl(statement::ptr&& s)
+{
+  _statements.emplace_back(std::move(s));
+
+  auto& vd_statement = _statements.back();
+  auto& vd = static_cast<variable_declaration&>(*vd_statement);
+
+  auto result = _variable_map.emplace(vd._name, variable_info());
+
+  if(!(result.second))
+  {
+    throw std::exception();//TODO: exception type and message
+  }
+
+  return vd;
+}
+
 void ns::block_base::erase(const statement& s)
 {
+  // Remove the associated variable_info data if the erased statement is a variable_declaration
+  if(auto vd = dynamic_cast<const variable_declaration*>(&s))
+  {
+    _variable_map.erase(vd->_name);
+  }
+
   auto it = std::find_if(_statements.rbegin(), _statements.rend(), [&s](const statement::ptr& s_find)
   {
     return (s_find.get() == &s);
@@ -34,17 +57,38 @@ void ns::block_base::erase(const statement& s)
   _statements.erase(std::next(it).base());
 }
 
-void ns::block_base::variable_info_add(const std::wstring& name)
+ns::variable_info* ns::block_base::variable_info_find(const std::wstring& name)
 {
-  auto result = _variable_map.emplace(name, variable_info());
+  auto it = _variable_map.find(name);
 
-  if(!(result.second))
+  if(it != _variable_map.end())
   {
-    throw std::exception();//TODO: exception type and message
+    return &(it->second);
+  }
+  else
+  {
+    return nullptr;
   }
 }
 
-ns::variable_info& ns::block_base::variable_info_find(const std::wstring& name)
+const std::wstring& ns::block_base::get_name() const
 {
-  return _variable_map.at(name);
+  return _name;
+}
+
+std::wstring ns::block_base::get_child_name()
+{
+  return std::to_wstring(++_current_child_id);
+}
+
+bool ns::block_base::operator==(const block_base& rhs) const
+{
+  // This is a suitable equality operator as block objects are
+  // unique (no two block objects should be considered equal).
+  return (this == &rhs);
+}
+
+bool ns::block_base::operator!=(const block_base& rhs) const
+{
+  return !(this->operator==(rhs));
 }

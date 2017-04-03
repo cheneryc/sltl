@@ -16,7 +16,7 @@ namespace
 }
 
 ns::variable::variable(syntax::expression::ptr&& initializer) : _declaration(&(syntax::get_current_block().add<syntax::variable_declaration>(std::move(initializer)))) {}
-ns::variable::variable(const language::type& type, core::qualifier::ptr&& qualifier, core::semantic_pair semantic) : _declaration(&(syntax::get_current_block().add<syntax::variable_declaration>(type, std::move(qualifier), semantic))) {}
+ns::variable::variable(const language::type& type, core::semantic_pair semantic) : _declaration(&(syntax::get_current_block().add<syntax::variable_declaration>(type, semantic))) {}
 
 ns::syntax::expression::ptr ns::variable::make_reference() const
 {

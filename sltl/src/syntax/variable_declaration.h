@@ -1,7 +1,5 @@
 #pragma once
 
-#include "block.h"
-#include "block_manager.h"
 #include "expression.h"
 #include "declaration_statement.h"
 
@@ -18,27 +16,8 @@ namespace syntax
   class variable_declaration : public declaration_statement
   {
   public:
-    variable_declaration(expression::ptr&& initializer) : declaration_statement(get_current_block().get_child_name()),
-      _type(),
-      _semantic(core::semantic_pair::none._semantic),
-      _semantic_index(core::semantic_pair::none._index),
-      _qualifier(core::qualifier::make<core::storage_qualifier>(core::qualifier_storage::default)),
-      _initializer(std::move(initializer))
-    {
-      assert(_initializer);
-
-      get_current_block().variable_info_add(_name);
-    }
-
-    variable_declaration(const language::type& type, core::qualifier::ptr&& qualifier, core::semantic_pair semantic) : declaration_statement(get_current_block().get_child_name()),
-      _type(std::make_unique<language::type>(type)),
-      _semantic(semantic._semantic),
-      _semantic_index(semantic._index),
-      _qualifier(std::move(qualifier)),
-      _initializer()
-    {
-      get_current_block().variable_info_add(_name);
-    }
+    variable_declaration(expression::ptr&& initializer);
+    variable_declaration(const language::type& type, core::qualifier::ptr&& qualifier, core::semantic_pair semantic);
 
     bool has_type() const
     {

@@ -28,7 +28,7 @@ namespace sltl
     typedef super_t::proxy proxy;
 
     scalar(proxy&& p) : super_t(p.move()) {}
-    scalar(core::qualifier_storage qualifier = core::qualifier_storage::default, core::semantic_pair semantic = core::semantic_pair::none) : super_t(core::qualifier::make<core::storage_qualifier>(qualifier), semantic) {}
+    scalar(core::semantic_pair semantic = core::semantic_pair::none) : super_t(semantic) {}
 
     scalar(scalar&& s) : scalar(proxy(std::move(s))) {}
     scalar(const scalar& s) : scalar(proxy(s)) {}

@@ -32,6 +32,8 @@ namespace syntax
     block_stack_t _block_stack;
   };
 
+  bool is_override_active();
+
   block_base& get_current_block();
   block_base* set_current_block(block_base* b);
 }

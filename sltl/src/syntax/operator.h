@@ -32,7 +32,7 @@ namespace syntax
   template<typename E>
   class operator_base_id : public operator_base
   {
-    static_assert(std::is_enum<E>::value, "sltl::syntax::operator_base_id: template parameter E must be an enumeration type.");
+    static_assert(std::is_enum<E>::value, "sltl::syntax::operator_base_id: template parameter E must be an enumeration type");
 
   public:
     const E _operator_id;
