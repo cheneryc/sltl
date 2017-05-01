@@ -5,6 +5,7 @@
 #include "syntax/reference.h"
 #include "syntax/temporary.h"
 #include "syntax/operator.h"
+#include "syntax/operator_component_access.h"
 #include "syntax/conditional.h"
 #include "syntax/constructor_call.h"
 #include "syntax/function_call.h"
@@ -488,6 +489,74 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_binary
   else
   {
     return_val = ns::syntax::action_return_t::step_out;
+  }
+
+  return return_val;
+}
+
+ns::syntax::action_return_t ns::output::operator()(const syntax::operator_component_access& oca, bool is_start)
+{
+  ns::syntax::action_return_t return_val;
+
+  if(is_start)
+  {
+    return_val = syntax::action_return_t::step_in;
+  }
+  else
+  {
+    struct
+    {
+      std::wstring operator()(const syntax::component_access_scalar& access) const
+      {
+        std::wstringstream ss;
+
+        for(size_t i = 0; i < access._count; ++i)
+        {
+          ss << L'x';
+        }
+
+        return ss.str();
+      }
+
+      std::wstring operator()(const syntax::component_access_vector& access) const
+      {
+        const auto it_find = std::find(std::begin(access._indices), std::end(access._indices), syntax::component_access::_idx_default);
+
+        std::wstringstream ss;
+
+        std::for_each(std::begin(access._indices), it_find, [&ss](language::type_dimension_t idx)
+        {
+          //TODO: this doesn't work for 'w'!
+          ss << (L'x' + idx);
+        });
+
+        return ss.str();
+      }
+
+      std::wstring operator()(const syntax::component_access_matrix& access) const
+      {
+        std::wstringstream ss;
+
+        //TODO: check that the order is correct for glsl (i.e. column-order)
+        ss << L'[';
+        ss << access._idx_n;
+        ss << L']';
+
+        if(access._idx_m != syntax::component_access::_idx_default)
+        {
+          ss << L'[';
+          ss << access._idx_m;
+          ss << L']';
+        }
+
+        return ss.str();
+      }
+    } fn;
+
+    _ss << L'.';
+    _ss << oca._accessor.visit(fn);
+
+    return_val = syntax::action_return_t::step_out;
   }
 
   return return_val;

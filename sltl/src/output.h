@@ -126,6 +126,7 @@ namespace sltl
     virtual syntax::action_return_t operator()(const syntax::temporary& t, bool is_start = true) override;
     virtual syntax::action_return_t operator()(const syntax::operator_unary& ou, bool is_start = true) override;
     virtual syntax::action_return_t operator()(const syntax::operator_binary& ob, bool is_start = true) override;
+    virtual syntax::action_return_t operator()(const syntax::operator_component_access& oca, bool is_start = true) override;
     virtual syntax::action_return_t operator()(const syntax::conditional& c, bool is_start = true) override;
     virtual syntax::action_return_t operator()(const syntax::constructor_call& cc, bool is_start = true) override;
     virtual syntax::action_return_t operator()(const syntax::expression_statement& es, bool is_start = true) override;
@@ -200,6 +201,8 @@ namespace sltl
     virtual syntax::action_return_t operator()(syntax::variable_declaration& vd, bool is_start = true) override;
     virtual syntax::action_return_t operator()(syntax::temporary& t, bool is_start = true) override;
     virtual syntax::action_return_t operator()(syntax::operator_binary& ob, bool is_start = true) override;
+    //TODO: not sure if operator_component_access needs special behaviour
+    //virtual syntax::action_return_t operator()(syntax::operator_component_access& oca, bool is_start = true) override;
     virtual syntax::action_return_t operator()(syntax::constructor_call& cc, bool is_start = true) override;
     virtual syntax::action_return_t operator()(syntax::function_definition& fd, bool is_start = true) override;
 

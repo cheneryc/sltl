@@ -15,18 +15,6 @@ namespace syntax
   {
   protected:
     operator_base() = default;
-
-    static expression::ptr add_parentheses(expression::ptr&& e)
-    {
-      if(dynamic_cast<operator_base*>(e.get()))
-      {
-        return expression::make<parentheses>(std::move(e));
-      }
-      else
-      {
-        return std::move(e);
-      }
-    }
   };
 
   template<typename E>
@@ -46,7 +34,7 @@ namespace syntax
     typedef operator_base_id<language::operator_unary_id> super_t;
 
   public:
-    operator_unary(language::operator_unary_id id, expression::ptr&& operand) : super_t(id), _operand(add_parentheses(std::move(operand))) {}
+    operator_unary(language::operator_unary_id id, expression::ptr&& operand);
 
     virtual bool apply_action(action& act) override
     {
@@ -76,9 +64,7 @@ namespace syntax
     typedef operator_base_id<language::operator_binary_id> super_t;
 
   public:
-    operator_binary(language::operator_binary_id id, expression::ptr&& lhs, expression::ptr&& rhs) : super_t(id),
-      _operand_lhs(add_parentheses(std::move(lhs))),
-      _operand_rhs(add_parentheses(std::move(rhs))) {}
+    operator_binary(language::operator_binary_id id, expression::ptr&& lhs, expression::ptr&& rhs);
 
     virtual bool apply_action(action& act) override
     {

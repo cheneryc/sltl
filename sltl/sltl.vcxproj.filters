@@ -198,6 +198,15 @@
     <ClInclude Include="src\syntax\block_base.h">
       <Filter>Header Files\syntax</Filter>
     </ClInclude>
+    <ClInclude Include="src\syntax\operator_component_access.h">
+      <Filter>Header Files\syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="src\syntax\component_access.h">
+      <Filter>Header Files\syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="src\syntax\component_accessor.h">
+      <Filter>Header Files\syntax</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\scope.cpp">
@@ -246,6 +255,9 @@
       <Filter>Source Files\syntax</Filter>
     </ClCompile>
     <ClCompile Include="src\syntax\variable_declaration.cpp">
+      <Filter>Source Files\syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="src\syntax\operator.cpp">
       <Filter>Source Files\syntax</Filter>
     </ClCompile>
   </ItemGroup>

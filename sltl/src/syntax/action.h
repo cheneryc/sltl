@@ -15,6 +15,7 @@ namespace syntax
   class temporary;
   class operator_unary;
   class operator_binary;
+  class operator_component_access;
   class conditional;
   class constructor_call;
   class expression_statement;
@@ -47,6 +48,7 @@ namespace syntax
     virtual action_return_t operator()(syntax::temporary&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(syntax::operator_unary&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(syntax::operator_binary&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(syntax::operator_component_access&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(syntax::conditional&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(syntax::constructor_call&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(syntax::expression_statement&, bool is_start = true) { return get_default(is_start); }
@@ -91,6 +93,7 @@ namespace syntax
     virtual action_return_t operator()(const syntax::temporary&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(const syntax::operator_unary&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(const syntax::operator_binary&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(const syntax::operator_component_access&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(const syntax::conditional&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(const syntax::constructor_call&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(const syntax::expression_statement&, bool is_start = true) { return get_default(is_start); }

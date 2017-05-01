@@ -35,7 +35,7 @@ namespace sltl
     proxy operator=(proxy&& p)
     {
       //TODO: this could be called on an r-value? Should use make_reference_or_temporary instead?
-      return super_t::make_proxy<syntax::operator_binary>(language::id_assignment, super_t::make_reference(), p.move());
+      return super_t::make_proxy<syntax::operator_binary>(language::id_assignment, make_reference(), p.move());
     }
 
     proxy operator=(vector&& v)

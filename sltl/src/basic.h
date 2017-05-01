@@ -79,16 +79,18 @@ namespace sltl
       return make_proxy<syntax::operator_binary>(language::id_subtraction, lhs.move(), rhs.move());
     }
 
-  protected:
-    basic(syntax::expression::ptr&& initializer) : variable(std::move(initializer)) {}
-    basic(core::semantic_pair semantic) : variable(language::type_helper<V<T, D...>>(), semantic) {}
-
-    friend class expression::expression<V, T, D...>;
+    // helper functions
 
     template<typename T, typename ...A>
     static proxy make_proxy(A&& ...a)
     {
       return proxy(syntax::expression::make<T>(std::forward<A>(a)...));
     }
+
+  protected:
+    basic(syntax::expression::ptr&& initializer) : variable(std::move(initializer)) {}
+    basic(core::semantic_pair semantic) : variable(language::type_helper<V<T, D...>>(), semantic) {}
+
+    friend expression::expression<V, T, D...>;
   };
 }

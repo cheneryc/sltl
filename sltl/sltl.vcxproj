@@ -37,6 +37,8 @@
     <ClInclude Include="src\syntax\block.h" />
     <ClInclude Include="src\syntax\block_base.h" />
     <ClInclude Include="src\syntax\block_manager.h" />
+    <ClInclude Include="src\syntax\component_access.h" />
+    <ClInclude Include="src\syntax\component_accessor.h" />
     <ClInclude Include="src\syntax\conditional.h" />
     <ClInclude Include="src\syntax\constructor_call.h" />
     <ClInclude Include="src\syntax\declaration.h" />
@@ -53,6 +55,7 @@
     <ClInclude Include="src\syntax\literal.h" />
     <ClInclude Include="src\syntax\node.h" />
     <ClInclude Include="src\syntax\operator.h" />
+    <ClInclude Include="src\syntax\operator_component_access.h" />
     <ClInclude Include="src\syntax\parameter_declaration.h" />
     <ClInclude Include="src\syntax\parentheses.h" />
     <ClInclude Include="src\syntax\reference.h" />
@@ -79,6 +82,7 @@
     <ClCompile Include="src\syntax\expression_statement.cpp" />
     <ClCompile Include="src\syntax\io_block.cpp" />
     <ClCompile Include="src\syntax\io_block_manager.cpp" />
+    <ClCompile Include="src\syntax\operator.cpp" />
     <ClCompile Include="src\syntax\reference.cpp" />
     <ClCompile Include="src\syntax\variable_declaration.cpp" />
     <ClCompile Include="src\syntax\variable_info.cpp" />

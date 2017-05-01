@@ -35,7 +35,7 @@ namespace sltl
 
     proxy operator=(proxy&& p)
     {
-      return super_t::make_proxy<syntax::operator_binary>(language::id_assignment, super_t::make_reference(), p.move());
+      return super_t::make_proxy<syntax::operator_binary>(language::id_assignment, make_reference(), p.move());
     }
 
     proxy operator=(scalar&& s)
