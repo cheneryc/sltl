@@ -2,6 +2,7 @@
 
 #include "basic.h"
 #include "scalar.h"
+#include "permutation.h"
 
 #include "syntax/constructor_call.h"
 
@@ -12,7 +13,7 @@
 namespace sltl
 {
   template<typename T, size_t D>
-  class vector : public basic<sltl::vector, T, D>
+  class vector : public basic<sltl::vector, T, D>, public permutation_group<sltl::vector, T, D>
   {
     static_assert((D >=2) && (D <= 4), "sltl::vector: template parameter D is only valid for values of 2, 3 and 4");
 
@@ -21,8 +22,8 @@ namespace sltl
   public:
     typedef super_t::proxy proxy;
 
-    vector(proxy&& p) : super_t(p.move()) {}
-    vector(core::semantic_pair semantic = core::semantic_pair::none) : super_t(semantic) {}
+    vector(proxy&& p) : super_t(p.move()), permutation_group<sltl::vector, T, D>(*this) {}
+    vector(core::semantic_pair semantic = core::semantic_pair::none) : super_t(semantic), permutation_group<sltl::vector, T, D>(*this) {}
 
     vector(vector&& v) : vector(proxy(std::move(v))) {}
     vector(const vector& v) : vector(proxy(v)) {}

@@ -230,6 +230,23 @@ const wchar_t* ns::to_conditional_string(conditional_id id)
   return nullptr;
 }
 
+const wchar_t* ns::to_component_string(type_dimension_t component_idx)
+{
+  switch(component_idx)
+  {
+  case 0:
+    return L"x";
+  case 1:
+    return L"y";
+  case 2:
+    return L"z";
+  case 3:
+    return L"w";
+  }
+
+  return nullptr;
+}
+
 const wchar_t* ns::to_keyword_string(keyword_id id)
 {
   switch(id)

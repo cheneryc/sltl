@@ -207,6 +207,9 @@
     <ClInclude Include="src\syntax\component_accessor.h">
       <Filter>Header Files\syntax</Filter>
     </ClInclude>
+    <ClInclude Include="src\permutation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\scope.cpp">

@@ -526,8 +526,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_compon
 
         std::for_each(std::begin(access._indices), it_find, [&ss](language::type_dimension_t idx)
         {
-          //TODO: this doesn't work for 'w'!
-          ss << (L'x' + idx);
+          ss << language::to_component_string(idx);
         });
 
         return ss.str();
