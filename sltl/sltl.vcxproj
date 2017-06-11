@@ -31,6 +31,7 @@
     <ClInclude Include="src\matrix.h" />
     <ClInclude Include="src\output.h" />
     <ClInclude Include="src\permutation.h" />
+    <ClInclude Include="src\permutation_group.h" />
     <ClInclude Include="src\scalar.h" />
     <ClInclude Include="src\scope.h" />
     <ClInclude Include="src\shader.h" />

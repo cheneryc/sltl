@@ -2,7 +2,7 @@
 
 #include "basic.h"
 #include "scalar.h"
-#include "permutation.h"
+#include "permutation_group.h"
 
 #include "syntax/constructor_call.h"
 

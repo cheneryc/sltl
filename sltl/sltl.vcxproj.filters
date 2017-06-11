@@ -210,6 +210,9 @@
     <ClInclude Include="src\permutation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\permutation_group.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\scope.cpp">
