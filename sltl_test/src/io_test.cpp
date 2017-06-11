@@ -14,13 +14,13 @@ namespace
   std::wstring to_string(const sltl::shader& shader)
   {
     // Prepend a newline character to exactly match the raw string literals
-    return L'\n' + shader.str<sltl::output>(sltl::output_version::none, sltl::output_flags::flag_indent_space);
+    return L'\n' + shader.apply_action<sltl::output>(sltl::output_version::none, sltl::output_flags::flag_indent_space);
   }
 
   std::wstring to_string(const sltl::shader& shader, sltl::detail::enum_flags<sltl::output::layout_flags> layout_flags)
   {
     // Prepend a newline character to exactly match the raw string literals
-    return L'\n' + shader.str<sltl::output>(sltl::output::layout_manager(layout_flags), sltl::output_version::none, sltl::output_flags::flag_indent_space);
+    return L'\n' + shader.apply_action<sltl::output>(sltl::output::layout_manager(layout_flags), sltl::output_version::none, sltl::output_flags::flag_indent_space);
   }
 }
 
@@ -266,12 +266,12 @@ TEST(io, uniform_introspection)
 
   auto shader = sltl::make_shader(test_shader);
 
-  const std::wstring actual_texcoord0 = shader.str<sltl::output_introspector, false>(sltl::core::qualifier_storage::uniform, sltl::core::semantic_pair(sltl::core::semantic::texcoord, 0));
+  const std::wstring actual_texcoord0 = shader.apply_action<sltl::output_introspector, false>(sltl::core::qualifier_storage::uniform, sltl::core::semantic_pair(sltl::core::semantic::texcoord, 0));
   const std::wstring expected_texcoord0 = L"u_v1";
 
   ASSERT_EQ(expected_texcoord0, actual_texcoord0);
 
-  const std::wstring actual_texcoord1 = shader.str<sltl::output_introspector, false>(sltl::core::qualifier_storage::uniform, sltl::core::semantic_pair(sltl::core::semantic::texcoord, 1));
+  const std::wstring actual_texcoord1 = shader.apply_action<sltl::output_introspector, false>(sltl::core::qualifier_storage::uniform, sltl::core::semantic_pair(sltl::core::semantic::texcoord, 1));
   const std::wstring expected_texcoord1 = L"u_v2";
 
   ASSERT_EQ(expected_texcoord1, actual_texcoord1);

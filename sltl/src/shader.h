@@ -32,41 +32,27 @@ namespace sltl
     shader(shader&& s) : _stage(s._stage), _tree(std::move(s._tree)) {}
     shader(core::shader_stage stage, syntax::tree_base::ptr&& tree) : _stage(stage), _tree(std::move(tree)) {}
 
-    template<typename Fn, bool is_error = true, typename ...T>
-    std::wstring str(T&& ...t) const
+    template<typename Fn, bool is_error = true, typename ...T, detail::enable_if<detail::negate<detail::has_get_result<Fn>>> = detail::default_tag>
+    auto apply_action(T&& ...t) -> typename std::enable_if<std::is_base_of<syntax::action, Fn>::value>::type
     {
-      return apply_action<Fn, is_error>(std::forward<T>(t)...);
-    }
-
-    template<typename Fn, bool is_error = true, typename ...T>
-    auto apply_action(T&& ...t) -> typename std::enable_if<detail::negate<detail::has_get_result<Fn>>::value>::type
-    {
-      static_assert(std::is_base_of<syntax::action, Fn>::value, "sltl::shader::apply_action: template parameter Fn must derive from sltl::syntax::action");
-
       apply_action_impl<Fn>(*this, is_error, std::forward<T>(t)...);
     }
 
-    template<typename Fn, bool is_error = true, typename ...T>
-    auto apply_action(T&& ...t) const -> typename std::enable_if<detail::negate<detail::has_get_result<Fn>>::value>::type
+    template<typename Fn, bool is_error = true, typename ...T, detail::enable_if<detail::negate<detail::has_get_result<Fn>>> = detail::default_tag>
+    auto apply_action(T&& ...t) const -> typename std::enable_if<std::is_base_of<syntax::const_action, Fn>::value>::type
     {
-      static_assert(std::is_base_of<syntax::const_action, Fn>::value, "sltl::shader::apply_action: template parameter Fn must derive from sltl::syntax::const_action");
-
       apply_action_impl<Fn>(*this, is_error, std::forward<T>(t)...);
     }
 
-    template<typename Fn, bool is_error = true, typename ...T, typename R = detail::function_traits<decltype(&Fn::get_result)>::return_t>
-    R apply_action(T&& ...t)
+    template<typename Fn, bool is_error = true, typename ...T, typename R = decltype(std::declval<Fn>().get_result())>
+    auto apply_action(T&& ...t) -> typename std::enable_if<std::is_base_of<syntax::action_result<R>, Fn>::value, R>::type
     {
-      static_assert(std::is_base_of<syntax::action_result<R>, Fn>::value, "sltl::shader::apply_action: template parameter Fn must derive from syntax::action_result<R>");
-
       return apply_action_impl<Fn>(*this, is_error, std::forward<T>(t)...).get_result();
     }
 
-    template<typename Fn, bool is_error = true, typename ...T, typename R = detail::function_traits<decltype(&Fn::get_result)>::return_t>
-    R apply_action(T&& ...t) const
+    template<typename Fn, bool is_error = true, typename ...T, typename R = decltype(std::declval<Fn>().get_result())>
+    auto apply_action(T&& ...t) const -> typename std::enable_if<std::is_base_of<syntax::const_action_result<R>, Fn>::value, R>::type
     {
-      static_assert(std::is_base_of<syntax::const_action_result<R>, Fn>::value, "sltl::shader::apply_action: template parameter Fn must derive from syntax::const_action_result<R>");
-
       return apply_action_impl<Fn>(*this, is_error, std::forward<T>(t)...).get_result();
     }
 

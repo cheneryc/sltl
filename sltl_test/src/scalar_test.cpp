@@ -11,7 +11,7 @@ namespace
   std::wstring to_string(const sltl::shader& shader)
   {
     // Prepend a newline character to exactly match the raw string literals
-    return L'\n' + shader.str<sltl::output>(sltl::output_version::none, sltl::output_flags::flag_indent_space);
+    return L'\n' + shader.apply_action<sltl::output>(sltl::output_version::none, sltl::output_flags::flag_indent_space);
   }
 }
 
@@ -88,6 +88,7 @@ TEST(scalar, assignment_operator)
     test1 = sltl::scalar<float>();
     test1 = sltl::scalar<float>(1.0f);
     test1 = test2 = test1;
+    test1 = test2++;
   };
 
   const std::wstring actual = ::to_string(sltl::make_test(test_shader));
@@ -100,6 +101,7 @@ TEST(scalar, assignment_operator)
   f1 = float(0.0f);
   f1 = float(1.0f);
   f1 = (f2 = f1);
+  f1 = f2++;
 }
 )";
 

@@ -10,7 +10,7 @@ namespace
   std::wstring to_string(const sltl::shader& shader)
   {
     // Prepend a newline character to exactly match the raw string literals
-    return L'\n' + shader.str<sltl::output>(sltl::output_version::none, sltl::output_flags::flag_indent_space);
+    return L'\n' + shader.apply_action<sltl::output>(sltl::output_version::none, sltl::output_flags::flag_indent_space);
   }
 }
 
@@ -180,6 +180,7 @@ TEST(vector, assignment_operator)
     test1 = vec2();
     test1 = vec2(1.0f, 1.0f);
     test1 = test2 = test1;
+    test1 = test2++;
   };
 
   const std::wstring actual = ::to_string(sltl::make_test(test_shader));
@@ -191,6 +192,7 @@ TEST(vector, assignment_operator)
   v1 = vec2(0.0f);
   v1 = vec2(1.0f, 1.0f);
   v1 = (v2 = v1);
+  v1 = v2++;
 }
 )";
 

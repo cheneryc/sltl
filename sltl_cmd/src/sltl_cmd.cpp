@@ -23,7 +23,7 @@ int main()
 {
   auto shader = sltl::make_shader(&shader_fn);
 
-  std::wstring shader_txt = shader.str<sltl::output>();
+  std::wstring shader_txt = shader.apply_action<sltl::output>();
   std::wcout << shader_txt.c_str() << std::endl;
 
   return 0;
