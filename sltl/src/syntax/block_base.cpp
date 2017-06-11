@@ -1,4 +1,5 @@
 #include "block_base.h"
+#include "block_manager.h"
 
 #include <algorithm>
 
@@ -8,9 +9,8 @@ namespace
   namespace ns = sltl::syntax;
 }
 
-ns::block_base::block_base(std::wstring&& name) : _current_child_id(0), _name(std::move(name))
-{
-}
+ns::block_base::block_base(std::wstring&& name) : _current_child_id(0), _name(std::move(name)) {}
+ns::block_base::block_base(const wchar_t* name) : block_base(name ? name : ns::get_current_block().get_child_name()) {}
 
 ns::statement& ns::block_base::add_impl(statement::ptr&& s)
 {
@@ -40,7 +40,16 @@ void ns::block_base::erase(const statement& s)
   // Remove the associated variable_info data if the erased statement is a variable_declaration
   if(auto vd = dynamic_cast<const variable_declaration*>(&s))
   {
-    _variable_map.erase(vd->_name);
+    auto it = _variable_map.find(vd->_name);
+
+    assert(it != _variable_map.end());
+    assert(it->second.get_ref() == 0);
+
+    _variable_map.erase(it);
+  }
+  else
+  {
+    throw std::exception();//TODO: exception type and message
   }
 
   auto it = std::find_if(_statements.rbegin(), _statements.rend(), [&s](const statement::ptr& s_find)

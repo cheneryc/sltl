@@ -16,8 +16,8 @@ namespace syntax
   class variable_declaration : public declaration_statement
   {
   public:
-    variable_declaration(expression::ptr&& initializer);
-    variable_declaration(const language::type& type, core::qualifier::ptr&& qualifier, core::semantic_pair semantic);
+    variable_declaration(std::wstring&& name, expression::ptr&& initializer);
+    variable_declaration(std::wstring&& name, const language::type& type, core::qualifier::ptr&& qualifier, core::semantic_pair semantic);
 
     bool has_type() const
     {

@@ -31,11 +31,11 @@ namespace syntax
 
     variable_info* variable_info_find(const std::wstring& name) override;
 
-    std::wstring get_child_name() override;
-
   protected:
-    variable_declaration& add_variable_declaration(expression::ptr&& initializer) override;
-    variable_declaration& add_variable_declaration(const language::type& type, core::semantic_pair semantic) override;
+    variable_declaration& add_variable_declaration(std::wstring&& name, expression::ptr&& initializer) override;
+    variable_declaration& add_variable_declaration(std::wstring&& name, const language::type& type, core::semantic_pair semantic) override;
+
+    std::wstring get_child_name() override;
 
   private:
     variable_info* variable_info_find(const std::wstring& name, std::stack<std::reference_wrapper<block>> block_stack);

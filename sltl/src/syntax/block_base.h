@@ -21,7 +21,7 @@ namespace syntax
     template<typename T, typename ...A>
     auto add(A&&... a) -> typename std::enable_if<std::is_same<T, variable_declaration>::value, T&>::type
     {
-      return add_variable_declaration(std::forward<A>(a)...);
+      return add_variable_declaration(get_child_name(), std::forward<A>(a)...);
     }
 
     template<typename T, typename ...A>
@@ -42,19 +42,19 @@ namespace syntax
 
     virtual variable_info* variable_info_find(const std::wstring& name);
 
-    virtual std::wstring get_child_name();
-
   protected:
     block_base(std::wstring&& name);
+    block_base(const wchar_t* name);
 
     virtual statement& add_impl(statement::ptr&& s);
 
-    virtual variable_declaration& add_variable_declaration(expression::ptr&& initializer) = 0;
-    virtual variable_declaration& add_variable_declaration(const language::type& type, core::semantic_pair semantic = core::semantic_pair::none) = 0;
+    virtual variable_declaration& add_variable_declaration(std::wstring&& name, expression::ptr&& initializer) = 0;
+    virtual variable_declaration& add_variable_declaration(std::wstring&& name, const language::type& type, core::semantic_pair semantic = core::semantic_pair::none) = 0;
 
     variable_declaration& add_variable_declaration_impl(statement::ptr&& s);
 
     const std::wstring& get_name() const;
+    virtual std::wstring get_child_name();
 
     std::vector<statement::ptr> _statements;
 

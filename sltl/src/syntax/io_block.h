@@ -29,8 +29,8 @@ namespace syntax
   protected:
     statement& add_impl(statement::ptr&&) override;
 
-    variable_declaration& add_variable_declaration(expression::ptr&&) override;
-    variable_declaration& add_variable_declaration(const language::type& type, core::semantic_pair semantic) override;
+    variable_declaration& add_variable_declaration(std::wstring&&, expression::ptr&&) override;
+    variable_declaration& add_variable_declaration(std::wstring&& name, const language::type& type, core::semantic_pair semantic) override;
   };
 }
 }

@@ -36,19 +36,19 @@ ns::statement& ns::io_block::add_impl(statement::ptr&&)
   throw std::exception();//TODO: exception type and message
 }
 
-ns::variable_declaration& ns::io_block::add_variable_declaration(expression::ptr&&)
+ns::variable_declaration& ns::io_block::add_variable_declaration(std::wstring&&, expression::ptr&&)
 {
   throw std::exception();//TODO: exception type and message
 }
 
-ns::variable_declaration& ns::io_block::add_variable_declaration(const sltl::language::type& type, sltl::core::semantic_pair semantic)
+ns::variable_declaration& ns::io_block::add_variable_declaration(std::wstring&& name, const sltl::language::type& type, sltl::core::semantic_pair semantic)
 {
   if(semantic._semantic == core::semantic::none)
   {
     throw std::exception();//TODO: exception type and message
   }
 
-  return add_variable_declaration_impl(statement::make<variable_declaration>(type, core::qualifier::make<core::storage_qualifier>(_qualifier), semantic));
+  return add_variable_declaration_impl(statement::make<variable_declaration>(std::move(name), type, core::qualifier::make<core::storage_qualifier>(_qualifier), semantic));
 }
 
 void ns::io_block::pop()
