@@ -80,6 +80,7 @@
     <ClCompile Include="src\syntax\block.cpp" />
     <ClCompile Include="src\syntax\block_base.cpp" />
     <ClCompile Include="src\syntax\block_manager.cpp" />
+    <ClCompile Include="src\syntax\component_accessor.cpp" />
     <ClCompile Include="src\syntax\elide.cpp" />
     <ClCompile Include="src\syntax\expression_statement.cpp" />
     <ClCompile Include="src\syntax\io_block.cpp" />

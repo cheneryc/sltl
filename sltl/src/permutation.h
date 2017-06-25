@@ -53,9 +53,9 @@ namespace sltl
   private:
     explicit permutation(permutable_t& p) : _p(p) {}
 
-    syntax::component_accessor make_accessor() const
+    syntax::component_accessor::ptr make_accessor() const
     {
-      return syntax::component_accessor::make<syntax::component_access::mode::vector>(Args...);
+      return syntax::component_accessor::make<syntax::component_accessor::mode::vector>(Args...);
     }
 
     permutable_t& _p;
@@ -108,9 +108,9 @@ namespace sltl
   private:
     explicit permutation(permutable_t& p) : _p(p) {}
 
-    syntax::component_accessor make_accessor() const
+    syntax::component_accessor::ptr make_accessor() const
     {
-      return syntax::component_accessor::make<syntax::component_access::mode::vector>(Arg);
+      return syntax::component_accessor::make<syntax::component_accessor::mode::vector>(Arg);
     }
 
     permutable_t& _p;

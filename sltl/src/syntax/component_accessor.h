@@ -1,8 +1,6 @@
 #pragma once
 
-#include "component_access.h"
-
-#include "../detail/function_traits.h"
+#include "../language.h"
 
 
 namespace sltl
@@ -12,54 +10,104 @@ namespace syntax
   class component_accessor
   {
   public:
-    //TODO: will probably need an overload for when the visitor has no return type
-    //TODO: this should be moved into the accessor_base class as a virtual member function? This might not be possible if the visit() member function needs to be templated
-    //TODO: return type could be auto-deduced using decltype(auto)
-    //TODO: make static?
-    template<typename Fn>
-    //auto visit(Fn fn) const -> typename detail::function_traits<Fn>::return_t
-    decltype(auto) visit(Fn fn) const
+    typedef std::unique_ptr<component_accessor> ptr;
+
+    enum class mode
     {
-      switch(_mode)
+      scalar,
+      vector,
+      matrix
+    };
+
+    static const language::type_dimension_t _idx_default = std::numeric_limits<language::type_dimension_t>::max();
+
+    template<typename Fn>
+    static decltype(auto) visit(const component_accessor& accessor, Fn fn)
+    {
+      switch(accessor._mode)
       {
-        case component_access::mode::scalar:
-          return fn(static_cast<const component_access_scalar&>(*_access));
+        case mode::scalar:
+          return fn(static_cast<const component_accessor_scalar&>(accessor));
           break;
-        case component_access::mode::vector:
-          return fn(static_cast<const component_access_vector&>(*_access));
+        case mode::vector:
+          return fn(static_cast<const component_accessor_vector&>(accessor));
           break;
-        case component_access::mode::matrix:
-          return fn(static_cast<const component_access_matrix&>(*_access));
+        case mode::matrix:
+          return fn(static_cast<const component_accessor_matrix&>(accessor));
           break;
         default:
           throw std::exception();//TODO: exception type and message
       }
     }
 
-    language::type get_type(const language::type& type_operand) const
+    virtual language::type get_type(const language::type& type_operand) const = 0;
+
+    template<mode M, typename ...A>
+    static component_accessor::ptr make(A&&... a)
     {
-      bool is_valid = false;
+      return make_impl(tag<M>(), std::forward<A>(a)...);
+    }
 
-      switch(_mode)
-      {
-        case component_access::mode::scalar:
-          is_valid = type_operand.get_dimensions().is_scalar();
-          break;
-        case component_access::mode::vector:
-          is_valid = type_operand.get_dimensions().is_vector();
-          break;
-        case component_access::mode::matrix:
-          is_valid = type_operand.get_dimensions().is_matrix();
-          break;
-        default:
-          assert(_mode == component_access::mode::scalar ||
-                 _mode == component_access::mode::vector ||
-                 _mode == component_access::mode::matrix);
-      }
+    const mode _mode;
 
-      if(is_valid)
+  protected:
+    component_accessor(mode mode) : _mode(mode) {}
+
+    template<mode>
+    struct tag {};
+
+    static component_accessor::ptr make_impl(tag<mode::scalar>, language::type_dimension_t count);
+
+    static component_accessor::ptr make_impl(tag<mode::vector>,
+                                             language::type_dimension_t i0 = _idx_default,
+                                             language::type_dimension_t i1 = _idx_default,
+                                             language::type_dimension_t i2 = _idx_default,
+                                             language::type_dimension_t i3 = _idx_default);
+
+    static component_accessor::ptr make_impl(tag<mode::matrix>,
+                                             language::type_dimension_t idx_m,
+                                             language::type_dimension_t idx_n);
+  };
+
+  class component_accessor_scalar : public component_accessor
+  {
+    friend component_accessor::ptr component_accessor::make_impl(tag<mode::scalar>, language::type_dimension_t);
+
+  public:
+    language::type get_type(const language::type& type_operand) const override
+    {
+      //TODO: this doesn't work if column vectors/matrices are being used as there isn't a way
+      // to deduce from the operand whether the returned type should be a row or column vector
+      return language::type(type_operand.get_id(), 1U, _count);
+    }
+
+    const language::type_dimension_t _count;
+
+  private:
+    component_accessor_scalar(language::type_dimension_t count) : component_accessor(mode::scalar), _count(count)
+    {
+      assert((_count > 0) && (_count <= language::type_dimensions::max_dimensions));
+    }
+  };
+
+  class component_accessor_vector : public component_accessor
+  {
+    friend component_accessor::ptr component_accessor::make_impl(tag<mode::vector>,
+                                                                 language::type_dimension_t,
+                                                                 language::type_dimension_t,
+                                                                 language::type_dimension_t,
+                                                                 language::type_dimension_t);
+
+  public:
+    language::type get_type(const language::type& type_operand) const override
+    {
+      const auto it_begin = std::begin(_indices);
+
+      if(const auto count = std::distance(it_begin, std::find(it_begin, std::end(_indices), _idx_default)))
       {
-        return _access->get_type(type_operand);
+        return (language::is_row_vector(type_operand.get_dimensions()) ?
+                language::type(type_operand.get_id(), 1U, count) :
+                language::type(type_operand.get_id(), count, 1U));
       }
       else
       {
@@ -67,42 +115,49 @@ namespace syntax
       }
     }
 
-    template<component_access::mode T, typename ...A>
-    static component_accessor make(A&&... a)
-    {
-      return make_impl(tag<T>(), std::forward<A>(a)...);
-    }
-
-    const component_access::mode _mode;
+    const language::type_dimension_t _indices[language::type_dimensions::max_dimensions];
 
   private:
-    component_accessor(component_access::mode mode, std::unique_ptr<component_access>&& access) : _mode(mode), _access(std::move(access)) {}
-
-    template<component_access::mode>
-    struct tag {};
-
-    static component_accessor make_impl(tag<component_access::mode::scalar>, language::type_dimension_t count)
+    component_accessor_vector(language::type_dimension_t idx0,
+                              language::type_dimension_t idx1,
+                              language::type_dimension_t idx2,
+                              language::type_dimension_t idx3) : component_accessor(mode::vector), _indices{ idx0, idx1, idx2, idx3 }
     {
-      return component_accessor(component_access::mode::scalar, std::make_unique<component_access_scalar>(count));
+      assert(std::all_of(std::begin(_indices), std::end(_indices), [](language::type_dimension_t idx) { return (idx == _idx_default) || (idx < language::type_dimensions::max_dimensions); }));
+    }
+  };
+
+  class component_accessor_matrix : public component_accessor
+  {
+    friend component_accessor::ptr component_accessor::make_impl(tag<mode::matrix>,
+                                                                 language::type_dimension_t,
+                                                                 language::type_dimension_t);
+
+  public:
+    language::type get_type(const language::type& type_operand) const override
+    {
+      const auto op_dimensions = type_operand.get_dimensions();
+
+      assert((_idx_m == _idx_default) || (_idx_m < op_dimensions.m()));
+      assert((_idx_n == _idx_default) || (_idx_n < op_dimensions.n()));
+
+      const language::type_dimension_t m = ((_idx_m != _idx_default) ? 1U : op_dimensions.m());
+      const language::type_dimension_t n = ((_idx_n != _idx_default) ? 1U : op_dimensions.n());
+
+      return language::type(type_operand.get_id(), m, n);
     }
 
-    static component_accessor make_impl(tag<component_access::mode::vector>,
-                                        language::type_dimension_t i0 = component_access::_idx_default,
-                                        language::type_dimension_t i1 = component_access::_idx_default,
-                                        language::type_dimension_t i2 = component_access::_idx_default,
-                                        language::type_dimension_t i3 = component_access::_idx_default)
-    {
-      return component_accessor(component_access::mode::vector, std::make_unique<component_access_vector>(i0, i1, i2, i3));
-    }
+    const language::type_dimension_t _idx_m;
+    const language::type_dimension_t _idx_n;
 
-    static component_accessor make_impl(tag<component_access::mode::matrix>,
-                                        language::type_dimension_t idx_m,
-                                        language::type_dimension_t idx_n)
+  private:
+    component_accessor_matrix(language::type_dimension_t idx_m,
+                              language::type_dimension_t idx_n) : component_accessor(mode::matrix),
+      _idx_m(idx_m),
+      _idx_n(idx_n)
     {
-      return component_accessor(component_access::mode::matrix, std::make_unique<component_access_matrix>(idx_m, idx_n));
+      assert((idx_m != _idx_default) || (idx_n != _idx_default));
     }
-
-    std::unique_ptr<component_access> _access;
   };
 }
 }

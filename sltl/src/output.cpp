@@ -506,7 +506,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_compon
   {
     struct
     {
-      std::wstring operator()(const syntax::component_access_scalar& access) const
+      std::wstring operator()(const syntax::component_accessor_scalar& access) const
       {
         std::wstringstream ss;
 
@@ -518,9 +518,9 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_compon
         return ss.str();
       }
 
-      std::wstring operator()(const syntax::component_access_vector& access) const
+      std::wstring operator()(const syntax::component_accessor_vector& access) const
       {
-        const auto it_find = std::find(std::begin(access._indices), std::end(access._indices), syntax::component_access::_idx_default);
+        const auto it_find = std::find(std::begin(access._indices), std::end(access._indices), syntax::component_accessor::_idx_default);
 
         std::wstringstream ss;
 
@@ -532,16 +532,15 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_compon
         return ss.str();
       }
 
-      std::wstring operator()(const syntax::component_access_matrix& access) const
+      std::wstring operator()(const syntax::component_accessor_matrix& access) const
       {
         std::wstringstream ss;
 
-        //TODO: check that the order is correct for glsl (i.e. column-order)
         ss << L'[';
         ss << access._idx_n;
         ss << L']';
 
-        if(access._idx_m != syntax::component_access::_idx_default)
+        if(access._idx_m != syntax::component_accessor::_idx_default)
         {
           ss << L'[';
           ss << access._idx_m;
@@ -553,7 +552,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_compon
     } fn;
 
     _ss << L'.';
-    _ss << oca._accessor.visit(fn);
+    _ss << syntax::component_accessor::visit(*oca._accessor, fn);
 
     return_val = syntax::action_return_t::step_out;
   }
@@ -879,6 +878,13 @@ ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::operator
   }
 
   return return_val;
+}
+
+ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::operator_component_access& oca, bool is_start)
+{
+  //TODO: implement this...
+  assert(false);
+  return ns::syntax::action_return_t::step_out;
 }
 
 ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::variable_declaration& vd, bool is_start)

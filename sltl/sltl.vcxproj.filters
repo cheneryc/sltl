@@ -266,5 +266,8 @@
     <ClCompile Include="src\syntax\operator.cpp">
       <Filter>Source Files\syntax</Filter>
     </ClCompile>
+    <ClCompile Include="src\syntax\component_accessor.cpp">
+      <Filter>Source Files\syntax</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

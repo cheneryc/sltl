@@ -14,7 +14,7 @@ namespace syntax
   class operator_component_access : public operator_base
   {
   public:
-    operator_component_access(expression::ptr&& operand, component_accessor&& accessor) : _operand(std::move(operand)), _accessor(std::move(accessor)), _type(_accessor.get_type(_operand->get_type()))
+    operator_component_access(expression::ptr&& operand, component_accessor::ptr&& accessor) : _operand(std::move(operand)), _accessor(std::move(accessor)), _type(_accessor->get_type(_operand->get_type()))
     {
     }
 
@@ -37,7 +37,7 @@ namespace syntax
     expression::ptr _operand;
 
   public:
-    const component_accessor _accessor;
+    const component_accessor::ptr _accessor;
 
   private:
     const language::type _type;
