@@ -1,6 +1,9 @@
 #pragma once
 
 #include "core/qualifier.h"
+#include "core/intrinsic.h"
+
+#include "detail/comparison.h"
 
 #include <string>
 #include <vector>
@@ -128,6 +131,26 @@ namespace language
       return !(td1 == td2);
     }
 
+    friend bool operator<(const type_dimensions& td1, const type_dimensions& td2)
+    {
+      return detail::less(td1._m, td2._m, td1._n, td2._n);
+    }
+
+    friend bool operator>(const type_dimensions& td1, const type_dimensions& td2)
+    {
+      return td2 < td1;
+    }
+
+    friend bool operator<=(const type_dimensions& td1, const type_dimensions& td2)
+    {
+      return !(td1 > td2);
+    }
+
+    friend bool operator>=(const type_dimensions& td1, const type_dimensions& td2)
+    {
+      return !(td1 < td2);
+    }
+
   private:
     // m - number of rows
     // n - number of columns
@@ -166,6 +189,26 @@ namespace language
     friend bool operator!=(const type& t1, const type& t2)
     {
       return !(t1 == t2);
+    }
+
+    friend bool operator<(const type& t1, const type& t2)
+    {
+      return detail::less(t1._id, t1._dimensions, t2._id, t2._dimensions);
+    }
+
+    friend bool operator>(const type& t1, const type& t2)
+    {
+      return t2 < t1;
+    }
+
+    friend bool operator<=(const type& t1, const type& t2)
+    {
+      return !(t1 > t2);
+    }
+
+    friend bool operator>=(const type& t1, const type& t2)
+    {
+      return !(t1 < t2);
     }
 
     //TODO: add support for array types by adding a std::dynarray member (turns out dynarray will not be standardized so create something similar) to store each array dimension
@@ -258,5 +301,6 @@ namespace language
   const wchar_t* to_keyword_string(keyword_id id);
   const wchar_t* to_qualifier_string(core::qualifier_storage id);
   const wchar_t* to_qualifier_prefix_string(core::qualifier_storage id);
+  const wchar_t* to_intrinsic_string(core::intrinsic id);
 }
 }

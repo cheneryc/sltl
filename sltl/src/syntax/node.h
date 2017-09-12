@@ -21,9 +21,7 @@ namespace syntax
     node(const node&) = delete;
     node& operator=(const node&) = delete;
 
-    virtual ~node()
-    {
-    }
+    virtual ~node() = default;
 
     virtual bool apply_action(action& act) = 0;
     virtual bool apply_action(const_action& cact) const = 0;

@@ -10,6 +10,8 @@
 #include "syntax/constructor_call.h"
 #include "syntax/function_call.h"
 #include "syntax/function_definition.h"
+#include "syntax/intrinsic_call.h"
+#include "syntax/intrinsic_declaration.h"
 #include "language.h"
 #include "traits.h"
 
@@ -132,6 +134,17 @@ namespace
     std::wstringstream ss;
     ss << std::boolalpha << b;
     return ss.str();
+  }
+
+  const wchar_t* to_intrinsic_string(ns::core::intrinsic intrinsic)
+  {
+    switch(intrinsic)
+    {
+      case ns::core::intrinsic::dot:
+        return L"dot";
+    }
+
+    return nullptr;
   }
 
   std::wstring to_built_in_string(ns::core::semantic semantic, ns::core::semantic_index_t index)
@@ -731,6 +744,27 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::return_statemen
 
   return is_start ? ns::syntax::action_return_t::step_in :
                     ns::syntax::action_return_t::step_out;
+}
+
+ns::syntax::action_return_t ns::output::operator()(const syntax::intrinsic_call& ic, bool is_start)
+{
+  if(is_start)
+  {
+    _ss << ::to_intrinsic_string(ic.get_intrinsic()) << L'(';
+  }
+  else
+  {
+    _ss << L')';
+  }
+
+  return is_start ? ns::syntax::action_return_t::step_in :
+                    ns::syntax::action_return_t::step_out;
+}
+
+ns::syntax::action_return_t ns::output::operator()(const syntax::intrinsic_declaration& id, bool is_start)
+{
+  assert(false); //TODO: implement this...
+  return ns::syntax::action_return_t::step_out;
 }
 
 ns::syntax::action_return_t ns::output::operator()(float f)

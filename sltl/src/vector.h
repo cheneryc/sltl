@@ -4,6 +4,7 @@
 #include "scalar.h"
 #include "permutation_group.h"
 
+#include "syntax/intrinsic_call.h"
 #include "syntax/constructor_call.h"
 
 #include "detail/variadic_traits.h"
@@ -83,4 +84,25 @@ namespace sltl
       return syntax::expression_list();
     }
   };
+
+  namespace detail
+  {
+    template<template<typename, size_t...> class V, typename T, size_t ...D>
+    auto as_proxy_dot(expression::expression<V, T, D...>&& x, expression::expression<V, T, D...>&& y) -> expression::expression<scalar, T>
+    {
+      static_assert(is_real<T>::value, "sltl::dot: template parameter T must be float or double");
+      static_assert(sizeof...(D) < 2, "sltl::dot: only valid for scalar or vector arguments");
+
+      return expression::expression<scalar, T>(syntax::call_intrinsic_dot(x.move(), y.move()));
+    }
+  }
+
+  template<typename T1, typename T2>
+  auto dot(T1&& x, T2&& y) -> decltype(detail::as_proxy_dot(expression::as_expression(std::forward<T1>(x)), expression::as_expression(std::forward<T2>(y))))
+  {
+    auto x_proxy = expression::as_expression(std::forward<T1>(x));
+    auto y_proxy = expression::as_expression(std::forward<T2>(y));
+
+    return detail::as_proxy_dot(std::move(x_proxy), std::move(y_proxy));
+  }
 }

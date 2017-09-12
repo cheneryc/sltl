@@ -13,9 +13,11 @@
   <ItemGroup>
     <ClInclude Include="src\basic.h" />
     <ClInclude Include="src\call.h" />
+    <ClInclude Include="src\core\intrinsic.h" />
     <ClInclude Include="src\core\qualifier.h" />
     <ClInclude Include="src\core\semantic.h" />
     <ClInclude Include="src\core\shader_stage.h" />
+    <ClInclude Include="src\detail\comparison.h" />
     <ClInclude Include="src\detail\conditional_traits.h" />
     <ClInclude Include="src\detail\enum_flags.h" />
     <ClInclude Include="src\detail\function_traits.h" />
@@ -39,7 +41,6 @@
     <ClInclude Include="src\syntax\block.h" />
     <ClInclude Include="src\syntax\block_base.h" />
     <ClInclude Include="src\syntax\block_manager.h" />
-    <ClInclude Include="src\syntax\component_access.h" />
     <ClInclude Include="src\syntax\component_accessor.h" />
     <ClInclude Include="src\syntax\conditional.h" />
     <ClInclude Include="src\syntax\constructor_call.h" />
@@ -51,6 +52,9 @@
     <ClInclude Include="src\syntax\function_call.h" />
     <ClInclude Include="src\syntax\function_definition.h" />
     <ClInclude Include="src\syntax\function_manager.h" />
+    <ClInclude Include="src\syntax\intrinsic_call.h" />
+    <ClInclude Include="src\syntax\intrinsic_declaration.h" />
+    <ClInclude Include="src\syntax\intrinsic_manager.h" />
     <ClInclude Include="src\syntax\io_block.h" />
     <ClInclude Include="src\syntax\io_block_manager.h" />
     <ClInclude Include="src\syntax\list.h" />

@@ -93,24 +93,6 @@ namespace sltl
 
   namespace detail
   {
-    template<template<typename, size_t...> class V, typename T, size_t ...D>
-    auto as_proxy(V<T, D...>&& v) -> expression::expression<V, T, D...>
-    {
-      return expression::expression<V, T, D...>(std::move(v));
-    }
-
-    template<template<typename, size_t...> class V, typename T, size_t ...D>
-    auto as_proxy(const V<T, D...>& v) -> expression::expression<V, T, D...>
-    {
-      return expression::expression<V, T, D...>(v);
-    }
-
-    template<template<typename, size_t...> class V, typename T, size_t ...D>
-    auto as_proxy(expression::expression<V, T, D...>&& p) -> expression::expression<V, T, D...>
-    {
-      return std::move(p);
-    }
-
     // vector * matrix
     template<typename T, size_t M, size_t N>
     auto as_proxy_mul(expression::expression<vector, T, M>&& lhs, expression::expression<matrix, T, M, N>&& rhs) -> expression::expression<vector, T, N>
@@ -127,10 +109,10 @@ namespace sltl
   }
 
   template<typename T1, typename T2>
-  auto operator*(T1&& lhs, T2&& rhs) -> decltype(detail::as_proxy_mul(detail::as_proxy(std::forward<T1>(lhs)), detail::as_proxy(std::forward<T2>(rhs))))
+  auto operator*(T1&& lhs, T2&& rhs) -> decltype(detail::as_proxy_mul(expression::as_expression(std::forward<T1>(lhs)), expression::as_expression(std::forward<T2>(rhs))))
   {
-    auto lhs_proxy = detail::as_proxy(std::forward<T1>(lhs));
-    auto rhs_proxy = detail::as_proxy(std::forward<T2>(rhs));
+    auto lhs_proxy = expression::as_expression(std::forward<T1>(lhs));
+    auto rhs_proxy = expression::as_expression(std::forward<T2>(rhs));
 
     return detail::as_proxy_mul(std::move(lhs_proxy), std::move(rhs_proxy));
   }

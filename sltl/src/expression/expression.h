@@ -95,5 +95,23 @@ namespace expression
   private:
     syntax::expression::ptr _exp;
   };
+
+  template<template<typename, size_t...> class V, typename T, size_t ...D>
+  auto as_expression(V<T, D...>&& v) -> expression<V, T, D...>
+  {
+    return expression<V, T, D...>(std::move(v));
+  }
+
+  template<template<typename, size_t...> class V, typename T, size_t ...D>
+  auto as_expression(const V<T, D...>& v) -> expression<V, T, D...>
+  {
+    return expression<V, T, D...>(v);
+  }
+
+  template<template<typename, size_t...> class V, typename T, size_t ...D>
+  auto as_expression(expression<V, T, D...>&& p) -> expression<V, T, D...>
+  {
+    return std::move(p);
+  }
 }
 }

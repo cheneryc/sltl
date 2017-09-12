@@ -24,6 +24,8 @@ namespace syntax
   class function_call;
   class function_definition;
   class return_statement;
+  class intrinsic_call;
+  class intrinsic_declaration;
 
   template<typename T>
   class literal;
@@ -57,6 +59,8 @@ namespace syntax
     virtual action_return_t operator()(syntax::function_call&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(syntax::function_definition&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(syntax::return_statement&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(syntax::intrinsic_call&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(syntax::intrinsic_declaration&, bool is_start = true) { return get_default(is_start); }
 
     template<typename T>
     action_return_t operator()(syntax::literal<T>& cd)
@@ -102,6 +106,8 @@ namespace syntax
     virtual action_return_t operator()(const syntax::function_call&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(const syntax::function_definition&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(const syntax::return_statement&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(const syntax::intrinsic_call&, bool is_start = true) { return get_default(is_start); }
+    virtual action_return_t operator()(const syntax::intrinsic_declaration&, bool is_start = true) { return get_default(is_start); }
 
     template<typename T>
     action_return_t operator()(const syntax::literal<T>& cd)

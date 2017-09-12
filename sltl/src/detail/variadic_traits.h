@@ -90,5 +90,15 @@ namespace detail
   struct all<T, A...> : std::conditional<T::value, all<A...>, std::false_type>::type
   {
   };
+
+  template<typename ...A>
+  struct any : std::false_type
+  {
+  };
+
+  template<typename T, typename ...A>
+  struct any<T, A...> : std::conditional<T::value, std::true_type, any<A...>>::type
+  {
+  };
 }
 }

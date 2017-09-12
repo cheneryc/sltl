@@ -279,13 +279,23 @@ const wchar_t* ns::to_qualifier_prefix_string(sltl::core::qualifier_storage id)
   {
   case sltl::core::qualifier_storage::in:
     return L"i";
-    break;
   case sltl::core::qualifier_storage::out:
     return L"o";
-    break;
   case sltl::core::qualifier_storage::uniform:
     return L"u";
-    break;
+  }
+
+  return nullptr;
+}
+
+const wchar_t* ns::to_intrinsic_string(sltl::core::intrinsic id)
+{
+  // _bi_* -> 'built-in' functions
+
+  switch(id)
+  {
+  case sltl::core::intrinsic::dot:
+    return L"_bi_dot";
   }
 
   return nullptr;

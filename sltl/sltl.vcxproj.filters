@@ -201,9 +201,6 @@
     <ClInclude Include="src\syntax\operator_component_access.h">
       <Filter>Header Files\syntax</Filter>
     </ClInclude>
-    <ClInclude Include="src\syntax\component_access.h">
-      <Filter>Header Files\syntax</Filter>
-    </ClInclude>
     <ClInclude Include="src\syntax\component_accessor.h">
       <Filter>Header Files\syntax</Filter>
     </ClInclude>
@@ -212,6 +209,21 @@
     </ClInclude>
     <ClInclude Include="src\permutation_group.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\detail\comparison.h">
+      <Filter>Header Files\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\intrinsic.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\syntax\intrinsic_declaration.h">
+      <Filter>Header Files\syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="src\syntax\intrinsic_manager.h">
+      <Filter>Header Files\syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="src\syntax\intrinsic_call.h">
+      <Filter>Header Files\syntax</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

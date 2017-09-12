@@ -135,6 +135,8 @@ namespace sltl
     virtual syntax::action_return_t operator()(const syntax::function_call& fc, bool is_start = true) override;
     virtual syntax::action_return_t operator()(const syntax::function_definition& fd, bool is_start = true) override;
     virtual syntax::action_return_t operator()(const syntax::return_statement& rs, bool is_start = true) override;
+    virtual syntax::action_return_t operator()(const syntax::intrinsic_call& ic, bool is_start = true) override;
+    virtual syntax::action_return_t operator()(const syntax::intrinsic_declaration& id, bool is_start = true) override;
 
     virtual std::wstring get_result() const override;
 
