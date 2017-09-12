@@ -52,21 +52,12 @@ namespace syntax
     parameters.add(std::make_unique<parameter_declaration>(L"x", exp_x->get_type()));
     parameters.add(std::make_unique<parameter_declaration>(L"y", exp_y->get_type()));
 
-    intrinsic_declaration dec(core::intrinsic::dot, std::move(parameters), language::type_helper<float>());
-
-    const intrinsic_declaration* intrinsic_dec = intrinsic_manager::get().get_definition(dec);
-
-    if (!intrinsic_dec)
-    {
-      intrinsic_dec = intrinsic_manager::get().add(std::move(dec));
-    }
-
     expression_list args;
 
     args.add(std::move(exp_x));
     args.add(std::move(exp_y));
 
-    return expression::make<syntax::intrinsic_call>(*intrinsic_dec, std::move(args));
+    return expression::make<syntax::intrinsic_call>(intrinsic_manager::get().emplace(core::intrinsic::dot, std::move(parameters), language::type_helper<float>()), std::move(args));
   }
 }
 }

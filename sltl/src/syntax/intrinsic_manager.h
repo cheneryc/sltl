@@ -18,32 +18,9 @@ namespace syntax
       return _manager;
     }
 
-    const intrinsic_declaration* get_definition(const intrinsic_declaration& definition)
+    const intrinsic_declaration& emplace(core::intrinsic i, parameter_list&& parameters, const language::type& type_return)
     {
-      auto it = _intrinsic_set.find(definition);
-
-      if(it != _intrinsic_set.end())
-      {
-        return &(*it);
-      }
-      else
-      {
-        return nullptr;
-      }
-    }
-
-    const intrinsic_declaration* add(intrinsic_declaration&& definition)
-    {
-      auto result = _intrinsic_set.insert(std::move(definition));
-
-      if(result.second)
-      {
-        return &(*result.first);
-      }
-      else
-      {
-        return nullptr;
-      }
+      return *(_intrinsic_set.emplace(i, std::move(parameters), type_return).first);
     }
 
   private:

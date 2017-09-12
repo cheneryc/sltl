@@ -32,33 +32,18 @@ namespace syntax
     }
 
     template<typename Fn>
-    const function_definition* get_definition(Fn fn)
+    const function_definition& emplace(Fn fn)
     {
-      auto it = _function_map.find(fn);
+      // Pass an empty unique_ptr so that a function_definition instance is
+      // only ever created when the call to emplace results in an insertion
+      auto result = _function_map.try_emplace(fn, std::unique_ptr<function_definition>());
 
-      if(it != _function_map.end())
+      if (result.second)
       {
-        return it->second.get();
+        result.first->second = std::make_unique<function_definition>(fn, ::create_name(_function_map.size() - 1U), language::type_helper<typename detail::function_traits<Fn>::return_t>());
       }
-      else
-      {
-        return nullptr;
-      }
-    }
 
-    template<typename Fn>
-    function_definition* add(Fn fn)
-    {
-      auto result = _function_map.emplace(fn, std::make_unique<function_definition>(fn, ::create_name(_function_map.size()), language::type_helper<typename detail::function_traits<Fn>::return_t>()));
-
-      if(result.second)
-      {
-        return result.first->second.get();
-      }
-      else
-      {
-        return nullptr;
-      }
+      return *(result.first->second);
     }
 
     template<typename T>
