@@ -36,7 +36,7 @@ namespace syntax
     {
       // Pass an empty unique_ptr so that a function_definition instance is
       // only ever created when the call to emplace results in an insertion
-      auto result = _function_map.try_emplace(fn, std::unique_ptr<function_definition>());
+      auto result = _function_map.emplace(fn, std::unique_ptr<function_definition>());
 
       if (result.second)
       {

@@ -15,7 +15,6 @@ namespace core
     uniform
   };
 
-  //TODO: there is no way to define an out param in C++ so don't include it in this enum?
   enum class qualifier_param
   {
     in,
@@ -52,6 +51,10 @@ namespace core
 
   class param_qualifier : public qualifier
   {
+  public:
+    param_qualifier(qualifier_param value) : _value(value) {}
+
+    const qualifier_param _value;
   };
 }
 }

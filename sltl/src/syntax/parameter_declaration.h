@@ -20,25 +20,16 @@ namespace syntax
   public:
     typedef std::unique_ptr<parameter_declaration> ptr;
 
-    parameter_declaration(std::wstring&& name, const language::type& type) : declaration(std::move(name)), _type(type)
-    {
-    }
+    parameter_declaration(std::wstring&& name, const language::type& type, core::qualifier_param qualifier);
 
-    virtual bool apply_action(action& act) override
-    {
-      return apply_action_impl(act, *this);
-    }
+    virtual bool apply_action(action& act) override;
+    virtual bool apply_action(const_action& cact) const override;
 
-    virtual bool apply_action(const_action& cact) const override
-    {
-      return apply_action_impl(cact, *this);
-    }
+    language::type get_type() const override;
 
-    language::type get_type() const override
-    {
-      return _type;
-    }
+    const core::qualifier_param _qualifier;
 
+  private:
     const language::type _type;
   };
 

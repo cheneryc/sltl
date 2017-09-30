@@ -763,8 +763,9 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::intrinsic_call&
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::intrinsic_declaration& id, bool is_start)
 {
-  assert(false); //TODO: implement this...
-  return ns::syntax::action_return_t::step_out;
+  // The initial return value is 'step_over' as there is no need to traverse any child nodes
+  return is_start ? ns::syntax::action_return_t::step_over :
+                    ns::syntax::action_return_t::step_out;
 }
 
 ns::syntax::action_return_t ns::output::operator()(float f)

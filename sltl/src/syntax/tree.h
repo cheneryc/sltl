@@ -3,6 +3,8 @@
 #include "block.h"
 #include "function_manager.h"
 #include "function_definition.h"
+#include "intrinsic_manager.h"
+#include "intrinsic_declaration.h"
 
 #include <algorithm>
 
@@ -45,7 +47,9 @@ namespace syntax
     tree(Fn fn)
     {
       _functions.emplace_back(std::make_unique<function_definition>(fn, L"main", language::type_helper<void>()));
+
       function_manager::get().move(_functions);
+      intrinsic_manager::get().move(_intrinsics);
 
       std::tie(_io_block_in, _io_block_out, _io_block_uniform) = io_block_manager::get().move();
     }
@@ -81,11 +85,18 @@ namespace syntax
         is_continuing = type._io_block_out->apply_action(act);
       }
 
+      is_continuing = is_continuing && std::all_of(type._intrinsics.begin(), type._intrinsics.end(), [&act](const intrinsic_declaration::ptr& id)
+      {
+        return id->apply_action(act);
+      });
+
       // Traverse in reverse order so the main function is processed last
-      return is_continuing && std::all_of(type._functions.rbegin(), type._functions.rend(), [&act](const function_definition::ptr& fd)
+      is_continuing = is_continuing && std::all_of(type._functions.rbegin(), type._functions.rend(), [&act](const function_definition::ptr& fd)
       {
         return fd->apply_action(act);
       });
+
+      return is_continuing;
     }
 
     //TODO: the order of the collection is very important. Maybe assign functions a generation (0, 1, 2 etc.) and use a set instead of a vector?
@@ -94,6 +105,8 @@ namespace syntax
     statement::ptr _io_block_in;
     statement::ptr _io_block_out;
     statement::ptr _io_block_uniform;
+
+    std::vector<intrinsic_declaration::ptr> _intrinsics;
   };
 
   class tree_fragment : public tree_base
