@@ -94,6 +94,7 @@
     <ClCompile Include="src\io_test.cpp" />
     <ClCompile Include="src\matrix_test.cpp" />
     <ClCompile Include="src\scalar_test.cpp" />
+    <ClCompile Include="src\semantic_test.cpp" />
     <ClCompile Include="src\shader_test.cpp" />
     <ClCompile Include="src\swizzle_test.cpp" />
     <ClCompile Include="src\vector_test.cpp" />

@@ -6,6 +6,12 @@
 #include "core/qualifier.h"
 #include "core/semantic.h"
 
+// These includes are required as variable_system and variable_transform have known
+// types (vector & scalar for system variables and matrix for transform variables)
+//TODO:  as io.h is now dependent on these headers it should no longer be in a separate 'io' folder
+#include "../vector.h"
+#include "../matrix.h"
+
 #include "detail/variadic_algorithm.h"
 
 #include <map>
@@ -120,6 +126,34 @@ namespace io
     }
   };
 
+  template<core::semantic_system S = core::semantic_system::none, core::semantic_index_t N = 0U, typename T = float>
+  struct variable_system : variable<vector<T, 4>, core::semantic::system, core::detail::to_semantic_index(S, N)>
+  {
+    static_assert(is_real<T>::value, "sltl::io::variable_system: Type T is not a valid template parameter type");
+  };
+
+  // Partial specialization for core::semantic_system::none - variable semantic mapped to core::semantic::none
+  template<core::semantic_index_t N, typename T>
+  struct variable_system<core::semantic_system::none, N, T> : variable<vector<T, 4>, core::semantic::none, N> {}; //TODO: is there a more suitable type than vector<T, 4>?
+
+  // Partial specialization for core::semantic_system::depth - variable type must be scalar
+  template<core::semantic_index_t N, typename T>
+  struct variable_system<core::semantic_system::depth, N, T> : variable<scalar<T>, core::semantic::system, core::detail::to_semantic_index(core::semantic_system::depth, N)> {};
+
+  template<core::semantic_transform S = core::semantic_transform::none, typename T = float>
+  struct variable_transform : variable<matrix<T, 4, 4>, core::semantic::transform, core::detail::to_semantic_index(S)>
+  {
+    static_assert(is_real<T>::value, "sltl::io::variable_transform: Type T is not a valid template parameter type");
+  };
+
+  // Partial specialization for core::semantic_transform::none - variable semantic mapped to core::semantic::none
+  template<typename T>
+  struct variable_transform<core::semantic_transform::none, T> : variable<matrix<T, 4>, core::semantic::none> {}; //TODO: is there a more suitable type and index than matrix<T, 4> and zero respectively?
+
+  // Partial specialization for core::semantic_transform::normal - variable type is a 3x3 matrix
+  template<typename T>
+  struct variable_transform<core::semantic_transform::normal, T> : variable<matrix<T, 3>, core::semantic::transform, core::detail::to_semantic_index(core::semantic_transform::normal)> {};
+
   namespace detail
   {
     enum variable_none_t {};
@@ -132,6 +166,18 @@ namespace io
 
     template<typename T, core::semantic S, core::semantic_index_t N>
     struct is_variable<variable<T, S, N>>
+    {
+      static const bool value = true;
+    };
+
+    template<core::semantic_system S, core::semantic_index_t N>
+    struct is_variable<variable_system<S, N>>
+    {
+      static const bool value = true;
+    };
+
+    template<core::semantic_transform S>
+    struct is_variable<variable_transform<S>>
     {
       static const bool value = true;
     };
@@ -168,16 +214,28 @@ namespace io
     block& operator=(block&&) = delete;
     block& operator=(const block&) = delete;
 
+    template<typename T>
+    auto get() -> typename std::enable_if<detail::is_variable<T>::value, typename T::type::proxy>::type
+    {
+      return get_impl<T::_semantic, T::_index, A...>();
+    }
+
     template<core::semantic S, core::semantic_index_t N = 0U>
     auto get() -> decltype(get_impl<S, N, A...>())
     {
       return get_impl<S, N, A...>();
     }
 
-    template<typename T>
-    auto get() -> typename std::enable_if<detail::is_variable<T>::value, typename T::type::proxy>::type
+    template<core::semantic_system S, core::semantic_index_t N = 0U>
+    auto get() -> decltype(get<variable_system<S, N>>())
     {
-      return get_impl<T::_semantic, T::_index, A...>();
+      return get<variable_system<S, N>>();
+    }
+
+    template<core::semantic_transform S>
+    auto get() -> decltype(get<variable_transform<S>>())
+    {
+      return get<variable_transform<S>>();
     }
 
   private:

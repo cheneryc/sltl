@@ -33,15 +33,31 @@ namespace
     }
   }
 
-  bool is_variable_built_in(ns::core::semantic semantic)
+  bool is_variable_built_in(ns::core::semantic semantic, ns::core::semantic_index_t semantic_index)
   {
-    return (semantic == ns::core::semantic::position) ||
-           (semantic == ns::core::semantic::depth);
+    bool is_built_in = false;
+
+    if (semantic == ns::core::semantic::system)
+    {
+      const auto semantic_system_pair = ns::core::detail::to_semantic_system_pair(semantic_index);
+
+      switch(semantic_system_pair.first)
+      {
+        // Only a built-in variable if the semantic is position or depth
+        // Only a built-in variable if the index is zero
+        case ns::core::semantic_system::position:
+        case ns::core::semantic_system::depth:
+          is_built_in = !semantic_system_pair.second;
+          break;
+      }
+    }
+
+    return is_built_in;
   }
 
   bool is_variable_built_in(const ns::syntax::variable_declaration& vd)
   {
-    return is_variable_built_in(vd._semantic);
+    return is_variable_built_in(vd._semantic, vd._semantic_index);
   }
 
   bool is_variable_omitted(const ns::syntax::variable_declaration& vd, ns::output::layout_manager& layout_manager)
@@ -147,33 +163,37 @@ namespace
     return nullptr;
   }
 
-  std::wstring to_built_in_string(ns::core::semantic semantic, ns::core::semantic_index_t index)
+  std::wstring to_built_in_string(ns::core::semantic semantic, ns::core::semantic_index_t semantic_index)
   {
-    assert(is_variable_built_in(semantic));
-    assert(index == 0);
+    assert(is_variable_built_in(semantic, semantic_index));
+
+    const auto semantic_system_pair = ns::core::detail::to_semantic_system_pair(semantic_index);
 
     //TODO: validation that the built-in is of the correct type and used in the correct shader stage
 
     std::wstringstream ss;
 
-    switch(semantic)
+    switch(semantic_system_pair.first)
     {
-    case ns::core::semantic::position:
+    case ns::core::semantic_system::position:
       //TODO: if the variable is vertex shader output then this is gl_Position
       //TODO: if the variable is pixel shader input then this is gl_FragCoord
       //TODO: note that index must be zero for position semantic
       ss << L"gl_Position";
       break;
-    case ns::core::semantic::depth:
+    case ns::core::semantic_system::depth:
       //TODO: only valid as a fragment shader output
       //TODO: note that index must be zero for depth semantic
       ss << L"gl_FragDepth";
       break;
     }
 
-    if(index > 0)
+    // Revisit this once built-in variables other than gl_Position & gl_FragDepth are supported
+    assert(semantic_system_pair.second == 0);
+
+    if(semantic_system_pair.second > 0)
     {
-      ss << L'[' << index << L']';
+      ss << L'[' << semantic_system_pair.second << L']';
     }
 
     return ss.str();

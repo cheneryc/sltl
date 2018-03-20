@@ -380,14 +380,14 @@ void main()
 TEST(io, semantic_built_in)
 {
   typedef sltl::io::block<
-    sltl::io::variable<sltl::vector<float, 4>, sltl::core::semantic::position>,
-    sltl::io::variable<sltl::scalar<float>, sltl::core::semantic::depth>> io_block_out;
+    sltl::io::variable_system<sltl::core::semantic_system::position>,
+    sltl::io::variable_system<sltl::core::semantic_system::depth>> io_block_out;
 
   auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, sltl::io::block<>)
   {
     io_block_out output;
-    output.get<sltl::core::semantic::position>() = sltl::vector<float, 4>(0.0f, 0.0f, 0.0f, 0.0f);
-    output.get<sltl::core::semantic::depth>() = 0.0f;
+    output.get<sltl::core::semantic_system::position>() = sltl::vector<float, 4>(0.0f, 0.0f, 0.0f, 0.0f);
+    output.get<sltl::core::semantic_system::depth>() = 0.0f;
     return output;
   };
 
