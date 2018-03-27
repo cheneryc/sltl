@@ -225,6 +225,9 @@
     <ClInclude Include="src\syntax\intrinsic_call.h">
       <Filter>Header Files\syntax</Filter>
     </ClInclude>
+    <ClInclude Include="src\detail\scoped_singleton.h">
+      <Filter>Header Files\detail</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\scope.cpp">

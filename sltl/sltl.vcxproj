@@ -23,6 +23,7 @@
     <ClInclude Include="src\detail\function_traits.h" />
     <ClInclude Include="src\detail\numeric.h" />
     <ClInclude Include="src\detail\pass_key.h" />
+    <ClInclude Include="src\detail\scoped_singleton.h" />
     <ClInclude Include="src\detail\variadic_algorithm.h" />
     <ClInclude Include="src\detail\variadic_traits.h" />
     <ClInclude Include="src\element.h" />
