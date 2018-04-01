@@ -3,6 +3,7 @@
 #include "function_definition.h"
 
 #include "detail/function_traits.h"
+#include "detail/scoped_singleton.h"
 
 #include <map>
 
@@ -21,16 +22,9 @@ namespace sltl
 {
 namespace syntax
 {
-  //TODO: Manager (needs a better name?) is a singleton but might actually be better as thread-local?
   class function_manager
   {
   public:
-    static function_manager& get()
-    {
-      static function_manager _manager;
-      return _manager;
-    }
-
     template<typename Fn>
     const function_definition& emplace(Fn fn)
     {
@@ -60,5 +54,7 @@ namespace syntax
   private:
     std::map<void*, function_definition::ptr> _function_map;
   };
+
+  typedef detail::scoped_singleton<function_manager, detail::scope_t::thread> function_manager_guard;
 }
 }

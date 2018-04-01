@@ -29,8 +29,11 @@ namespace sltl
     template<core::shader_stage>
     struct tag {};
 
+    shader() = default;
     shader(shader&& s) : _stage(s._stage), _tree(std::move(s._tree)) {}
-    shader(core::shader_stage stage, syntax::tree_base::ptr&& tree) : _stage(stage), _tree(std::move(tree)) {}
+    shader(core::shader_stage stage, syntax::tree::ptr&& tree) : _stage(stage), _tree(std::move(tree)) {}
+
+    shader& operator=(shader&& s) = default;
 
     template<typename Fn, bool is_error = true, typename ...T, detail::enable_if<detail::negate<detail::has_get_result<Fn>>> = detail::default_tag>
     auto apply_action(T&& ...t) -> typename std::enable_if<std::is_base_of<syntax::action, Fn>::value>::type
@@ -72,7 +75,7 @@ namespace sltl
       return std::move(fn);
     }
 
-    syntax::tree_base::ptr _tree;
+    syntax::tree::ptr _tree;
   };
 
   typedef shader::tag<core::shader_stage::vertex>   shader_tag_vertex;
@@ -107,7 +110,6 @@ namespace sltl
   template<core::shader_stage S, typename TTree, typename Fn>
   shader make_shader(Fn fn)
   {
-    //TODO: the lifetime of all manager classes (block, io_block, function) should be controlled by this function, ideally via RAII idiom
     return shader(S, syntax::tree::make<TTree>(fn));
   }
 
@@ -123,7 +125,7 @@ namespace sltl
     };
 
     // Infer the type of shader to be created from the shader type tag parameter.
-    return make_shader<shader_traits<Fn>::_stage, syntax::tree>(fn_wrap);
+    return make_shader<shader_traits<Fn>::_stage, syntax::tree_shader>(fn_wrap);
   }
 
   //TODO: the program functor must support vertex and fragment but not necessarily geometry. How to get this to compile?
@@ -136,7 +138,7 @@ namespace sltl
   template<typename Fn>
   shader make_test(Fn fn)
   {
-    // Explicitly specify the 'fragment' tree type
-    return make_shader<core::shader_stage::test, syntax::tree_fragment>(fn);
+    // Explicitly specify the 'tree_test' tree type
+    return make_shader<core::shader_stage::test, syntax::tree_test>(fn);
   }
 }

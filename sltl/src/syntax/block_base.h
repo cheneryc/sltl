@@ -35,6 +35,9 @@ namespace syntax
       return statement;
     }
 
+    virtual void push() = 0;
+    virtual void pop() = 0;
+
     void erase(const statement& s);
 
     bool operator==(const block_base& rhs) const;

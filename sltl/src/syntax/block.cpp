@@ -18,7 +18,6 @@ namespace
 
 ns::block::block(type t) : block_base((t == local) ? nullptr : L"root"), _t(t)
 {
-  block_manager::get().push({}, *this);
 }
 
 ns::variable_declaration& ns::block::add_variable_declaration(std::wstring&& name, expression::ptr&& initializer)
@@ -36,9 +35,14 @@ ns::variable_declaration& ns::block::add_variable_declaration(std::wstring&& nam
   return add_variable_declaration_impl(statement::make<variable_declaration>(std::move(name), type, core::qualifier::make<core::storage_qualifier>(core::qualifier_storage::default), semantic));
 }
 
+void ns::block::push()
+{
+  block_manager_guard()->push({}, *this);
+}
+
 void ns::block::pop()
 {
-  block_manager::get().pop({}, *this);
+  block_manager_guard()->pop({}, *this);
 }
 
 std::wstring ns::block::get_child_name()
@@ -56,7 +60,7 @@ std::wstring ns::block::get_child_name()
 
 ns::variable_info* ns::block::variable_info_find(const std::wstring& name)
 {
-  return variable_info_find(name, block_manager::get().get_block_stack());
+  return variable_info_find(name, block_manager_guard()->get_block_stack());
 }
 
 ns::variable_info* ns::block::variable_info_find(const std::wstring& name, std::stack<std::reference_wrapper<block>> block_stack)

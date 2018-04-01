@@ -15,8 +15,10 @@ namespace syntax
     friend block_base& get_current_block();
     friend block_base* set_current_block(block_base*);
 
-    static block_base* _override;
+    thread_local static block_base* _override;
   };
+
+  thread_local block_base* block_override::_override = nullptr;
 }
 }
 
@@ -25,10 +27,27 @@ namespace
   namespace ns = sltl::syntax;
 }
 
-ns::block_base* ns::block_override::_override = nullptr;
+ns::block_manager::~block_manager()
+{
+  assert(_block_stack.empty());
+}
 
 void ns::block_manager::push(sltl::detail::pass_key<block>, block& b)
 {
+  block_stack_t block_stack_copy = get_block_stack();
+
+  while(!block_stack_copy.empty())
+  {
+    if(block_stack_copy.top().get() == b)
+    {
+      throw std::exception();//TODO: exception type and message
+    }
+    else
+    {
+      block_stack_copy.pop();
+    }
+  }
+
   _block_stack.emplace(b);
 }
 
@@ -55,12 +74,6 @@ ns::block_manager::block_stack_t ns::block_manager::get_block_stack() const
   return _block_stack;
 }
 
-ns::block_manager& ns::block_manager::get()
-{
-  static block_manager _manager;
-  return _manager;
-}
-
 bool ns::is_override_active()
 {
   return block_override::_override != nullptr;
@@ -68,7 +81,7 @@ bool ns::is_override_active()
 
 ns::block_base& ns::get_current_block()
 {
-  return (block_override::_override ? *(block_override::_override) : block_manager::get().get_block());
+  return (is_override_active() ? *(block_override::_override) : block_manager_guard()->get_block());
 }
 
 ns::block_base* ns::set_current_block(block_base* b)

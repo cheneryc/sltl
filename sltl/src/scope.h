@@ -2,6 +2,8 @@
 
 #include "element.h"
 
+#include "syntax/block.h"
+
 
 namespace sltl
 {
@@ -17,7 +19,10 @@ namespace sltl
     scope();
 
     template<typename S>
-    scope(S& s) : _b(s.add<syntax::block>(syntax::block::local)) {}
+    scope(S& s) : _b(s.add<syntax::block>(syntax::block::local))
+    {
+      _b.push();
+    }
 
     scope(const scope&) = delete;
     scope& operator=(const scope&) = delete;

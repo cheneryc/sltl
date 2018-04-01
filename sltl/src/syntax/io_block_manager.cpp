@@ -9,12 +9,6 @@ namespace
   namespace ns = sltl::syntax;
 }
 
-ns::io_block_manager& ns::io_block_manager::get()
-{
-  static io_block_manager manager;
-  return manager;
-}
-
 ns::io_block* ns::io_block_manager::get_io_block(sltl::core::qualifier_storage qualifier)
 {
   assert(qualifier != core::qualifier_storage::default);

@@ -24,10 +24,11 @@ namespace syntax
 
     block(type t);
 
-    void pop();
+    void push() override;
+    void pop() override;
 
-    virtual bool apply_action(action& act) override;
-    virtual bool apply_action(const_action& cact) const override;
+    bool apply_action(action& act) override;
+    bool apply_action(const_action& cact) const override;
 
     variable_info* variable_info_find(const std::wstring& name) override;
 

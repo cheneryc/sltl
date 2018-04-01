@@ -9,8 +9,10 @@
 
 TEST(io_block, variable_info_find_variable_declaration)
 {
-  sltl::syntax::io_block_manager& bm = sltl::syntax::io_block_manager::get();
-  sltl::syntax::io_block& b1 = bm.add(sltl::core::qualifier_storage::uniform);
+  sltl::syntax::io_block_manager_guard bm;
+  sltl::syntax::io_block& b1 = bm->add(sltl::core::qualifier_storage::uniform);
+
+  b1.push();
 
   ASSERT_EQ(b1, sltl::syntax::get_current_block());
   ASSERT_TRUE(sltl::syntax::is_override_active());
@@ -32,8 +34,4 @@ TEST(io_block, variable_info_find_variable_declaration)
   b1.pop();
 
   ASSERT_FALSE(sltl::syntax::is_override_active());
-
-  //TODO: this will be unnecessary once io_block_manager is a 'scoped' singleton
-  // Reset the io_block_manager
-  std::tuple<sltl::syntax::statement::ptr, sltl::syntax::statement::ptr, sltl::syntax::statement::ptr> tuple = bm.move();
 }

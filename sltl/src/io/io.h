@@ -3,6 +3,8 @@
 #include "syntax/io_block.h"
 #include "syntax/io_block_manager.h"
 
+#include "syntax/block_guard.h"
+
 #include "core/qualifier.h"
 #include "core/semantic.h"
 
@@ -197,16 +199,12 @@ namespace io
 
     block(core::qualifier_storage qualifier = core::qualifier_storage::out)
     {
-      auto& io_block_manager = syntax::io_block_manager::get();
-      auto& io_block = io_block_manager.add(qualifier);
+      syntax::io_block_manager_guard io_block_manager;
+      syntax::io_block& io_block = io_block_manager->add(qualifier);
 
-      // Default construct each of the io_variables (i.e. the template parameters) type. This
-      // then adds a new variable_declaration node to the current block (i.e. this io_block)
-      init();
-
-      // Popping the block will null the 'current' block override so
-      // this block isn't returned by the get_current_block function
-      io_block.pop();
+      // The guard will call push() and pop() on this io_block instance. These function calls
+      // override the 'current block' with this io_block for the duration of the guard object
+      syntax::block_guard guard(io_block, [this](){ init(); });
     }
 
     // Non-copyable and non-assignable
@@ -259,6 +257,8 @@ namespace io
 
     void init()
     {
+      // Default construct each io variable's (i.e. the template parameters) type. This
+      // will add a new variable_declaration node to the current block (i.e. this io_block)
       init_impl(sltl::detail::variadic_guard<A...>());
     }
 

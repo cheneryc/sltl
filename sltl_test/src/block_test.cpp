@@ -8,7 +8,10 @@
 
 TEST(block, variable_info_find)
 {
+  sltl::syntax::block_manager_guard bm;
   sltl::syntax::block b1(sltl::syntax::block::global);
+
+  b1.push();
 
   ASSERT_EQ(b1, sltl::syntax::get_current_block());
   ASSERT_FALSE(sltl::syntax::is_override_active());
@@ -29,17 +32,22 @@ TEST(block, variable_info_find)
 
   b1.pop();
 
-  ASSERT_TRUE(sltl::syntax::block_manager::get().get_block_stack().empty());
+  ASSERT_TRUE(bm->get_block_stack().empty());
 }
 
 TEST(block, variable_info_find_scope_parent)
 {
+  sltl::syntax::block_manager_guard bm;
   sltl::syntax::block b1(sltl::syntax::block::global);
+
+  b1.push();
 
   ASSERT_EQ(b1, sltl::syntax::get_current_block());
   ASSERT_FALSE(sltl::syntax::is_override_active());
 
   sltl::syntax::block& b2 = b1.add<sltl::syntax::block>(sltl::syntax::block::local);
+
+  b2.push();
 
   ASSERT_EQ(b2, sltl::syntax::get_current_block());
   ASSERT_FALSE(sltl::syntax::is_override_active());
@@ -61,5 +69,5 @@ TEST(block, variable_info_find_scope_parent)
   b2.pop();
   b1.pop();
 
-  ASSERT_TRUE(sltl::syntax::block_manager::get().get_block_stack().empty());
+  ASSERT_TRUE(bm->get_block_stack().empty());
 }

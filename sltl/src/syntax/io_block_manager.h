@@ -3,6 +3,7 @@
 #include "statement.h"
 
 #include "../core./qualifier.h"
+#include "../detail/scoped_singleton.h"
 
 #include <tuple>
 
@@ -17,8 +18,6 @@ namespace syntax
   class io_block_manager
   {
   public:
-    static io_block_manager& get();
-
     io_block* get_io_block(core::qualifier_storage qualifier);
 
     io_block& add(core::qualifier_storage qualifier);
@@ -33,5 +32,7 @@ namespace syntax
     statement::ptr _io_out;
     statement::ptr _io_uniform;
   };
+
+  typedef detail::scoped_singleton<io_block_manager, detail::scope_t::thread> io_block_manager_guard;
 }
 }

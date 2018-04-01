@@ -90,7 +90,7 @@ namespace syntax
     args.add(std::move(exp_x));
     args.add(std::move(exp_y));
 
-    return expression::make<syntax::intrinsic_call>(intrinsic_manager::get().emplace(core::intrinsic::dot, std::move(parameters), language::type(type_x.get_id(), 1U, 1U)), std::move(args));
+    return expression::make<syntax::intrinsic_call>(intrinsic_manager_guard()->emplace(core::intrinsic::dot, std::move(parameters), language::type(type_x.get_id(), 1U, 1U)), std::move(args));
   }
 }
 }

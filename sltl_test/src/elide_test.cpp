@@ -2,6 +2,8 @@
 
 #include "syntax/elide.h"
 #include "syntax/block.h"
+#include "syntax/block_guard.h"
+#include "syntax/block_manager.h"
 #include "syntax/literal.h"
 #include "syntax/temporary.h"
 #include "syntax/variable_declaration.h"
@@ -54,6 +56,9 @@ TEST(elide, elide_default)
 
   block blk(block::global);
 
+  block_manager_guard bm;
+  block_guard bg(blk);
+
   {
     auto& vd1 = blk.add<variable_declaration>(expression::make<literal<float>>(1.0f));
 
@@ -76,8 +81,6 @@ TEST(elide, elide_default)
 
     ASSERT_EQ(expected, actual);
   }
-
-  blk.pop();
 }
 
 TEST(elide, elide_temporary_single)
@@ -88,6 +91,9 @@ TEST(elide, elide_temporary_single)
   expression::ptr exp_result;
 
   block blk(block::global);
+
+  block_manager_guard bm;
+  block_guard bg(blk);
 
   {
     exp = expression::make<temporary>(
@@ -114,8 +120,6 @@ TEST(elide, elide_temporary_single)
 
     ASSERT_EQ(expected, actual);
   }
-
-  blk.pop();
 }
 
 TEST(elide, elide_temporary_single_leaf)
@@ -126,6 +130,9 @@ TEST(elide, elide_temporary_single_leaf)
   expression::ptr exp_result;
 
   block blk(block::global);
+
+  block_manager_guard bm;
+  block_guard bg(blk);
 
   {
     auto& vd1 = blk.add<variable_declaration>(expression::make<temporary>(sltl::language::type_helper<float>()));
@@ -149,8 +156,6 @@ TEST(elide, elide_temporary_single_leaf)
 
     ASSERT_EQ(expected, actual);
   }
-
-  blk.pop();
 }
 
 TEST(elide, elide_temporary_multiple)
@@ -161,6 +166,9 @@ TEST(elide, elide_temporary_multiple)
   expression::ptr exp_result;
 
   block blk(block::global);
+
+  block_manager_guard bm;
+  block_guard bg(blk);
 
   {
     exp = expression::make<temporary>(
@@ -189,8 +197,6 @@ TEST(elide, elide_temporary_multiple)
 
     ASSERT_EQ(expected, actual);
   }
-
-  blk.pop();
 }
 
 TEST(elide, elide_temporary_multiple_leaf)
@@ -201,6 +207,9 @@ TEST(elide, elide_temporary_multiple_leaf)
   expression::ptr exp_result;
 
   block blk(block::global);
+
+  block_manager_guard bm;
+  block_guard bg(blk);
 
   {
     exp = expression::make<temporary>(
@@ -228,6 +237,4 @@ TEST(elide, elide_temporary_multiple_leaf)
 
     ASSERT_EQ(expected, actual);
   }
-
-  blk.pop();
 }

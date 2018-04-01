@@ -25,11 +25,7 @@ namespace
   }
 }
 
-ns::io_block::io_block(sltl::detail::pass_key<io_block_manager>, sltl::core::qualifier_storage qualifier) : block_base(::create_name(qualifier)), _qualifier(qualifier)
-{
-  block_base* b = set_current_block(this);
-  assert(b == nullptr);
-}
+ns::io_block::io_block(sltl::detail::pass_key<io_block_manager>, sltl::core::qualifier_storage qualifier) : block_base(::create_name(qualifier)), _qualifier(qualifier) {}
 
 ns::statement& ns::io_block::add_impl(statement::ptr&&)
 {
@@ -49,6 +45,12 @@ ns::variable_declaration& ns::io_block::add_variable_declaration(std::wstring&& 
   }
 
   return add_variable_declaration_impl(statement::make<variable_declaration>(std::move(name), type, core::qualifier::make<core::storage_qualifier>(_qualifier), semantic));
+}
+
+void ns::io_block::push()
+{
+  block_base* b = set_current_block(this);
+  assert(b == nullptr);
 }
 
 void ns::io_block::pop()

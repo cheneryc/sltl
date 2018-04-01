@@ -19,10 +19,11 @@ namespace syntax
   public:
     io_block(detail::pass_key<io_block_manager>, core::qualifier_storage qualifier);
 
-    void pop();
+    void push() override;
+    void pop() override;
 
-    virtual bool apply_action(action& act) override;
-    virtual bool apply_action(const_action& cact) const override;
+    bool apply_action(action& act) override;
+    bool apply_action(const_action& cact) const override;
 
     const core::qualifier_storage _qualifier;
 

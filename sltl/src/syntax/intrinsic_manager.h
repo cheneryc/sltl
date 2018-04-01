@@ -2,6 +2,8 @@
 
 #include "intrinsic_declaration.h"
 
+#include "../detail/scoped_singleton.h"
+
 #include <map>
 
 
@@ -12,12 +14,6 @@ namespace syntax
   class intrinsic_manager
   {
   public:
-    static intrinsic_manager& get()
-    {
-      static intrinsic_manager _manager;
-      return _manager;
-    }
-
     const intrinsic_declaration& emplace(core::intrinsic i, parameter_list&& parameters, const language::type& type_return)
     {
       auto id = std::make_unique<intrinsic_declaration>(i, std::move(parameters), type_return);
@@ -41,5 +37,7 @@ namespace syntax
     //TODO: replace the map with a set and use std::set::extract to transfer ownership of the intrinsic declarations (C++17)
     std::map<std::reference_wrapper<intrinsic_declaration>, intrinsic_declaration::ptr> _intrinsic_map;
   };
+
+  typedef detail::scoped_singleton<intrinsic_manager, detail::scope_t::thread> intrinsic_manager_guard;
 }
 }

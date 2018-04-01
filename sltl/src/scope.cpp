@@ -1,4 +1,5 @@
 #include "scope.h"
+
 #include "syntax/block.h"
 #include "syntax/block_manager.h"
 

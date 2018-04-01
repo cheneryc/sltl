@@ -26,8 +26,7 @@ namespace syntax
     template<typename Fn>
     function_definition(Fn fn, std::wstring&& name, const language::type& type_return) : declaration(std::move(name)), _type_return(type_return), _function_body(block::global)
     {
-      call_fn(fn);
-      _function_body.pop();
+      block_guard(_function_body, [this, &fn](){ call_fn(fn); });
     }
 
     virtual bool apply_action(action& act) override

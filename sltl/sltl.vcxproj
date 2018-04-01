@@ -41,6 +41,7 @@
     <ClInclude Include="src\syntax\action.h" />
     <ClInclude Include="src\syntax\block.h" />
     <ClInclude Include="src\syntax\block_base.h" />
+    <ClInclude Include="src\syntax\block_guard.h" />
     <ClInclude Include="src\syntax\block_manager.h" />
     <ClInclude Include="src\syntax\component_accessor.h" />
     <ClInclude Include="src\syntax\conditional.h" />
