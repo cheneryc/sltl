@@ -32,7 +32,7 @@ namespace syntax
       // only ever created when the call to emplace results in an insertion
       auto result = _function_map.emplace(fn, std::unique_ptr<function_definition>());
 
-      if (result.second)
+      if(result.second)
       {
         result.first->second = std::make_unique<function_definition>(fn, ::create_name(_function_map.size() - 1U), language::type_helper<typename detail::function_traits<Fn>::return_t>());
       }

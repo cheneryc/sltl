@@ -16,7 +16,7 @@ namespace
   {
     std::wstringstream ss(L"io", std::ios::in | std::ios::out | std::ios::ate);
 
-    if (auto postfix = sltl::language::to_qualifier_string(qualifier))
+    if(auto postfix = sltl::language::to_qualifier_string(qualifier))
     {
       ss << L"_" << postfix;
     }

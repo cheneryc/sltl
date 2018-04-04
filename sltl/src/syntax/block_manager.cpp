@@ -36,6 +36,7 @@ void ns::block_manager::push(sltl::detail::pass_key<block>, block& b)
 {
   block_stack_t block_stack_copy = get_block_stack();
 
+  // Ensure the passed block has not already been pushed onto the stack
   while(!block_stack_copy.empty())
   {
     if(block_stack_copy.top().get() == b)
@@ -46,6 +47,12 @@ void ns::block_manager::push(sltl::detail::pass_key<block>, block& b)
     {
       block_stack_copy.pop();
     }
+  }
+
+  // Ensure that 'local' blocks have a 'global' ancestor
+  if((b._t == block::local) && _block_stack.empty())
+  {
+    throw std::exception();//TODO: exception type and message
   }
 
   _block_stack.emplace(b);

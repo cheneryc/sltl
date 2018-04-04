@@ -20,6 +20,18 @@ ns::block::block(type t) : block_base((t == local) ? nullptr : L"root"), _t(t)
 {
 }
 
+ns::statement& ns::block::add_impl(statement::ptr&& s)
+{
+  auto b = dynamic_cast<const block*>(s.get());
+
+  if(b && (b->_t == block::global))
+  {
+    throw std::exception();//TODO: exception type and message
+  }
+
+  block_base::add_impl(std::move(s));
+}
+
 ns::variable_declaration& ns::block::add_variable_declaration(std::wstring&& name, expression::ptr&& initializer)
 {
   return add_variable_declaration_impl(statement::make<variable_declaration>(std::move(name), std::move(initializer)));
@@ -72,7 +84,7 @@ ns::variable_info* ns::block::variable_info_find(const std::wstring& name, std::
 
   variable_info* vi = block_base::variable_info_find(name);
 
-  if(!vi)
+  if(!vi && (_t == block::local)) // Only 'local' blocks are nested within their parent statements
   {
     block_stack.pop();
 

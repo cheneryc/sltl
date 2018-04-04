@@ -37,7 +37,7 @@ namespace
   {
     bool is_built_in = false;
 
-    if (semantic == ns::core::semantic::system)
+    if(semantic == ns::core::semantic::system)
     {
       const auto semantic_system_pair = ns::core::detail::to_semantic_system_pair(semantic_index);
 

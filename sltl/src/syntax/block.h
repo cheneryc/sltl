@@ -27,12 +27,16 @@ namespace syntax
     void push() override;
     void pop() override;
 
+    variable_info* variable_info_find(const std::wstring& name) override;
+
     bool apply_action(action& act) override;
     bool apply_action(const_action& cact) const override;
 
-    variable_info* variable_info_find(const std::wstring& name) override;
+    const type _t;
 
   protected:
+    statement& add_impl(statement::ptr&&) override;
+
     variable_declaration& add_variable_declaration(std::wstring&& name, expression::ptr&& initializer) override;
     variable_declaration& add_variable_declaration(std::wstring&& name, const language::type& type, core::semantic_pair semantic) override;
 
@@ -40,8 +44,6 @@ namespace syntax
 
   private:
     variable_info* variable_info_find(const std::wstring& name, std::stack<std::reference_wrapper<block>> block_stack);
-
-    const type _t;
   };
 }
 }
