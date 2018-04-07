@@ -29,7 +29,7 @@ ns::statement& ns::block::add_impl(statement::ptr&& s)
     throw std::exception();//TODO: exception type and message
   }
 
-  block_base::add_impl(std::move(s));
+  return block_base::add_impl(std::move(s));
 }
 
 ns::variable_declaration& ns::block::add_variable_declaration(std::wstring&& name, expression::ptr&& initializer)

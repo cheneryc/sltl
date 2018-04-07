@@ -133,7 +133,7 @@ namespace language
 
     friend bool operator<(const type_dimensions& td1, const type_dimensions& td2)
     {
-      return detail::less(td1._m, td2._m, td1._n, td2._n);
+      return detail::less(td1._m, td1._n, td2._m, td2._n);
     }
 
     friend bool operator>(const type_dimensions& td1, const type_dimensions& td2)

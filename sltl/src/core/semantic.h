@@ -18,6 +18,8 @@ namespace core
     texcoord,
     colour,   // For built-in behaviour use semantic_system::target
     transform,
+    camera,
+    light,
     user
   };
 

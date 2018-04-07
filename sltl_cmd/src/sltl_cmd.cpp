@@ -77,7 +77,7 @@ namespace
     io_var_trans<semantic_trans::view>,
     io_var_trans<semantic_trans::proj>,
     io_var_trans<semantic_trans::normal>,
-    io_var<vec3, semantic::user>> uniform_t;
+    io_var<vec3, semantic::camera>> uniform_t;
 
   namespace vs
   {
@@ -111,8 +111,14 @@ namespace
 
     out_t pbr_fs(sltl::shader_tag_fragment, in_t in)
     {
+      uniform_t uniform(tag_uniform);
+
+      vec3 N = sltl::normalize(in.get<semantic::normal>());
+      //vec3 V = sltl::normalize(uniform.get<semantic::camera>() - in.get<semantic::position>());
+
       out_t out(tag_out);
       out.get<semantic_sys::target>() = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
       return out;
     }
   }

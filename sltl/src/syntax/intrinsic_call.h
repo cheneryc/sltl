@@ -92,5 +92,32 @@ namespace syntax
 
     return expression::make<syntax::intrinsic_call>(intrinsic_manager_guard()->emplace(core::intrinsic::dot, std::move(parameters), language::type(type_x.get_id(), 1U, 1U)), std::move(args));
   }
+
+  inline expression::ptr call_intrinsic_normalize(expression::ptr&& exp_x)
+  {
+    language::type type_x = exp_x->get_type();
+
+    if(type_x.get_id() != language::type_id::id_float &&
+       type_x.get_id() != language::type_id::id_double)
+    {
+      throw std::exception();//TODO: exception type and message
+    }
+
+    if(!(type_x.get_dimensions().is_scalar() ||
+         type_x.get_dimensions().is_vector()))
+    {
+      throw std::exception();//TODO: exception type and message
+    }
+
+    parameter_list parameters;
+
+    parameters.add(std::make_unique<parameter_declaration>(L"x", exp_x->get_type(), core::qualifier_param::in));
+
+    expression_list args;
+
+    args.add(std::move(exp_x));
+
+    return expression::make<syntax::intrinsic_call>(intrinsic_manager_guard()->emplace(core::intrinsic::normalize, std::move(parameters), type_x), std::move(args));
+  }
 }
 }

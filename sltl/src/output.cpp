@@ -158,6 +158,8 @@ namespace
     {
       case ns::core::intrinsic::dot:
         return L"dot";
+      case ns::core::intrinsic::normalize:
+        return L"normalize";
     }
 
     return nullptr;

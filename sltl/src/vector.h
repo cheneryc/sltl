@@ -95,6 +95,15 @@ namespace sltl
 
       return expression::expression<scalar, T>(syntax::call_intrinsic_dot(x.move(), y.move()));
     }
+
+    template<template<typename, size_t...> class V, typename T, size_t ...D>
+    auto as_proxy_normalize(expression::expression<V, T, D...>&& x) -> expression::expression<V, T, D...>
+    {
+      static_assert(is_real<T>::value, "sltl::normalize: template parameter T must be float or double");
+      static_assert(sizeof...(D) < 2, "sltl::normalize: only valid for scalar or vector arguments");
+
+      return expression::expression<V, T, D...>(syntax::call_intrinsic_normalize(x.move()));
+    }
   }
 
   template<typename T1, typename T2>
@@ -104,5 +113,11 @@ namespace sltl
     auto y_proxy = expression::as_expression(std::forward<T2>(y));
 
     return detail::as_proxy_dot(std::move(x_proxy), std::move(y_proxy));
+  }
+
+  template<typename T>
+  auto normalize(T&& x) -> decltype(detail::as_proxy_normalize(expression::as_expression(std::forward<T>(x))))
+  {
+    return detail::as_proxy_normalize(expression::as_expression(std::forward<T>(x)));
   }
 }

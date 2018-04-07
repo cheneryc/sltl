@@ -296,6 +296,8 @@ const wchar_t* ns::to_intrinsic_string(sltl::core::intrinsic id)
   {
   case sltl::core::intrinsic::dot:
     return L"_bi_dot";
+  case sltl::core::intrinsic::normalize:
+    return L"_bi_normalize";
   }
 
   return nullptr;
