@@ -241,6 +241,17 @@ namespace
     return ss.str();
   }
 
+  std::wstring get_parameter_name(const ns::syntax::parameter_declaration& pd)
+  {
+    std::wstringstream ss(ns::language::to_parameter_prefix_string(pd._qualifier), std::ios::in | std::ios::out | std::ios::ate);
+
+    ss << L'_';
+    ss << ns::language::to_type_prefix_string(pd.get_type());
+    ss << pd._name;
+
+    return ss.str();
+  }
+
   std::wstring get_qualifier_layout(const ns::syntax::variable_declaration& vd, ns::output::layout_manager& layout_manager)
   {
     std::wstringstream ss;
@@ -423,23 +434,55 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::variable_declar
   return return_val;
 }
 
-ns::syntax::action_return_t ns::output::operator()(const syntax::parameter_declaration&)
+ns::syntax::action_return_t ns::output::operator()(const syntax::parameter_declaration& pd)
 {
-  assert(false); //TODO: implement this...
+  _ss << get_type_name(pd.get_type(), _flags) << L' ' << get_parameter_name(pd);
+
   return ns::syntax::action_return_t::step_out;
 }
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::parameter_list& pl, bool is_start)
 {
-  assert(pl.begin() == pl.end()); //TODO: implement this...
+  ns::syntax::action_return_t return_val;
 
-  return is_start ? ns::syntax::action_return_t::step_in :
-                    ns::syntax::action_return_t::step_out;
+  if(is_start)
+  {
+    auto it = pl.begin();
+    auto it_end = pl.end();
+
+    if(it != it_end)
+    {
+      while((*it)->apply_action(*this) && (++it != it_end))
+      {
+        _ss << L", ";
+      }
+    }
+
+    // The 'success' return value is 'step_over' as all child nodes have already been traversed
+    return_val = ((it == it_end) ?
+      ns::syntax::action_return_t::step_over :
+      ns::syntax::action_return_t::stop);
+  }
+  else
+  {
+    return_val = ns::syntax::action_return_t::step_out;
+  }
+
+  return return_val;
 }
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::reference& r)
 {
-  _ss << get_variable_name(r._declaration);
+  if (auto vd = dynamic_cast<const ns::syntax::variable_declaration*>(&r._declaration))
+  {
+    _ss << get_variable_name(*vd);
+  }
+
+  if(auto pd = dynamic_cast<const ns::syntax::parameter_declaration*>(&r._declaration))
+  {
+    _ss << get_parameter_name(*pd);
+  }
+
   return ns::syntax::action_return_t::step_out;
 }
 

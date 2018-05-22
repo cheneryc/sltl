@@ -288,6 +288,19 @@ const wchar_t* ns::to_qualifier_prefix_string(sltl::core::qualifier_storage id)
   return nullptr;
 }
 
+const wchar_t* ns::to_parameter_prefix_string(sltl::core::qualifier_param id)
+{
+  switch(id)
+  {
+    case sltl::core::qualifier_param::in:
+    case sltl::core::qualifier_param::inout:
+    case sltl::core::qualifier_param::out:
+      return L"p";
+  }
+
+  return nullptr;
+}
+
 const wchar_t* ns::to_intrinsic_string(sltl::core::intrinsic id)
 {
   // _bi_* -> 'built-in' functions

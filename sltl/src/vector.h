@@ -29,6 +29,8 @@ namespace sltl
     vector(vector&& v) : vector(proxy(std::move(v))) {}
     vector(const vector& v) : vector(proxy(v)) {}
 
+    explicit vector(syntax::parameter_declaration* pd) : super_t(pd), permutation_group<sltl::vector, T, D>(*this) {}
+
     // The T2 argument stops this conflicting with the default constructor
     // The disable_if is necessary to stop conflicts with the copy constructor. Ensuring is_empty is false is a good enough requirement as sltl doesn't allow 1D vectors
     template<typename T2, typename ...A, detail::disable_if<detail::is_empty<A...>> = detail::default_tag>

@@ -301,6 +301,7 @@ namespace language
   const wchar_t* to_keyword_string(keyword_id id);
   const wchar_t* to_qualifier_string(core::qualifier_storage id);
   const wchar_t* to_qualifier_prefix_string(core::qualifier_storage id);
+  const wchar_t* to_parameter_prefix_string(core::qualifier_param id);
   const wchar_t* to_intrinsic_string(core::intrinsic id);
 }
 }

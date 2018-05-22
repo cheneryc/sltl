@@ -1,6 +1,8 @@
 #include "shader.h"
 #include "output.h"
 
+#include "call.h"
+
 #include "io/io.h"
 
 #include "core/qualifier.h"
@@ -11,6 +13,9 @@
 
 namespace sltl_glsl
 {
+  template<typename T>
+  using scalar = sltl::scalar<T>;
+
   typedef sltl::vector<float, 2> vec2;
   typedef sltl::vector<float, 3> vec3;
   typedef sltl::vector<float, 4> vec4;
@@ -51,7 +56,7 @@ namespace
     io_var<vec3, semantic::normal>,
     io_var<vec2, semantic::texcoord>> vs_in_t;
 
-  // --- Out block ---
+  // --- In/Out block ---
 
   //1. position (gl_Position)
   //2. position (world space)
@@ -71,13 +76,21 @@ namespace
   //3. mat4 projection
   //4. mat3 normal (modelviewproj_inversetrans)
   //5. vec3 camera
+  //6. vec3 light
+  //7. float material metallic factor
+  //8. float material roughness factor
 
   typedef io_block<
     io_var_trans<semantic_trans::model>,
     io_var_trans<semantic_trans::view>,
     io_var_trans<semantic_trans::proj>,
     io_var_trans<semantic_trans::normal>,
-    io_var<vec3, semantic::camera>> uniform_t;
+    io_var<vec3, semantic::camera>,
+    io_var<vec3, semantic::light, 0>,
+    io_var<vec3, semantic::light, 1>,
+    io_var<vec3, semantic::light, 2>,
+    io_var<scalar<float>, semantic::material, 0>,
+    io_var<scalar<float>, semantic::material, 1>> uniform_t;
 
   namespace vs
   {
@@ -102,6 +115,7 @@ namespace
     }
   }
 
+  // --- Out block ---
   typedef io_block<io_var_sys<semantic_sys::target>> fs_out_t;
 
   namespace fs
@@ -109,12 +123,40 @@ namespace
     using in_t  = vs_fs_t;
     using out_t = fs_out_t;
 
+    vec3 BRDF(vec3 L, vec3 V, vec3 N, scalar<float> factor_metallic, scalar<float> factor_roughness)
+    {
+      vec3 v;
+      v += L;
+      v += V;
+      v += N;
+      return v;
+    }
+
     out_t pbr_fs(sltl::shader_tag_fragment, in_t in)
     {
       uniform_t uniform(tag_uniform);
 
       vec3 N = sltl::normalize(in.get<semantic::normal>());
-      //vec3 V = sltl::normalize(uniform.get<semantic::camera>() - in.get<semantic::position>());
+      vec3 V = sltl::normalize(uniform.get<semantic::camera>() - in.get<semantic::position>());
+
+      vec3::proxy lights[] = {
+        uniform.get<semantic::light, 0>(),
+        uniform.get<semantic::light, 1>(),
+        uniform.get<semantic::light, 2>()
+      };
+
+      vec3 Lo;
+
+      //TODO: need sltl::for_each and sltl::array support to match the source pbr shader correctly
+      for (auto& light : lights)
+      {
+        vec3 L = sltl::normalize(light.move() - in.get<semantic::position>());
+
+        scalar<float>::proxy material_metallic  = uniform.get<semantic::material, 0>();
+        scalar<float>::proxy material_roughness = uniform.get<semantic::material, 1>();
+
+        Lo += sltl::call(&BRDF, L, V, N, std::move(material_metallic), std::move(material_roughness));
+      }
 
       out_t out(tag_out);
       out.get<semantic_sys::target>() = vec4(1.0f, 1.0f, 1.0f, 1.0f);

@@ -10,12 +10,12 @@ namespace syntax
   // Forward declarations - sltl::syntax namespace
   class action;
   class const_action;
-  class variable_declaration;
+  class declaration;
 
   class reference : public expression
   {
   public:
-    reference(const variable_declaration& declaration);
+    reference(const declaration& declaration);
 
     virtual bool apply_action(action& act) override;
     virtual bool apply_action(const_action& cact) const override;
@@ -23,7 +23,7 @@ namespace syntax
     virtual language::type get_type() const override;
 
     //TODO: store the name of the variable and look it up on demand from a variable_map stored in each block
-    const variable_declaration& _declaration;
+    const declaration& _declaration;
   };
 }
 }

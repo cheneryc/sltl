@@ -31,6 +31,11 @@ namespace syntax
       return _list_items.end();
     }
 
+    size_t size() const
+    {
+      return _list_items.size();
+    }
+
   protected:
     list() : N(), _list_items() {}
     list(list&& l) : N(), _list_items(std::move(l._list_items)) {}

@@ -33,6 +33,8 @@ namespace sltl
     scalar(scalar&& s) : scalar(proxy(std::move(s))) {}
     scalar(const scalar& s) : scalar(proxy(s)) {}
 
+    explicit scalar(syntax::parameter_declaration* pd) : super_t(pd) {}
+
     proxy operator=(proxy&& p)
     {
       return super_t::make_proxy<syntax::operator_binary>(language::id_assignment, make_reference(), p.move());
