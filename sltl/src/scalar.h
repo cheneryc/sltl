@@ -49,5 +49,36 @@ namespace sltl
     {
       return this->operator=(proxy(s));
     }
+
+    //TODO: disable comparision operators for scalar<bool>
+
+    friend expression::expression<sltl::scalar, bool> operator<(proxy&& p1, proxy&& p2)
+    {
+      return basic<sltl::scalar, bool>::make_proxy<syntax::operator_binary>(language::id_lt, p1.move(), p2.move());
+    }
+
+    friend expression::expression<sltl::scalar, bool> operator>(proxy&& p1, proxy&& p2)
+    {
+      return basic<sltl::scalar, bool>::make_proxy<syntax::operator_binary>(language::id_gt, p1.move(), p2.move());
+    }
+
+    friend expression::expression<sltl::scalar, bool> operator<=(proxy&& p1, proxy&& p2)
+    {
+      return basic<sltl::scalar, bool>::make_proxy<syntax::operator_binary>(language::id_lt_eq, p1.move(), p2.move());
+    }
+
+    friend expression::expression<sltl::scalar, bool> operator>=(proxy&& p1, proxy&& p2)
+    {
+      return basic<sltl::scalar, bool>::make_proxy<syntax::operator_binary>(language::id_gt_eq, p1.move(), p2.move());
+    }
   };
+
+  namespace expression
+  {
+    template<typename T>
+    auto as_expression(T t) -> typename std::enable_if<is_scalar<T>::value, expression<sltl::scalar, T>>::type
+    {
+      return expression<sltl::scalar, T>(t);
+    }
+  }
 }

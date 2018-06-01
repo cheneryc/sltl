@@ -160,6 +160,44 @@ namespace
         return L"dot";
       case ns::core::intrinsic::normalize:
         return L"normalize";
+      case ns::core::intrinsic::clamp:
+        return L"clamp";
+    }
+
+    return nullptr;
+  }
+
+  const wchar_t* to_intrinsic_operator_string(const ns::syntax::operator_binary& ob)
+  {
+    const ns::language::type& t = ob.get_type();
+    const ns::language::type_id t_id = t.get_id();
+
+    switch(ob._operator_id)
+    {
+      case ns::language::id_element_wise_eq:
+        assert(t.get_dimensions().is_vector());
+        return L"equal";
+      case ns::language::id_element_wise_ne:
+        assert(t.get_dimensions().is_vector());
+        return L"notEqual";
+      case ns::language::id_element_wise_lt:
+        assert(t.get_dimensions().is_vector());
+        assert(t_id != ns::language::id_bool);
+        return L"lessThan";
+      case ns::language::id_element_wise_lt_eq:
+        assert(t.get_dimensions().is_vector());
+        assert(t_id != ns::language::id_bool);
+        return L"lessThanEqual";
+      case ns::language::id_element_wise_gt:
+        assert(t.get_dimensions().is_vector());
+        assert(t_id != ns::language::id_bool);
+        return L"greaterThan";
+      case ns::language::id_element_wise_gt_eq:
+        assert(t.get_dimensions().is_vector());
+        assert(t_id != ns::language::id_bool);
+        return L"greaterThanEqual";
+      case ns::language::id_element_wise_multiplication:
+        return t.get_dimensions().is_matrix() ? L"matrixCompMult" : nullptr;
     }
 
     return nullptr;
@@ -548,15 +586,34 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_binary
 
   if(is_start)
   {
+    const auto* const intrinsic_op = to_intrinsic_operator_string(ob);
+
+    if(intrinsic_op)
+    {
+      _ss << intrinsic_op << L'(';
+    }
+
     bool is_continuing = false;
 
     if(ob._operand_lhs->apply_action(*this))
     {
-      _ss << L' ';
-      _ss << language::to_operator_binary_string(ob._operator_id);
-      _ss << L' ';
+      if(intrinsic_op)
+      {
+        _ss << L", ";
+      }
+      else
+      {
+        _ss << L' ';
+        _ss << language::to_operator_binary_string(ob._operator_id);
+        _ss << L' ';
+      }
 
       is_continuing = ob._operand_rhs->apply_action(*this);
+    }
+
+    if(intrinsic_op)
+    {
+      _ss << L')';
     }
 
     // The 'success' return value is 'step_over' as all child nodes have already been traversed
@@ -725,7 +782,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::expression_list
   if(is_start)
   {
     auto it = el.begin();
-    const auto it_end = el.end();
+    auto it_end = el.end();
 
     if(it != it_end)
     {
@@ -959,7 +1016,7 @@ ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::operator
   {
     return_val = ns::syntax::action_return_t::step_in;
 
-    if(ob._operator_id == language::id_multiplication)
+    if(ob._operator_id == language::id_matrix_multiplication)
     {
       const language::type type_lhs = ob._operand_lhs->get_type();
       const language::type type_rhs = ob._operand_rhs->get_type();

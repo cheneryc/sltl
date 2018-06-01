@@ -12,7 +12,7 @@ namespace sltl
   {
   public:
     template<typename Fn>
-    void else_(Fn fn)
+    void else_end(Fn fn)
     {
       auto& selection = _c.add_else<syntax::conditional>(language::id_else);
 
@@ -41,13 +41,13 @@ namespace sltl
     else_statement(syntax::conditional& c) : _c(c) {}
 
     template<typename Fn>
-    friend else_statement if_(scalar<bool>::proxy&&, Fn);
+    friend else_statement if_then(scalar<bool>::proxy&&, Fn);
 
     syntax::conditional& _c;
   };
 
   template<typename Fn>
-  else_statement if_(scalar<bool>::proxy&& condition, Fn fn)
+  else_statement if_then(scalar<bool>::proxy&& condition, Fn fn)
   {
     auto& selection = syntax::get_current_block().add<syntax::conditional>(language::id_if, condition.move());
 

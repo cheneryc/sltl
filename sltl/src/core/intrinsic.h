@@ -8,7 +8,8 @@ namespace core
   enum class intrinsic
   {
     dot,
-    normalize
+    normalize,
+    clamp
   };
 }
 }

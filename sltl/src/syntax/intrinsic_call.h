@@ -93,31 +93,68 @@ namespace syntax
     return expression::make<syntax::intrinsic_call>(intrinsic_manager_guard()->emplace(core::intrinsic::dot, std::move(parameters), language::type(type_x.get_id(), 1U, 1U)), std::move(args));
   }
 
-  inline expression::ptr call_intrinsic_normalize(expression::ptr&& exp_x)
+  inline expression::ptr call_intrinsic_normalize(expression::ptr&& exp)
   {
-    language::type type_x = exp_x->get_type();
+    language::type t = exp->get_type();
 
-    if(type_x.get_id() != language::type_id::id_float &&
-       type_x.get_id() != language::type_id::id_double)
+    if(t.get_id() != language::type_id::id_float &&
+       t.get_id() != language::type_id::id_double)
     {
       throw std::exception();//TODO: exception type and message
     }
 
-    if(!(type_x.get_dimensions().is_scalar() ||
-         type_x.get_dimensions().is_vector()))
+    if(!(t.get_dimensions().is_scalar() ||
+         t.get_dimensions().is_vector()))
     {
       throw std::exception();//TODO: exception type and message
     }
 
     parameter_list parameters;
 
-    parameters.add(std::make_unique<parameter_declaration>(L"x", exp_x->get_type(), core::qualifier_param::in));
+    parameters.add(std::make_unique<parameter_declaration>(L"x", exp->get_type(), core::qualifier_param::in));
 
     expression_list args;
 
-    args.add(std::move(exp_x));
+    args.add(std::move(exp));
 
-    return expression::make<syntax::intrinsic_call>(intrinsic_manager_guard()->emplace(core::intrinsic::normalize, std::move(parameters), type_x), std::move(args));
+    return expression::make<syntax::intrinsic_call>(intrinsic_manager_guard()->emplace(core::intrinsic::normalize, std::move(parameters), t), std::move(args));
+  }
+
+  inline expression::ptr call_intrinsic_clamp(expression::ptr&& exp, expression::ptr&& min, expression::ptr&& max)//TODO: exp_min/max instead of min/max?
+  {
+    language::type t = exp->get_type();
+
+    if(t.get_id() != language::type_id::id_float &&
+       t.get_id() != language::type_id::id_double)
+    {
+      throw std::exception();//TODO: exception type and message
+    }
+
+    if(!(t.get_dimensions().is_scalar() ||
+         t.get_dimensions().is_vector()))
+    {
+      throw std::exception();//TODO: exception type and message
+    }
+
+    if(t != min->get_type() ||
+       t != max->get_type())
+    {
+      throw std::exception();//TODO: exception type and message
+    }
+
+    parameter_list parameters;
+
+    parameters.add(std::make_unique<parameter_declaration>(L"x",   exp->get_type(), core::qualifier_param::in));
+    parameters.add(std::make_unique<parameter_declaration>(L"min", min->get_type(), core::qualifier_param::in));
+    parameters.add(std::make_unique<parameter_declaration>(L"max", max->get_type(), core::qualifier_param::in));
+
+    expression_list args;
+
+    args.add(std::move(exp));
+    args.add(std::move(min));
+    args.add(std::move(max));
+
+    return expression::make<syntax::intrinsic_call>(intrinsic_manager_guard()->emplace(core::intrinsic::clamp, std::move(parameters), t), std::move(args));
   }
 }
 }

@@ -99,12 +99,21 @@ namespace sltl
     }
 
     template<template<typename, size_t...> class V, typename T, size_t ...D>
-    auto as_proxy_normalize(expression::expression<V, T, D...>&& x) -> expression::expression<V, T, D...>
+    auto as_proxy_normalize(expression::expression<V, T, D...>&& t) -> expression::expression<V, T, D...>
     {
       static_assert(is_real<T>::value, "sltl::normalize: template parameter T must be float or double");
       static_assert(sizeof...(D) < 2, "sltl::normalize: only valid for scalar or vector arguments");
 
-      return expression::expression<V, T, D...>(syntax::call_intrinsic_normalize(x.move()));
+      return expression::expression<V, T, D...>(syntax::call_intrinsic_normalize(t.move()));
+    }
+
+    template<template<typename, size_t...> class V, typename T, size_t ...D>
+    auto as_proxy_clamp(expression::expression<V, T, D...>&& t, expression::expression<V, T, D...>&& min, expression::expression<V, T, D...>&& max) -> expression::expression<V, T, D...>
+    {
+      static_assert(is_real<T>::value, "sltl::clamp: template parameter T must be float or double");
+      static_assert(sizeof...(D) < 2, "sltl::clamp: only valid for scalar or vector arguments");
+
+      return expression::expression<V, T, D...>(syntax::call_intrinsic_clamp(t.move(), min.move(), max.move()));
     }
   }
 
@@ -118,8 +127,17 @@ namespace sltl
   }
 
   template<typename T>
-  auto normalize(T&& x) -> decltype(detail::as_proxy_normalize(expression::as_expression(std::forward<T>(x))))
+  auto normalize(T&& t) -> decltype(detail::as_proxy_normalize(expression::as_expression(std::forward<T>(t))))
   {
-    return detail::as_proxy_normalize(expression::as_expression(std::forward<T>(x)));
+    return detail::as_proxy_normalize(expression::as_expression(std::forward<T>(t)));
+  }
+
+  template<typename T, typename TMin, typename TMax>
+  auto clamp(T&& t, TMin&& min, TMax&& max) -> decltype(detail::as_proxy_clamp(expression::as_expression(std::forward<T>(t)), expression::as_expression(std::forward<TMin>(min)), expression::as_expression(std::forward<TMax>(max))))
+  {
+    auto min_proxy = expression::as_expression(std::forward<TMin>(min));
+    auto max_proxy = expression::as_expression(std::forward<TMax>(max));
+
+    return detail::as_proxy_clamp(expression::as_expression(std::forward<T>(t)), std::move(min_proxy), std::move(max_proxy));
   }
 }

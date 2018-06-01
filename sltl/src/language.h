@@ -268,16 +268,42 @@ namespace language
 
   enum operator_binary_id
   {
-    id_addition,
-    id_subtraction,
-    id_multiplication,
-    id_division,
+    id_addition,       // arithmetic for scalar and vector (element-wise) operands (operand types must match)
+    id_subtraction,    // arithmetic for scalar and vector (element-wise) operands (operand types must match)
+    id_multiplication, // arithmetic for scalar operands (operand types must match)
+    id_division,       // arithmetic for scalar operands (operand types must match)
+    id_element_wise_addition,       // matrix operands only (operand types must match)
+    id_element_wise_subtraction,    // matrix operands only (operand types must match)
+    id_element_wise_multiplication, // vector and matrix operands only (operand types must match)
+    id_element_wise_division,       // vector and matrix operands only (operand types must match)
+    id_element_wise_eq,    // vector operands only (operand types must match)
+    id_element_wise_ne,    // vector operands only (operand types must match)
+    id_element_wise_lt,    // vector operands only (operand types must match)
+    id_element_wise_lt_eq, // vector operands only (operand types must match)
+    id_element_wise_gt,    // vector operands only (operand types must match)
+    id_element_wise_gt_eq, // vector operands only (operand types must match)
     id_assignment,
     id_assignment_addition,
     id_assignment_subtraction,
     id_assignment_multiplication,
-    id_assignment_division
+    id_assignment_division,
+    id_lt,
+    id_lt_eq,
+    id_gt,
+    id_gt_eq,
+    id_matrix_multiplication, // linear algebraic multiply between matrix-matrix, vector-matrix, matrix-vector (lhs operand columns must equal rhs operand rows)
+    id_scalar_vector_multiplication,
+    id_scalar_vector_division,
+    id_scalar_matrix_multiplication,
+    id_scalar_matrix_division,
+    id_vector_scalar_multiplication,
+    id_vector_scalar_division,
+    id_matrix_scalar_multiplication,
+    id_matrix_scalar_division
   };
+
+  bool is_operator_symmetric(operator_binary_id id);
+  bool is_operator_asymmetric(operator_binary_id id);
 
   enum conditional_id
   {

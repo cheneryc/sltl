@@ -86,17 +86,43 @@ namespace syntax
       const language::type type_lhs = _operand_lhs->get_type();
       const language::type type_rhs = _operand_rhs->get_type();
 
-      //TODO: create a new id for vector-matrix and matrix-matrix multiplication and leave id_multiplication for component-wise operators
-      assert(_operator_id == language::id_multiplication || type_lhs == type_rhs);
-
       assert(type_lhs.get_id() == type_rhs.get_id());
+      assert(type_lhs.get_dimensions() == type_rhs.get_dimensions() || is_operator_asymmetric(_operator_id));
+
       //TODO: re-instate somehow as this currently incorrectly fires during the type dimension swapping action
       //assert(type_lhs.get_dimensions().n() == type_rhs.get_dimensions().m());
 
-      // This determines the return type for vector-matrix and matrix-matrix multiplication
-      // but should work fine for all other currently supported operators (as their operand
-      // types should be equal).
-      return language::type(type_lhs.get_id(), type_lhs.get_dimensions().m(), type_rhs.get_dimensions().n());
+      language::type_id id = language::id_unknown;
+
+      switch(_operator_id)
+      {
+        case language::id_lt:
+        case language::id_lt_eq:
+        case language::id_gt:
+        case language::id_gt_eq:
+          return language::type_helper<bool>();
+        case language::id_scalar_vector_multiplication:
+        case language::id_scalar_vector_division:
+        case language::id_scalar_matrix_multiplication:
+        case language::id_scalar_matrix_division:
+          return type_rhs;
+        case language::id_vector_scalar_multiplication:
+        case language::id_vector_scalar_division:
+        case language::id_matrix_scalar_multiplication:
+        case language::id_matrix_scalar_division:
+          return type_lhs;
+        case language::id_element_wise_eq:
+        case language::id_element_wise_ne:
+        case language::id_element_wise_lt:
+        case language::id_element_wise_lt_eq:
+        case language::id_element_wise_gt:
+        case language::id_element_wise_gt_eq:
+          id = language::id_bool;
+        default:
+          // This determines the return type for vector-matrix and matrix-matrix multiplication but should
+          // work fine for all other currently supported operators, as their operand types should be equal
+          return language::type(id != language::id_unknown ? id : type_lhs.get_id(), type_lhs.get_dimensions().m(), type_rhs.get_dimensions().n());
+      }
     }
 
     expression::ptr _operand_lhs;

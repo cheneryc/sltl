@@ -5,6 +5,7 @@
 #include "output.h"
 #include "scalar.h"
 #include "vector.h"
+#include "basic_operators.h"
 
 #include "io/io.h"
 

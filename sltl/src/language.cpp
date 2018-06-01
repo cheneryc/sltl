@@ -32,6 +32,33 @@ bool ns::is_postfix_operator(operator_unary_id id)
   return ((id == ns::id_increment_post) || (id == ns::id_decrement_post));
 }
 
+bool ns::is_operator_symmetric(operator_binary_id id)
+{
+  bool is_symmetric = true;
+
+  switch(id)
+  {
+    case id_matrix_multiplication:
+    case id_scalar_vector_multiplication:
+    case id_scalar_vector_division:
+    case id_scalar_matrix_multiplication:
+    case id_scalar_matrix_division:
+    case id_vector_scalar_multiplication:
+    case id_vector_scalar_division:
+    case id_matrix_scalar_multiplication:
+    case id_matrix_scalar_division:
+      is_symmetric = false;
+      break;
+  }
+
+  return is_symmetric;
+}
+
+bool ns::is_operator_asymmetric(operator_binary_id id)
+{
+  return !is_operator_symmetric(id);
+}
+
 std::wstring ns::to_type_string(const type& t)
 {
   std::wstringstream ss;
@@ -200,6 +227,14 @@ const wchar_t* ns::to_operator_binary_string(operator_binary_id id)
       return L"*";
     case id_division:
       return L"/";
+    case id_element_wise_addition:
+      return L"+";
+    case id_element_wise_subtraction:
+      return L"-";
+    case id_element_wise_multiplication:
+      return L"*";
+    case id_element_wise_division:
+      return L"/";
     case id_assignment:
       return L"=";
     case id_assignment_addition:
@@ -210,6 +245,32 @@ const wchar_t* ns::to_operator_binary_string(operator_binary_id id)
       return L"*=";
     case id_assignment_division:
       return L"/=";
+    case id_lt:
+      return L"<";
+    case id_lt_eq:
+      return L"<=";
+    case id_gt:
+      return L">";
+    case id_gt_eq:
+      return L">=";
+    case id_matrix_multiplication:
+      return L"*";
+    case id_scalar_vector_multiplication:
+      return L"*";
+    case id_scalar_vector_division:
+      return L"/";
+    case id_scalar_matrix_multiplication:
+      return L"*";
+    case id_scalar_matrix_division:
+      return L"/";
+    case id_vector_scalar_multiplication:
+      return L"*";
+    case id_vector_scalar_division:
+      return L"/";
+    case id_matrix_scalar_multiplication:
+      return L"*";
+    case id_matrix_scalar_division:
+      return L"/";
   }
 
   return nullptr;
@@ -311,6 +372,8 @@ const wchar_t* ns::to_intrinsic_string(sltl::core::intrinsic id)
     return L"_bi_dot";
   case sltl::core::intrinsic::normalize:
     return L"_bi_normalize";
+  case sltl::core::intrinsic::clamp:
+    return L"_bi_clamp";
   }
 
   return nullptr;

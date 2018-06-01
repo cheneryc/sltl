@@ -2,6 +2,9 @@
 #include "output.h"
 
 #include "call.h"
+#include "if.h"
+#include "element_wise.h"
+#include "basic_operators.h"
 
 #include "io/io.h"
 
@@ -123,13 +126,42 @@ namespace
     using in_t  = vs_fs_t;
     using out_t = fs_out_t;
 
+    // Fresnel function
+    vec3 F_Schlick(scalar<float> cos_theta, scalar<float> factor_metallic)
+    {
+      vec3 F0; // = mix(vec3(0.04), materialcolor(), metallic) * material.specular;
+      vec3 F;  // = F0 + (1.0f - F0) * pow(1.0 - cosTheta, 5.0);
+
+      return F;
+    }
+
     vec3 BRDF(vec3 L, vec3 V, vec3 N, scalar<float> factor_metallic, scalar<float> factor_roughness)
     {
-      vec3 v;
-      v += L;
-      v += V;
-      v += N;
-      return v;
+      vec3 H = sltl::normalize(V + L);
+
+      scalar<float> dot_NV = sltl::clamp(sltl::dot(N, V), 0.0f, 1.0f);
+      scalar<float> dot_NL = sltl::clamp(sltl::dot(N, L), 0.0f, 1.0f);
+      scalar<float> dot_LH = sltl::clamp(sltl::dot(L, H), 0.0f, 1.0f);
+      scalar<float> dot_NH = sltl::clamp(sltl::dot(N, H), 0.0f, 1.0f);
+
+      vec3 colour;
+      vec3 colour_light(1.0f, 1.0f, 1.0f); //TODO: vec(1.0f) & mat(1.0f) constructors?
+
+      sltl::if_then(dot_NL > 0.0f, [&]()
+      {
+        // Note: rroughness not used in sample PBR shader, could be a bug?
+        // float rroughness = max(0.05, factor_roughness);
+
+        scalar<float> D; // = D_GGX(dot_NH, factor_roughness)
+        scalar<float> G; // = G_SchlickSmithGGX(dot_NL, dot_NV, factor_roughness)
+        vec3 F = sltl::call(&F_Schlick, dot_NV, factor_metallic);
+
+        vec3 specular = (D * F * G) / (4.0f * dot_NL * dot_NV);
+
+        colour += sltl::element_wise(specular) * sltl::element_wise(colour_light) * dot_NL;
+      });
+
+      return colour;//TODO: fix issue where not assigning to 'colour' in the if-statement causes a crash here ('colour' has a ref count of zero and an attempt is made to turn it into a temporary, which fails during erase() of the variable_declaration)
     }
 
     out_t pbr_fs(sltl::shader_tag_fragment, in_t in)
@@ -159,7 +191,7 @@ namespace
       }
 
       out_t out(tag_out);
-      out.get<semantic_sys::target>() = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+      out.get<semantic_sys::target>() = vec4(Lo, 1.0f);
 
       return out;
     }

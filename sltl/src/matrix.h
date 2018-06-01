@@ -92,30 +92,4 @@ namespace sltl
 
     static const size_t elements = M * N;
   };
-
-  namespace detail
-  {
-    // vector * matrix
-    template<typename T, size_t M, size_t N>
-    auto as_proxy_mul(expression::expression<vector, T, M>&& lhs, expression::expression<matrix, T, M, N>&& rhs) -> expression::expression<vector, T, N>
-    {
-      return expression::expression<vector, T, N>(syntax::expression::make<syntax::operator_binary>(language::id_multiplication, lhs.move(), rhs.move()));
-    }
-
-    // matrix * matrix
-    template<typename T, size_t M, size_t N, size_t P>
-    auto as_proxy_mul(expression::expression<matrix, T, M, N>&& lhs, expression::expression<matrix, T, N, P>&& rhs) -> expression::expression<matrix, T, M, P>
-    {
-      return expression::expression<matrix, T, M, P>(syntax::expression::make<syntax::operator_binary>(language::id_multiplication, lhs.move(), rhs.move()));
-    }
-  }
-
-  template<typename T1, typename T2>
-  auto operator*(T1&& lhs, T2&& rhs) -> decltype(detail::as_proxy_mul(expression::as_expression(std::forward<T1>(lhs)), expression::as_expression(std::forward<T2>(rhs))))
-  {
-    auto lhs_proxy = expression::as_expression(std::forward<T1>(lhs));
-    auto rhs_proxy = expression::as_expression(std::forward<T2>(rhs));
-
-    return detail::as_proxy_mul(std::move(lhs_proxy), std::move(rhs_proxy));
-  }
 }
