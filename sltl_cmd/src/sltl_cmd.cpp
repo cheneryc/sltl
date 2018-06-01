@@ -131,6 +131,7 @@ namespace
     {
       vec3 F0; // = mix(vec3(0.04), materialcolor(), metallic) * material.specular;
       vec3 F;  // = F0 + (1.0f - F0) * pow(1.0 - cosTheta, 5.0);
+      vec3 F1;
 
       return F;
     }
@@ -161,7 +162,7 @@ namespace
         colour += sltl::element_wise(specular) * sltl::element_wise(colour_light) * dot_NL;
       });
 
-      return colour;//TODO: fix issue where not assigning to 'colour' in the if-statement causes a crash here ('colour' has a ref count of zero and an attempt is made to turn it into a temporary, which fails during erase() of the variable_declaration)
+      return colour;
     }
 
     out_t pbr_fs(sltl::shader_tag_fragment, in_t in)

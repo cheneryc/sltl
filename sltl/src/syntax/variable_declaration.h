@@ -17,7 +17,7 @@ namespace syntax
   {
   public:
     variable_declaration(std::wstring&& name, expression::ptr&& initializer);
-    variable_declaration(std::wstring&& name, const language::type& type, core::qualifier::ptr&& qualifier, core::semantic_pair semantic);
+    variable_declaration(std::wstring&& name, const language::type& type, core::qualifier_storage qualifier, core::semantic_pair semantic);
 
     bool has_type() const
     {
@@ -59,18 +59,14 @@ namespace syntax
       return (_type ? *_type : _initializer->get_type());
     }
 
-    const core::qualifier& get_qualifier() const
-    {
-      return *_qualifier;//TODO: use a variant here rather than a pointer and require dynamic casting?
-    }
-
     const core::semantic _semantic;
     const core::semantic_index_t _semantic_index;
+
+    const core::qualifier_storage _qualifier;
 
   private:
     //TODO: make this std::optional once available (C++17)
     std::unique_ptr<language::type> _type;//TODO: const (ptr or expression or both)?
-    core::qualifier::ptr _qualifier;//TODO: const (ptr or expression or both)?
     expression::ptr _initializer;//TODO: const (ptr or expression or both)?
   };
 }

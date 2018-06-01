@@ -62,9 +62,7 @@ namespace
 
   bool is_variable_omitted(const ns::syntax::variable_declaration& vd, ns::output::layout_manager& layout_manager)
   {
-    const auto qualifier_storage = static_cast<const ns::core::storage_qualifier&>(vd.get_qualifier())._value;
-
-    if(qualifier_storage != ns::core::qualifier_storage::default)
+    if(vd._qualifier != ns::core::qualifier_storage::default)
     {
       bool is_omitted = false;
 
@@ -92,9 +90,7 @@ namespace
 
   bool is_layout_flag_valid(const ns::syntax::variable_declaration& vd, ns::output::layout_flags flag)
   {
-    const auto qualifier_storage = static_cast<const ns::core::storage_qualifier&>(vd.get_qualifier())._value;
-
-    switch(qualifier_storage)
+    switch(vd._qualifier)
     {
       case ns::core::qualifier_storage::in:
         return (flag == ns::output::layout_flags::flag_in);
@@ -268,7 +264,7 @@ namespace
     else
     {
       // Prepend the storage qualifier to the variable name to ensure it is globally unique
-      if(auto qualifier = ns::language::to_qualifier_prefix_string(static_cast<const ns::core::storage_qualifier&>(vd.get_qualifier())._value))
+      if(auto qualifier = ns::language::to_qualifier_prefix_string(vd._qualifier))
       {
         ss << qualifier << L'_';
       }
@@ -320,7 +316,7 @@ namespace
       throw std::exception();//TODO: exception type and message
     }
 
-    return ns::language::to_qualifier_string(static_cast<const ns::core::storage_qualifier&>(vd.get_qualifier())._value);
+    return ns::language::to_qualifier_string(vd._qualifier);
   }
 
   std::wstring get_zero_initialization(const ns::language::type& type)
@@ -978,9 +974,7 @@ ns::syntax::action_return_t ns::output_introspector::operator()(const syntax::va
 
   if(is_start)
   {
-    const auto qualifier_storage = static_cast<const ns::core::storage_qualifier&>(vd.get_qualifier())._value;
-
-    if((qualifier_storage == _qualifier) &&
+    if((vd._qualifier == _qualifier) &&
        (vd._semantic == _semantic) &&
        (vd._semantic_index == _semantic_index))
     {
@@ -1118,11 +1112,9 @@ ns::syntax::action_return_t ns::output_matrix_order::get_default(bool is_start)
 
 ns::output::layout_map_key::layout_map_key(const ns::syntax::variable_declaration& vd) : _s(vd._semantic), _idx(vd._semantic_index)
 {
-  const auto qualifier_storage = static_cast<const ns::core::storage_qualifier&>(vd.get_qualifier())._value;
-
-  assert(qualifier_storage == ns::core::qualifier_storage::in ||
-         qualifier_storage == ns::core::qualifier_storage::out ||
-         qualifier_storage == ns::core::qualifier_storage::uniform);
+  assert(vd._qualifier == ns::core::qualifier_storage::in ||
+         vd._qualifier == ns::core::qualifier_storage::out ||
+         vd._qualifier == ns::core::qualifier_storage::uniform);
 }
 
 ns::output::layout_map_key::layout_map_key(const layout_map_key& key) : _s(key._s), _idx(key._idx)
@@ -1255,9 +1247,7 @@ ns::output::layout_manager::layout_manager(layout_manager&& manager) :
 
 ns::output::layout_map& ns::output::layout_manager::get_layout_map(const syntax::variable_declaration& vd)
 {
-  const auto qualifier_storage = static_cast<const ns::core::storage_qualifier&>(vd.get_qualifier())._value;
-
-  switch(qualifier_storage)
+  switch(vd._qualifier)
   {
     case core::qualifier_storage::in:
       return _layout_in;

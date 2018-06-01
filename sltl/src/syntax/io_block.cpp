@@ -44,7 +44,7 @@ ns::variable_declaration& ns::io_block::add_variable_declaration(std::wstring&& 
     throw std::exception();//TODO: exception type and message
   }
 
-  return add_variable_declaration_impl(statement::make<variable_declaration>(std::move(name), type, core::qualifier::make<core::storage_qualifier>(_qualifier), semantic));
+  return add_variable_declaration_impl(statement::make<variable_declaration>(std::move(name), type, _qualifier, semantic));
 }
 
 void ns::io_block::push()
