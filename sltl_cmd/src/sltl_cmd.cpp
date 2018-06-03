@@ -80,8 +80,9 @@ namespace
   //4. mat3 normal (modelviewproj_inversetrans)
   //5. vec3 camera
   //6. vec3 light
-  //7. float material metallic factor
-  //8. float material roughness factor
+  //7. vec3  material colour (rgb)
+  //8. float material metallic factor
+  //9. float material roughness factor
 
   typedef io_block<
     io_var_trans<semantic_trans::model>,
@@ -92,8 +93,9 @@ namespace
     io_var<vec3, semantic::light, 0>,
     io_var<vec3, semantic::light, 1>,
     io_var<vec3, semantic::light, 2>,
-    io_var<scalar<float>, semantic::material, 0>,
-    io_var<scalar<float>, semantic::material, 1>> uniform_t;
+    io_var<vec3, semantic::material, 0>,
+    io_var<scalar<float>, semantic::material, 1>,
+    io_var<scalar<float>, semantic::material, 2>> uniform_t;
 
   namespace vs
   {
@@ -126,17 +128,39 @@ namespace
     using in_t  = vs_fs_t;
     using out_t = fs_out_t;
 
-    // Fresnel function
-    vec3 F_Schlick(scalar<float> cos_theta, scalar<float> factor_metallic)
+    // Normal Distribution function
+    scalar<float> D_GGX(scalar<float> dot_NH, scalar<float> factor_roughness)
     {
-      vec3 F0; // = mix(vec3(0.04), materialcolor(), metallic) * material.specular;
-      vec3 F;  // = F0 + (1.0f - F0) * pow(1.0 - cosTheta, 5.0);
-      vec3 F1;
+      constexpr static const float PI = 3.14159265359f;
+
+      scalar<float> alpha = factor_roughness * factor_roughness;
+      scalar<float> alpha2 = alpha * alpha;
+      scalar<float> denom = (dot_NH * dot_NH) * (alpha2 - 1.0f) + 1.0f;
+
+      return (alpha2) / (PI * (denom * denom));
+    }
+
+    // Geometric Shadowing function
+    scalar<float> G_SchlickSmithGGX(scalar<float> dot_NL, scalar<float> dot_NV, scalar<float> material_roughness)
+    {
+      scalar<float> r = (material_roughness + 1.0);
+      scalar<float> k = (r * r) / 8.0f;
+      scalar<float> GL = dot_NL / (dot_NL * (1.0f - k) + k);
+      scalar<float> GV = dot_NV / (dot_NV * (1.0f - k) + k);
+
+      return GL * GV;
+    }
+
+    // Fresnel function
+    vec3 F_Schlick(scalar<float> cos_theta, vec3 material_colour, scalar<float> material_metallic)
+    {
+      vec3 F0 = sltl::lerp(vec3(0.04f, 0.04f, 0.04f), material_colour, material_metallic);
+      vec3 F = F0 + (vec3(1.0f, 1.0f, 1.0f) - F0) * sltl::pow(1.0f - cos_theta, 5.0f);
 
       return F;
     }
 
-    vec3 BRDF(vec3 L, vec3 V, vec3 N, scalar<float> factor_metallic, scalar<float> factor_roughness)
+    vec3 BRDF(vec3 L, vec3 V, vec3 N, vec3 material_colour, scalar<float> material_metallic, scalar<float> material_roughness)
     {
       vec3 H = sltl::normalize(V + L);
 
@@ -153,9 +177,9 @@ namespace
         // Note: rroughness not used in sample PBR shader, could be a bug?
         // float rroughness = max(0.05, factor_roughness);
 
-        scalar<float> D; // = D_GGX(dot_NH, factor_roughness)
-        scalar<float> G; // = G_SchlickSmithGGX(dot_NL, dot_NV, factor_roughness)
-        vec3 F = sltl::call(&F_Schlick, dot_NV, factor_metallic);
+        scalar<float> D = sltl::call(&D_GGX, dot_NH, material_roughness);
+        scalar<float> G = sltl::call(&G_SchlickSmithGGX, dot_NL, dot_NV, material_roughness);
+        vec3 F = sltl::call(&F_Schlick, dot_NV, material_colour, material_metallic);
 
         vec3 specular = (D * F * G) / (4.0f * dot_NL * dot_NV);
 
@@ -185,10 +209,11 @@ namespace
       {
         vec3 L = sltl::normalize(light.move() - in.get<semantic::position>());
 
-        scalar<float>::proxy material_metallic  = uniform.get<semantic::material, 0>();
-        scalar<float>::proxy material_roughness = uniform.get<semantic::material, 1>();
+        vec3::proxy          material_colour    = uniform.get<semantic::material, 0>();
+        scalar<float>::proxy material_metallic  = uniform.get<semantic::material, 1>();
+        scalar<float>::proxy material_roughness = uniform.get<semantic::material, 2>();
 
-        Lo += sltl::call(&BRDF, L, V, N, std::move(material_metallic), std::move(material_roughness));
+        Lo += sltl::call(&BRDF, L, V, N, std::move(material_colour), std::move(material_metallic), std::move(material_roughness));
       }
 
       out_t out(tag_out);

@@ -115,6 +115,24 @@ namespace sltl
 
       return expression::expression<V, T, D...>(syntax::call_intrinsic_clamp(t.move(), min.move(), max.move()));
     }
+
+    template<template<typename, size_t...> class V, typename T, size_t ...D>
+    auto as_proxy_lerp(expression::expression<V, T, D...>&& x, expression::expression<V, T, D...>&& y, expression::expression<scalar, T>&& s) -> expression::expression<V, T, D...>
+    {
+      static_assert(is_real<T>::value, "sltl::lerp: template parameter T must be float or double");
+      static_assert(sizeof...(D) < 2, "sltl::lerp: only valid for scalar or vector arguments");
+
+      return expression::expression<V, T, D...>(syntax::call_intrinsic_lerp(x.move(), y.move(), s.move()));
+    }
+
+    template<template<typename, size_t...> class V, typename T, size_t ...D>
+    auto as_proxy_pow(expression::expression<V, T, D...>&& x, expression::expression<V, T, D...>&& y) -> expression::expression<V, T, D...>
+    {
+      static_assert(is_real<T>::value, "sltl::pow: template parameter T must be float or double");
+      static_assert(sizeof...(D) < 2, "sltl::pow: only valid for scalar or vector arguments");
+
+      return expression::expression<V, T, D...>(syntax::call_intrinsic_pow(x.move(), y.move()));
+    }
   }
 
   template<typename T1, typename T2>
@@ -139,5 +157,24 @@ namespace sltl
     auto max_proxy = expression::as_expression(std::forward<TMax>(max));
 
     return detail::as_proxy_clamp(expression::as_expression(std::forward<T>(t)), std::move(min_proxy), std::move(max_proxy));
+  }
+
+  template<typename T1, typename T2, typename T3>
+  auto lerp(T1&& x, T2&& y, T3&& s) -> decltype(detail::as_proxy_lerp(expression::as_expression(std::forward<T1>(x)), expression::as_expression(std::forward<T2>(y)), expression::as_expression(std::forward<T3>(s))))
+  {
+    auto x_proxy = expression::as_expression(std::forward<T1>(x));
+    auto y_proxy = expression::as_expression(std::forward<T2>(y));
+    auto s_proxy = expression::as_expression(std::forward<T3>(s));
+
+    return detail::as_proxy_lerp(std::move(x_proxy), std::move(y_proxy), std::move(s_proxy));
+  }
+
+  template<typename T1, typename T2>
+  auto pow(T1&& x, T2&& y) -> decltype(detail::as_proxy_pow(expression::as_expression(std::forward<T1>(x)), expression::as_expression(std::forward<T2>(y))))
+  {
+    auto x_proxy = expression::as_expression(std::forward<T1>(x));
+    auto y_proxy = expression::as_expression(std::forward<T2>(y));
+
+    return detail::as_proxy_pow(std::move(x_proxy), std::move(y_proxy));
   }
 }

@@ -158,6 +158,10 @@ namespace
         return L"normalize";
       case ns::core::intrinsic::clamp:
         return L"clamp";
+      case ns::core::intrinsic::lerp:
+        return L"mix";
+      case ns::core::intrinsic::pow:
+        return L"pow";
     }
 
     return nullptr;

@@ -156,5 +156,116 @@ namespace syntax
 
     return expression::make<syntax::intrinsic_call>(intrinsic_manager_guard()->emplace(core::intrinsic::clamp, std::move(parameters), t), std::move(args));
   }
+
+  inline expression::ptr call_intrinsic_lerp(expression::ptr&& exp_x, expression::ptr&& exp_y, expression::ptr&& exp_s)
+  {
+    language::type type_x = exp_x->get_type();
+
+    if(type_x.get_id() != language::type_id::id_float &&
+       type_x.get_id() != language::type_id::id_double)
+    {
+      throw std::exception();//TODO: exception type and message
+    }
+
+    if(!(type_x.get_dimensions().is_scalar() ||
+         type_x.get_dimensions().is_vector()))
+    {
+      throw std::exception();//TODO: exception type and message
+    }
+
+    language::type type_y = exp_y->get_type();
+
+    if(type_y.get_id() != language::type_id::id_float &&
+       type_y.get_id() != language::type_id::id_double)
+    {
+      throw std::exception();//TODO: exception type and message
+    }
+
+    if(!(type_y.get_dimensions().is_scalar() ||
+         type_y.get_dimensions().is_vector()))
+    {
+      throw std::exception();//TODO: exception type and message
+    }
+
+    if(type_x != type_y)
+    {
+      throw std::exception();//TODO: exception type and message
+    }
+
+    language::type type_s = exp_s->get_type();
+
+    if(type_s.get_id() != type_x.get_id() ||
+       type_s.get_id() != type_y.get_id())
+    {
+      throw std::exception();//TODO: exception type and message
+    }
+
+    if(!(type_s.get_dimensions().is_scalar()))
+    {
+      throw std::exception();//TODO: exception type and message
+    }
+
+    parameter_list parameters;
+
+    parameters.add(std::make_unique<parameter_declaration>(L"x", exp_x->get_type(), core::qualifier_param::in));
+    parameters.add(std::make_unique<parameter_declaration>(L"y", exp_y->get_type(), core::qualifier_param::in));
+    parameters.add(std::make_unique<parameter_declaration>(L"s", exp_s->get_type(), core::qualifier_param::in));
+
+    expression_list args;
+
+    args.add(std::move(exp_x));
+    args.add(std::move(exp_y));
+    args.add(std::move(exp_s));
+
+    return expression::make<syntax::intrinsic_call>(intrinsic_manager_guard()->emplace(core::intrinsic::lerp, std::move(parameters), type_x), std::move(args));
+  }
+
+  inline expression::ptr call_intrinsic_pow(expression::ptr&& exp_x, expression::ptr&& exp_y)
+  {
+    language::type type_x = exp_x->get_type();
+
+    if(type_x.get_id() != language::type_id::id_float &&
+       type_x.get_id() != language::type_id::id_double)
+    {
+      throw std::exception();//TODO: exception type and message
+    }
+
+    if(!(type_x.get_dimensions().is_scalar() ||
+         type_x.get_dimensions().is_vector()))
+    {
+      throw std::exception();//TODO: exception type and message
+    }
+
+    language::type type_y = exp_y->get_type();
+
+    if(type_y.get_id() != language::type_id::id_float &&
+       type_y.get_id() != language::type_id::id_double)
+    {
+      throw std::exception();//TODO: exception type and message
+    }
+
+    if(!(type_y.get_dimensions().is_scalar() ||
+         type_y.get_dimensions().is_vector()))
+    {
+      throw std::exception();//TODO: exception type and message
+    }
+
+    if(type_x != type_y)
+    {
+      throw std::exception();//TODO: exception type and message
+    }
+
+    parameter_list parameters;
+
+    parameters.add(std::make_unique<parameter_declaration>(L"x", exp_x->get_type(), core::qualifier_param::in));
+    parameters.add(std::make_unique<parameter_declaration>(L"y", exp_y->get_type(), core::qualifier_param::in));
+
+    expression_list args;
+
+    args.add(std::move(exp_x));
+    args.add(std::move(exp_y));
+
+    return expression::make<syntax::intrinsic_call>(intrinsic_manager_guard()->emplace(core::intrinsic::pow, std::move(parameters), type_x), std::move(args));
+  }
 }
 }

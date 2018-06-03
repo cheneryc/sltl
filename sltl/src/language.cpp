@@ -374,6 +374,10 @@ const wchar_t* ns::to_intrinsic_string(sltl::core::intrinsic id)
     return L"_bi_normalize";
   case sltl::core::intrinsic::clamp:
     return L"_bi_clamp";
+  case sltl::core::intrinsic::lerp:
+    return L"_bi_lerp";
+  case sltl::core::intrinsic::pow:
+    return L"_bi_pow";
   }
 
   return nullptr;

@@ -84,6 +84,13 @@ namespace sltl
 
     // Division operators
 
+    // scalar / scalar
+    template<typename T>
+    auto as_proxy_div(expression::expression<scalar, T>&& lhs, expression::expression<scalar, T>&& rhs) -> expression::expression<scalar, T>
+    {
+      return expression::expression<scalar, T>(syntax::expression::make<syntax::operator_binary>(language::id_division, lhs.move(), rhs.move()));
+    }
+
     // scalar / vector
     template<typename T, size_t D>
     auto as_proxy_div(expression::expression<scalar, T>&& lhs, expression::expression<vector, T, D>&& rhs) -> expression::expression<vector, T, D>

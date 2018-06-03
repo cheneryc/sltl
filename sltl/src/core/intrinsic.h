@@ -9,7 +9,9 @@ namespace core
   {
     dot,
     normalize,
-    clamp
+    clamp,
+    lerp,
+    pow
   };
 }
 }
