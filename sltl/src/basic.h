@@ -88,8 +88,10 @@ namespace sltl
     }
 
   protected:
-    basic(syntax::expression::ptr&& initializer) : variable(std::move(initializer)) {}
-    basic(core::semantic_pair semantic) : variable(language::type_helper<V<T, D...>>(), semantic) {}
+    basic(syntax::expression::ptr&& initializer) : variable(create_variable_declaration(std::move(initializer))) {}
+    basic(core::semantic_pair semantic) : variable(create_variable_declaration(language::type_helper<V<T, D...>>(), semantic)) {}
+
+    explicit basic(syntax::parameter_declaration* pd) : variable(pd) {}
 
     friend expression::expression<V, T, D...>;
   };

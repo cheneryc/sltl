@@ -62,9 +62,7 @@ namespace
 
   bool is_variable_omitted(const ns::syntax::variable_declaration& vd, ns::output::layout_manager& layout_manager)
   {
-    const auto qualifier_storage = static_cast<const ns::core::storage_qualifier&>(vd.get_qualifier())._value;
-
-    if(qualifier_storage != ns::core::qualifier_storage::default)
+    if(vd._qualifier != ns::core::qualifier_storage::default)
     {
       bool is_omitted = false;
 
@@ -92,9 +90,7 @@ namespace
 
   bool is_layout_flag_valid(const ns::syntax::variable_declaration& vd, ns::output::layout_flags flag)
   {
-    const auto qualifier_storage = static_cast<const ns::core::storage_qualifier&>(vd.get_qualifier())._value;
-
-    switch(qualifier_storage)
+    switch(vd._qualifier)
     {
       case ns::core::qualifier_storage::in:
         return (flag == ns::output::layout_flags::flag_in);
@@ -158,6 +154,50 @@ namespace
     {
       case ns::core::intrinsic::dot:
         return L"dot";
+      case ns::core::intrinsic::normalize:
+        return L"normalize";
+      case ns::core::intrinsic::clamp:
+        return L"clamp";
+      case ns::core::intrinsic::lerp:
+        return L"mix";
+      case ns::core::intrinsic::pow:
+        return L"pow";
+    }
+
+    return nullptr;
+  }
+
+  const wchar_t* to_intrinsic_operator_string(const ns::syntax::operator_binary& ob)
+  {
+    const ns::language::type& t = ob.get_type();
+    const ns::language::type_id t_id = t.get_id();
+
+    switch(ob._operator_id)
+    {
+      case ns::language::id_element_wise_eq:
+        assert(t.get_dimensions().is_vector());
+        return L"equal";
+      case ns::language::id_element_wise_ne:
+        assert(t.get_dimensions().is_vector());
+        return L"notEqual";
+      case ns::language::id_element_wise_lt:
+        assert(t.get_dimensions().is_vector());
+        assert(t_id != ns::language::id_bool);
+        return L"lessThan";
+      case ns::language::id_element_wise_lt_eq:
+        assert(t.get_dimensions().is_vector());
+        assert(t_id != ns::language::id_bool);
+        return L"lessThanEqual";
+      case ns::language::id_element_wise_gt:
+        assert(t.get_dimensions().is_vector());
+        assert(t_id != ns::language::id_bool);
+        return L"greaterThan";
+      case ns::language::id_element_wise_gt_eq:
+        assert(t.get_dimensions().is_vector());
+        assert(t_id != ns::language::id_bool);
+        return L"greaterThanEqual";
+      case ns::language::id_element_wise_multiplication:
+        return t.get_dimensions().is_matrix() ? L"matrixCompMult" : nullptr;
     }
 
     return nullptr;
@@ -228,13 +268,24 @@ namespace
     else
     {
       // Prepend the storage qualifier to the variable name to ensure it is globally unique
-      if(auto qualifier = ns::language::to_qualifier_prefix_string(static_cast<const ns::core::storage_qualifier&>(vd.get_qualifier())._value))
+      if(auto qualifier = ns::language::to_qualifier_prefix_string(vd._qualifier))
       {
         ss << qualifier << L'_';
       }
 
       ss << ns::language::to_type_prefix_string(vd.get_type()) << vd._name;
     }
+
+    return ss.str();
+  }
+
+  std::wstring get_parameter_name(const ns::syntax::parameter_declaration& pd)
+  {
+    std::wstringstream ss(ns::language::to_parameter_prefix_string(pd._qualifier), std::ios::in | std::ios::out | std::ios::ate);
+
+    ss << L'_';
+    ss << ns::language::to_type_prefix_string(pd.get_type());
+    ss << pd._name;
 
     return ss.str();
   }
@@ -269,7 +320,7 @@ namespace
       throw std::exception();//TODO: exception type and message
     }
 
-    return ns::language::to_qualifier_string(static_cast<const ns::core::storage_qualifier&>(vd.get_qualifier())._value);
+    return ns::language::to_qualifier_string(vd._qualifier);
   }
 
   std::wstring get_zero_initialization(const ns::language::type& type)
@@ -421,23 +472,55 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::variable_declar
   return return_val;
 }
 
-ns::syntax::action_return_t ns::output::operator()(const syntax::parameter_declaration&)
+ns::syntax::action_return_t ns::output::operator()(const syntax::parameter_declaration& pd)
 {
-  assert(false); //TODO: implement this...
+  _ss << get_type_name(pd.get_type(), _flags) << L' ' << get_parameter_name(pd);
+
   return ns::syntax::action_return_t::step_out;
 }
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::parameter_list& pl, bool is_start)
 {
-  assert(pl.begin() == pl.end()); //TODO: implement this...
+  ns::syntax::action_return_t return_val;
 
-  return is_start ? ns::syntax::action_return_t::step_in :
-                    ns::syntax::action_return_t::step_out;
+  if(is_start)
+  {
+    auto it = pl.begin();
+    auto it_end = pl.end();
+
+    if(it != it_end)
+    {
+      while((*it)->apply_action(*this) && (++it != it_end))
+      {
+        _ss << L", ";
+      }
+    }
+
+    // The 'success' return value is 'step_over' as all child nodes have already been traversed
+    return_val = ((it == it_end) ?
+      ns::syntax::action_return_t::step_over :
+      ns::syntax::action_return_t::stop);
+  }
+  else
+  {
+    return_val = ns::syntax::action_return_t::step_out;
+  }
+
+  return return_val;
 }
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::reference& r)
 {
-  _ss << get_variable_name(r._declaration);
+  if (auto vd = dynamic_cast<const ns::syntax::variable_declaration*>(&r._declaration))
+  {
+    _ss << get_variable_name(*vd);
+  }
+
+  if(auto pd = dynamic_cast<const ns::syntax::parameter_declaration*>(&r._declaration))
+  {
+    _ss << get_parameter_name(*pd);
+  }
+
   return ns::syntax::action_return_t::step_out;
 }
 
@@ -503,15 +586,34 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_binary
 
   if(is_start)
   {
+    const auto* const intrinsic_op = to_intrinsic_operator_string(ob);
+
+    if(intrinsic_op)
+    {
+      _ss << intrinsic_op << L'(';
+    }
+
     bool is_continuing = false;
 
     if(ob._operand_lhs->apply_action(*this))
     {
-      _ss << L' ';
-      _ss << language::to_operator_binary_string(ob._operator_id);
-      _ss << L' ';
+      if(intrinsic_op)
+      {
+        _ss << L", ";
+      }
+      else
+      {
+        _ss << L' ';
+        _ss << language::to_operator_binary_string(ob._operator_id);
+        _ss << L' ';
+      }
 
       is_continuing = ob._operand_rhs->apply_action(*this);
+    }
+
+    if(intrinsic_op)
+    {
+      _ss << L')';
     }
 
     // The 'success' return value is 'step_over' as all child nodes have already been traversed
@@ -680,7 +782,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::expression_list
   if(is_start)
   {
     auto it = el.begin();
-    const auto it_end = el.end();
+    auto it_end = el.end();
 
     if(it != it_end)
     {
@@ -876,9 +978,7 @@ ns::syntax::action_return_t ns::output_introspector::operator()(const syntax::va
 
   if(is_start)
   {
-    const auto qualifier_storage = static_cast<const ns::core::storage_qualifier&>(vd.get_qualifier())._value;
-
-    if((qualifier_storage == _qualifier) &&
+    if((vd._qualifier == _qualifier) &&
        (vd._semantic == _semantic) &&
        (vd._semantic_index == _semantic_index))
     {
@@ -914,7 +1014,7 @@ ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::operator
   {
     return_val = ns::syntax::action_return_t::step_in;
 
-    if(ob._operator_id == language::id_multiplication)
+    if(ob._operator_id == language::id_matrix_multiplication)
     {
       const language::type type_lhs = ob._operand_lhs->get_type();
       const language::type type_rhs = ob._operand_rhs->get_type();
@@ -1016,11 +1116,9 @@ ns::syntax::action_return_t ns::output_matrix_order::get_default(bool is_start)
 
 ns::output::layout_map_key::layout_map_key(const ns::syntax::variable_declaration& vd) : _s(vd._semantic), _idx(vd._semantic_index)
 {
-  const auto qualifier_storage = static_cast<const ns::core::storage_qualifier&>(vd.get_qualifier())._value;
-
-  assert(qualifier_storage == ns::core::qualifier_storage::in ||
-         qualifier_storage == ns::core::qualifier_storage::out ||
-         qualifier_storage == ns::core::qualifier_storage::uniform);
+  assert(vd._qualifier == ns::core::qualifier_storage::in ||
+         vd._qualifier == ns::core::qualifier_storage::out ||
+         vd._qualifier == ns::core::qualifier_storage::uniform);
 }
 
 ns::output::layout_map_key::layout_map_key(const layout_map_key& key) : _s(key._s), _idx(key._idx)
@@ -1153,9 +1251,7 @@ ns::output::layout_manager::layout_manager(layout_manager&& manager) :
 
 ns::output::layout_map& ns::output::layout_manager::get_layout_map(const syntax::variable_declaration& vd)
 {
-  const auto qualifier_storage = static_cast<const ns::core::storage_qualifier&>(vd.get_qualifier())._value;
-
-  switch(qualifier_storage)
+  switch(vd._qualifier)
   {
     case core::qualifier_storage::in:
       return _layout_in;

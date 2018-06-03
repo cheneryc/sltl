@@ -10,20 +10,20 @@ namespace
 }
 
 ns::variable_declaration::variable_declaration(std::wstring&& name, ns::expression::ptr&& initializer) : declaration_statement(std::move(name)),
-  _type(),
   _semantic(core::semantic_pair::none._semantic),
   _semantic_index(core::semantic_pair::none._index),
-  _qualifier(core::qualifier::make<core::storage_qualifier>(core::qualifier_storage::default)),
+  _qualifier(core::qualifier_storage::default),
+  _type(),
   _initializer(std::move(initializer))
 {
   assert(_initializer);
 }
 
-ns::variable_declaration::variable_declaration(std::wstring&& name, const sltl::language::type& type, sltl::core::qualifier::ptr&& qualifier, sltl::core::semantic_pair semantic) : declaration_statement(std::move(name)),
-  _type(std::make_unique<language::type>(type)),
+ns::variable_declaration::variable_declaration(std::wstring&& name, const sltl::language::type& type, sltl::core::qualifier_storage qualifier, sltl::core::semantic_pair semantic) : declaration_statement(std::move(name)),
   _semantic(semantic._semantic),
   _semantic_index(semantic._index),
-  _qualifier(std::move(qualifier)),
+  _qualifier(qualifier),
+  _type(std::make_unique<language::type>(type)),
   _initializer()
 {
 }

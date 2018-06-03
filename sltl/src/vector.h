@@ -29,6 +29,8 @@ namespace sltl
     vector(vector&& v) : vector(proxy(std::move(v))) {}
     vector(const vector& v) : vector(proxy(v)) {}
 
+    explicit vector(syntax::parameter_declaration* pd) : super_t(pd), permutation_group<sltl::vector, T, D>(*this) {}
+
     // The T2 argument stops this conflicting with the default constructor
     // The disable_if is necessary to stop conflicts with the copy constructor. Ensuring is_empty is false is a good enough requirement as sltl doesn't allow 1D vectors
     template<typename T2, typename ...A, detail::disable_if<detail::is_empty<A...>> = detail::default_tag>
@@ -95,6 +97,42 @@ namespace sltl
 
       return expression::expression<scalar, T>(syntax::call_intrinsic_dot(x.move(), y.move()));
     }
+
+    template<template<typename, size_t...> class V, typename T, size_t ...D>
+    auto as_proxy_normalize(expression::expression<V, T, D...>&& t) -> expression::expression<V, T, D...>
+    {
+      static_assert(is_real<T>::value, "sltl::normalize: template parameter T must be float or double");
+      static_assert(sizeof...(D) < 2, "sltl::normalize: only valid for scalar or vector arguments");
+
+      return expression::expression<V, T, D...>(syntax::call_intrinsic_normalize(t.move()));
+    }
+
+    template<template<typename, size_t...> class V, typename T, size_t ...D>
+    auto as_proxy_clamp(expression::expression<V, T, D...>&& t, expression::expression<V, T, D...>&& min, expression::expression<V, T, D...>&& max) -> expression::expression<V, T, D...>
+    {
+      static_assert(is_real<T>::value, "sltl::clamp: template parameter T must be float or double");
+      static_assert(sizeof...(D) < 2, "sltl::clamp: only valid for scalar or vector arguments");
+
+      return expression::expression<V, T, D...>(syntax::call_intrinsic_clamp(t.move(), min.move(), max.move()));
+    }
+
+    template<template<typename, size_t...> class V, typename T, size_t ...D>
+    auto as_proxy_lerp(expression::expression<V, T, D...>&& x, expression::expression<V, T, D...>&& y, expression::expression<scalar, T>&& s) -> expression::expression<V, T, D...>
+    {
+      static_assert(is_real<T>::value, "sltl::lerp: template parameter T must be float or double");
+      static_assert(sizeof...(D) < 2, "sltl::lerp: only valid for scalar or vector arguments");
+
+      return expression::expression<V, T, D...>(syntax::call_intrinsic_lerp(x.move(), y.move(), s.move()));
+    }
+
+    template<template<typename, size_t...> class V, typename T, size_t ...D>
+    auto as_proxy_pow(expression::expression<V, T, D...>&& x, expression::expression<V, T, D...>&& y) -> expression::expression<V, T, D...>
+    {
+      static_assert(is_real<T>::value, "sltl::pow: template parameter T must be float or double");
+      static_assert(sizeof...(D) < 2, "sltl::pow: only valid for scalar or vector arguments");
+
+      return expression::expression<V, T, D...>(syntax::call_intrinsic_pow(x.move(), y.move()));
+    }
   }
 
   template<typename T1, typename T2>
@@ -104,5 +142,39 @@ namespace sltl
     auto y_proxy = expression::as_expression(std::forward<T2>(y));
 
     return detail::as_proxy_dot(std::move(x_proxy), std::move(y_proxy));
+  }
+
+  template<typename T>
+  auto normalize(T&& t) -> decltype(detail::as_proxy_normalize(expression::as_expression(std::forward<T>(t))))
+  {
+    return detail::as_proxy_normalize(expression::as_expression(std::forward<T>(t)));
+  }
+
+  template<typename T, typename TMin, typename TMax>
+  auto clamp(T&& t, TMin&& min, TMax&& max) -> decltype(detail::as_proxy_clamp(expression::as_expression(std::forward<T>(t)), expression::as_expression(std::forward<TMin>(min)), expression::as_expression(std::forward<TMax>(max))))
+  {
+    auto min_proxy = expression::as_expression(std::forward<TMin>(min));
+    auto max_proxy = expression::as_expression(std::forward<TMax>(max));
+
+    return detail::as_proxy_clamp(expression::as_expression(std::forward<T>(t)), std::move(min_proxy), std::move(max_proxy));
+  }
+
+  template<typename T1, typename T2, typename T3>
+  auto lerp(T1&& x, T2&& y, T3&& s) -> decltype(detail::as_proxy_lerp(expression::as_expression(std::forward<T1>(x)), expression::as_expression(std::forward<T2>(y)), expression::as_expression(std::forward<T3>(s))))
+  {
+    auto x_proxy = expression::as_expression(std::forward<T1>(x));
+    auto y_proxy = expression::as_expression(std::forward<T2>(y));
+    auto s_proxy = expression::as_expression(std::forward<T3>(s));
+
+    return detail::as_proxy_lerp(std::move(x_proxy), std::move(y_proxy), std::move(s_proxy));
+  }
+
+  template<typename T1, typename T2>
+  auto pow(T1&& x, T2&& y) -> decltype(detail::as_proxy_pow(expression::as_expression(std::forward<T1>(x)), expression::as_expression(std::forward<T2>(y))))
+  {
+    auto x_proxy = expression::as_expression(std::forward<T1>(x));
+    auto y_proxy = expression::as_expression(std::forward<T2>(y));
+
+    return detail::as_proxy_pow(std::move(x_proxy), std::move(y_proxy));
   }
 }

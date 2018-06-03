@@ -231,6 +231,12 @@
     <ClInclude Include="src\syntax\block_guard.h">
       <Filter>Header Files\syntax</Filter>
     </ClInclude>
+    <ClInclude Include="src\element_wise.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\basic_operators.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\scope.cpp">

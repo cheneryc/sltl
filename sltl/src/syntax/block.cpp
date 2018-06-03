@@ -29,7 +29,7 @@ ns::statement& ns::block::add_impl(statement::ptr&& s)
     throw std::exception();//TODO: exception type and message
   }
 
-  block_base::add_impl(std::move(s));
+  return block_base::add_impl(std::move(s));
 }
 
 ns::variable_declaration& ns::block::add_variable_declaration(std::wstring&& name, expression::ptr&& initializer)
@@ -44,7 +44,7 @@ ns::variable_declaration& ns::block::add_variable_declaration(std::wstring&& nam
     throw std::exception();//TODO: exception type and message
   }
 
-  return add_variable_declaration_impl(statement::make<variable_declaration>(std::move(name), type, core::qualifier::make<core::storage_qualifier>(core::qualifier_storage::default), semantic));
+  return add_variable_declaration_impl(statement::make<variable_declaration>(std::move(name), type, core::qualifier_storage::default, semantic));
 }
 
 void ns::block::push()

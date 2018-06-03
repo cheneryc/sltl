@@ -57,13 +57,16 @@ void ns::block_base::erase(const statement& s)
     return (s_find.get() == &s);
   });
 
-  // The statement to be removed should be the most recently created (this
-  // function is only meant to be used by the syntax::temporary constructor)
-  assert(it == _statements.rbegin());
-  assert(it != _statements.rend());
-
-  // The call to std::next and base are required to convert the reverse_iterator back to a normal iterator
-  _statements.erase(std::next(it).base());
+  if(it != _statements.rend())
+  {
+    // Calls to std::next and base are required to convert
+    // the reverse_iterator back into a 'forward' iterator
+    _statements.erase(std::next(it).base());
+  }
+  else
+  {
+    throw std::exception();//TODO: exception type and message
+  }
 }
 
 ns::variable_info* ns::block_base::variable_info_find(const std::wstring& name)

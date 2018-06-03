@@ -7,7 +7,7 @@ namespace
   namespace ns = sltl::syntax;
 }
 
-ns::reference::reference(const variable_declaration& declaration) : _declaration(declaration) {}
+ns::reference::reference(const declaration& declaration) : _declaration(declaration) {}
 
 bool ns::reference::apply_action(action& act)
 {

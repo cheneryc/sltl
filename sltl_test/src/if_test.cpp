@@ -14,11 +14,11 @@ namespace
   }
 }
 
-TEST(if_, if_empty)
+TEST(if_then, if_then_empty)
 {
   auto test_shader = []()
   {
-    sltl::if_(true, []()
+    sltl::if_then(true, []()
     {
     });
   };
@@ -35,13 +35,13 @@ TEST(if_, if_empty)
   ASSERT_EQ(expected, actual);
 }
 
-TEST(if_, if_else_empty)
+TEST(if_then, if_then_else_end_empty)
 {
   auto test_shader = []()
   {
-    sltl::if_(true, []()
+    sltl::if_then(true, []()
     {
-    }).else_([]()
+    }).else_end([]()
     {
     });
   };
@@ -61,15 +61,15 @@ TEST(if_, if_else_empty)
   ASSERT_EQ(expected, actual);
 }
 
-TEST(if_, if_else_if_else_empty)
+TEST(if_then, if_then_else_if_else_end_empty)
 {
   auto test_shader = []()
   {
-    sltl::if_(true, []()
+    sltl::if_then(true, []()
     {
     }).else_if(false, []()
     {
-    }).else_([]()
+    }).else_end([]()
     {
     });
   };
@@ -92,13 +92,13 @@ TEST(if_, if_else_if_else_empty)
   ASSERT_EQ(expected, actual);
 }
 
-TEST(if_, if_condition)
+TEST(if_then, if_then_condition)
 {
   auto test_shader = []()
   {
     sltl::scalar<bool> cond1 = true;
 
-    sltl::if_(cond1, []()
+    sltl::if_then(cond1, []()
     {
     });
   };
@@ -116,17 +116,17 @@ TEST(if_, if_condition)
   ASSERT_EQ(expected, actual);
 }
 
-TEST(if_, if_body)
+TEST(if_then, if_then_body)
 {
   auto test_shader = []()
   {
     sltl::scalar<bool> cond1 = true;
     sltl::scalar<int> count = 0;
 
-    sltl::if_(cond1, [&]()
+    sltl::if_then(cond1, [&]()
     {
       count += 1;
-    }).else_([&]()
+    }).else_end([&]()
     {
       count += 2;
     });

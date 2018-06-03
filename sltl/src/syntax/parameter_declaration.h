@@ -41,6 +41,11 @@ namespace syntax
     parameter_list() : super_t() {}
     parameter_list(parameter_list&& list) : super_t(std::move(list)) {}
 
+    parameter_list(parameter_declaration::ptr&& p, parameter_list&& list) : super_t(std::move(list))
+    {
+      _list_items.push_front(std::move(p));
+    }
+
     virtual bool apply_action(action& act) override
     {
       return apply_action_impl(act, *this, _list_items.begin(), _list_items.end());

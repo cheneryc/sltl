@@ -17,22 +17,30 @@ namespace core
     normal,
     texcoord,
     colour,   // For built-in behaviour use semantic_system::target
+    material,
     transform,
-    user
+    camera,
+    light,
+    user,
+    count
   };
 
+  // semantic_system::position -  gl_Position/gl_FragCoord or SV_Position
+  // semantic_system::depth -     gl_FragDepth or SV_Depth
+  // semantic_system::target -    (layout(location=N) out your_var_name;) or SV_Target
   enum class semantic_system : unsigned char
   {
     none = 0,
-    position, // gl_Position/gl_FragCoord or SV_Position
-    depth,    // gl_FragDepth or SV_Depth
-    target    // (layout(location=N) out your_var_name;) or SV_Target
+    position = static_cast<std::underlying_type<semantic>::type>(semantic::count),
+    depth,
+    target,
+    count
   };
 
   enum class semantic_transform : unsigned char
   {
     none = 0,
-    model,
+    model = static_cast<std::underlying_type<semantic_system>::type>(semantic_system::count),
     modelview,
     modelviewproj,
     modelviewproj_inverse,
@@ -40,7 +48,8 @@ namespace core
     view,
     viewproj,
     proj,
-    normal // mat3x3 - modelviewproj_inversetrans
+    normal, // mat3x3 - modelviewproj_inversetrans
+    count
   };
 
   typedef unsigned short semantic_index_t;
@@ -75,6 +84,18 @@ namespace core
 
   namespace detail
   {
+    constexpr auto to_underlying_value(semantic_system s) -> std::underlying_type<semantic_system>::type
+    {
+      return (static_cast<std::underlying_type<semantic_system>::type>(s) -
+              static_cast<std::underlying_type<semantic>::type>(semantic::count)) + 1;
+    }
+
+    constexpr auto to_underlying_value(semantic_transform s) -> std::underlying_type<semantic_transform>::type
+    {
+      return (static_cast<std::underlying_type<semantic_transform>::type>(s) -
+              static_cast<std::underlying_type<semantic_system>::type>(semantic_system::count)) + 1;
+    }
+
     constexpr semantic_index_t to_semantic_index(semantic_system s, semantic_index_t n)
     {
       // Each system semantic is allocated 16 indices (4 bits)
@@ -82,12 +103,12 @@ namespace core
       // depth (2)    -> 16 - 31
       // target (3)   -> 32 - 47
 
-      return s != semantic_system::none ? ((static_cast<std::underlying_type<decltype(s)>::type>(s) - 1U) << 4) + n : throw std::exception();//TODO: exception type and message
+      return s != semantic_system::none ? ((to_underlying_value(s) - 1U) << 4) + n : throw std::exception();//TODO: exception type and message
     }
 
     constexpr semantic_index_t to_semantic_index(semantic_transform s)
     {
-      return s != semantic_transform::none ? (static_cast<std::underlying_type<decltype(s)>::type>(s) - 1) : throw std::exception();//TODO: exception type and message
+      return s != semantic_transform::none ? (to_underlying_value(s) - 1) : throw std::exception();//TODO: exception type and message
     }
 
     inline std::pair<semantic_system, semantic_index_t> to_semantic_system_pair(semantic_index_t n)
@@ -95,7 +116,7 @@ namespace core
       const div_t div_result = div(n, 16);
 
       return {
-        static_cast<semantic_system>(div_result.quot + 1U),
+        static_cast<semantic_system>(div_result.quot + static_cast<std::underlying_type<semantic>::type>(semantic::count)),
         static_cast<semantic_index_t>(div_result.rem)
       };
     }

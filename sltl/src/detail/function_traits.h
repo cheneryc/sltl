@@ -7,10 +7,8 @@ namespace sltl
 {
 namespace detail
 {
-  template<typename ...A>
-  struct function_args
-  {
-  };
+  template<typename ...P>
+  struct function_params {};
 
   // The default function_traits class. Used by lambdas and functors (but not function pointers).
   template<typename Fn>
@@ -21,33 +19,37 @@ namespace detail
   };
 
   // The specialization for a pointer-to-function
-  template<typename R, typename ...A>
-  struct function_traits<R(*)(A...)>
+  template<typename R, typename ...P>
+  struct function_traits<R(*)(P...)>
   {
     typedef R return_t;
 
     template<size_t N>
-    struct arg
+    struct param
     {
-      typedef typename get<N, A...>::type type;
+      typedef typename get<N, P...>::type type;
     };
 
-    typedef function_args<A...> args;
+    typedef function_params<P...> params_t;
+
+    static const size_t param_count = sizeof...(P);
   };
 
   // The specialization for a pointer-to-member-function
-  template<typename R, typename T, typename ...A>
-  struct function_traits<R(T::*)(A...) const>
+  template<typename R, typename T, typename ...P>
+  struct function_traits<R(T::*)(P...) const>
   {
     typedef R return_t;
 
     template<size_t N>
-    struct arg
+    struct param
     {
-      typedef typename get<N, A...>::type type;
+      typedef typename get<N, P...>::type type;
     };
 
-    typedef function_args<A...> args;
+    typedef function_params<P...> params_t;
+
+    static const size_t param_count = sizeof...(P);
   };
 
   template<typename T, template<typename> class Op, typename = std::void_t<>>

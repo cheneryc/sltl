@@ -7,7 +7,11 @@ namespace core
 {
   enum class intrinsic
   {
-    dot
+    dot,
+    normalize,
+    clamp,
+    lerp,
+    pow
   };
 }
 }
