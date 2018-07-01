@@ -32,7 +32,7 @@ There are no external dependencies and therefore no prerequisites.
 
 ### Documentation
 
-TODO: link to wiki
+The [Tutorial](https://github.com/cheneryc/sltl/wiki/Tutorial) wiki is currently the only documentation available.
 
 ## Versioning
 
