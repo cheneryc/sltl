@@ -44,7 +44,7 @@ This project is primarily a demonstration of the author's coding abilities. Ther
 
 ## Licence
 
-TBD. Expected to be open sourced using either boost or MIT licences.
+SLTL is licensed under the MIT License.
 
 ## Copyright
 
