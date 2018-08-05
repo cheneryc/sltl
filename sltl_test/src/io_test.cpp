@@ -403,6 +403,16 @@ void main()
   ASSERT_EQ(expected, actual);
 }
 
+TEST(io, storage_qualifier_duplicate)
+{
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, sltl::io::block<>)
+  {
+    sltl::io::block<sltl::io::variable<sltl::vector<float, 4>, sltl::core::semantic::position>> in_duplicate(sltl::core::qualifier_storage::in);
+  };
+
+  ASSERT_THROW(sltl::make_shader(test_shader), std::exception);
+}
+
 TEST(io, layout_single)
 {
   typedef sltl::io::block<sltl::io::variable<sltl::vector<float, 4>, sltl::core::semantic::user>> io_block_in;
