@@ -11,7 +11,7 @@ namespace
 
 ns::io_block* ns::io_block_manager::get_io_block(sltl::core::qualifier_storage qualifier)
 {
-  assert(qualifier != core::qualifier_storage::default);
+  assert(qualifier != core::qualifier_storage::none);
 
   return static_cast<io_block*>(get_io_block_node(qualifier).get());
 }
@@ -36,7 +36,7 @@ ns::statement::ptr& ns::io_block_manager::get_io_block_node(sltl::core::qualifie
 
 ns::io_block& ns::io_block_manager::add(sltl::core::qualifier_storage qualifier)
 {
-  assert(qualifier != core::qualifier_storage::default);
+  assert(qualifier != core::qualifier_storage::none);
 
   statement::ptr& io_block_node = get_io_block_node(qualifier);
 

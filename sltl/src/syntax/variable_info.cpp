@@ -18,7 +18,7 @@ ns::variable_info& ns::get_variable_info(const variable_declaration* vd)
 {
   assert(vd);
 
-  if(vd->_qualifier == sltl::core::qualifier_storage::default)
+  if(vd->_qualifier == sltl::core::qualifier_storage::none)
   {
     return *(ns::get_current_block().variable_info_find(vd->_name));
   }

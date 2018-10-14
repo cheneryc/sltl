@@ -4,7 +4,7 @@
 #include "variable_declaration.h"
 #include "variable_info.h"
 
-#include "../detail/conditional_traits.h"
+#include <detail/conditional_traits.h>
 
 #include <map>
 #include <vector>

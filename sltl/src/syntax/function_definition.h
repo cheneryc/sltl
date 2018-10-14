@@ -9,9 +9,9 @@
 #include "parameter_declaration.h"
 #include "return_statement.h"
 
-#include "../language.h"
+#include <language.h>
 
-#include "detail/function_traits.h"
+#include <detail/function_traits.h>
 
 
 namespace sltl
@@ -81,7 +81,7 @@ namespace syntax
     template<typename Fn, typename ...P, typename ...D, size_t N>
     static void invoke_void_impl(tag<N>, Fn fn, parameter_list& parameters, D&& ...decls)
     {
-      typedef detail::get<N, P...>::type param_t;
+      typedef typename detail::get<N, P...>::type param_t;
 
       parameter_declaration::ptr decl = std::make_unique<parameter_declaration>(std::to_wstring(N + 1), language::type_helper<param_t>(), core::qualifier_param::in);
       parameter_declaration* ptr_decl = decl.get();
@@ -102,7 +102,7 @@ namespace syntax
     template<typename Fn, typename R, typename ...P, typename ...D, size_t N>
     static expression::ptr invoke_impl(tag<N>, Fn fn, parameter_list& parameters, D&& ...decls)
     {
-      typedef detail::get<N, P...>::type param_t;
+      typedef typename detail::get<N, P...>::type param_t;
 
       parameter_declaration::ptr decl = std::make_unique<parameter_declaration>(std::to_wstring(N + 1), language::type_helper<param_t>(), core::qualifier_param::in);
       parameter_declaration* ptr_decl = decl.get();
@@ -138,14 +138,14 @@ namespace syntax
     template<typename Fn>
     auto call_fn(Fn fn) -> typename std::enable_if< std::is_same<typename detail::function_traits<Fn>::return_t, void>::value>::type
     {
-      function_invoker<void, detail::function_traits<Fn>::params_t>::invoke(fn, _parameters);
+      function_invoker<void, typename detail::function_traits<Fn>::params_t>::invoke(fn, _parameters);
     }
 
     template<typename Fn>
     auto call_fn(Fn fn) -> typename std::enable_if<!std::is_same<typename detail::function_traits<Fn>::return_t, void>::value>::type
     {
-      typedef detail::function_traits<Fn>::params_t params_t;
-      typedef detail::function_traits<Fn>::return_t return_t;
+      typedef typename detail::function_traits<Fn>::params_t params_t;
+      typedef typename detail::function_traits<Fn>::return_t return_t;
 
       syntax::get_current_block().add<return_statement>(elide(function_invoker<return_t, params_t>::invoke(fn, _parameters), _type_return));
     }

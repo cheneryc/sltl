@@ -28,6 +28,6 @@ namespace sltl
   template<typename T1, typename T2>
   bool is_type(T2* t)
   {
-    return (dynamic_cast<T1*>(const_cast<std::remove_const<T2>::type*>(t)) != nullptr);
+    return (dynamic_cast<T1*>(const_cast<typename std::remove_const<T2>::type*>(t)) != nullptr);
   }
 }

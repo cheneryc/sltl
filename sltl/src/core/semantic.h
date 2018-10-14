@@ -3,6 +3,8 @@
 #include <utility>
 #include <exception>
 
+#include <cstdlib>
+
 
 namespace sltl
 {

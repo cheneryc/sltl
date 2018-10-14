@@ -3,7 +3,7 @@
 #include "action.h"
 #include "temporary.h"
 
-#include "../language.h"
+#include <language.h>
 
 #include <cassert>
 

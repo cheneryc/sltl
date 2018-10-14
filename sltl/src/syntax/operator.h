@@ -4,7 +4,7 @@
 #include "expression.h"
 #include "parentheses.h"
 
-#include "../language.h"
+#include <language.h>
 
 
 namespace sltl

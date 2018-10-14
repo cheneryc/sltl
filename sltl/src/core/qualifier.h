@@ -9,7 +9,7 @@ namespace core
 {
   enum class qualifier_storage
   {
-    default,
+    none,
     in,
     out,
     uniform

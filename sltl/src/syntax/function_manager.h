@@ -2,8 +2,8 @@
 
 #include "function_definition.h"
 
-#include "detail/function_traits.h"
-#include "detail/scoped_singleton.h"
+#include <detail/function_traits.h>
+#include <detail/scoped_singleton.h>
 
 #include <map>
 

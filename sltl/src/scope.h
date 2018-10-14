@@ -7,19 +7,13 @@
 
 namespace sltl
 {
-  // Forward declarations - sltl::syntax namespace
-  namespace syntax
-  {
-    class block;
-  }
-
   class scope : public element
   {
   public:
     scope();
 
     template<typename S>
-    scope(S& s) : _b(s.add<syntax::block>(syntax::block::local))
+    scope(S& s) : _b(s.template add<syntax::block>(syntax::block::local))
     {
       _b.push();
     }

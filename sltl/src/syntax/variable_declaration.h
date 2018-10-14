@@ -3,10 +3,10 @@
 #include "expression.h"
 #include "declaration_statement.h"
 
-#include "../language.h"
+#include <language.h>
 
-#include "../core/semantic.h"
-#include "../core/qualifier.h"
+#include <core/semantic.h>
+#include <core/qualifier.h>
 
 
 namespace sltl

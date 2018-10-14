@@ -3,7 +3,7 @@
 #include "node.h"
 #include "list.h"
 
-#include "../language.h"
+#include <language.h>
 
 #include <memory>
 #include <utility>

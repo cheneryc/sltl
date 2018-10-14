@@ -1,20 +1,19 @@
 #pragma once
 
-#include "syntax/io_block.h"
-#include "syntax/io_block_manager.h"
+#include <syntax/io_block.h>
+#include <syntax/io_block_manager.h>
+#include <syntax/block_guard.h>
 
-#include "syntax/block_guard.h"
-
-#include "core/qualifier.h"
-#include "core/semantic.h"
+#include <core/qualifier.h>
+#include <core/semantic.h>
 
 // These includes are required as variable_system and variable_transform have known
 // types (vector & scalar for system variables and matrix for transform variables)
 //TODO:  as io.h is now dependent on these headers it should no longer be in a separate 'io' folder
-#include "../vector.h"
-#include "../matrix.h"
+#include <vector.h>
+#include <matrix.h>
 
-#include "detail/variadic_algorithm.h"
+#include <detail/variadic_algorithm.h>
 
 #include <map>
 #include <type_traits>
