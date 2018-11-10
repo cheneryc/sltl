@@ -370,6 +370,110 @@ void main()
   ASSERT_EQ(expected, actual);
 }
 
+TEST(call, call_fn_multiple_pointer)
+{
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, io_block_empty) -> void
+  {
+    // Repeated calls to sltl::call with the same function pointer result in a single function definition being generated
+    sltl::call(fn_empty_returns_void);
+    sltl::call(fn_empty_returns_void);
+  };
+
+  // This test uses make_shader as make_test doesn't output function definitions
+  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring expected = LR"(
+void fn1()
+{
+}
+void main()
+{
+  fn1();
+  fn1();
+}
+)";
+
+  ASSERT_EQ(expected, actual);
+}
+
+TEST(call, call_fn_multiple_lambda)
+{
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, io_block_empty) -> void
+  {
+    auto fn = []{};
+
+    // Repeated calls to sltl::call with a non equality comparable callable type (e.g. lambda) result in multiple function definitions being generated
+    sltl::call(fn);
+    sltl::call(fn);
+  };
+
+  // This test uses make_shader as make_test doesn't output function definitions
+  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring expected = LR"(
+void fn1()
+{
+}
+void fn2()
+{
+}
+void main()
+{
+  fn1();
+  fn2();
+}
+)";
+
+  ASSERT_EQ(expected, actual);
+}
+
+TEST(call, call_fn_multiple_functor)
+{
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, io_block_empty) -> void
+  {
+    struct fn_type
+    {
+      void operator()() const
+      {
+      }
+
+      bool operator==(const fn_type& other) const
+      {
+        return value == other.value;
+      }
+
+      int value;
+    };
+
+    fn_type fn1 = { 1 };
+    fn_type fn2 = { 2 };
+    fn_type fn3 = { 1 };
+
+    // Repeated calls to sltl::call with an equality comparable callable type (e.g. functor) only
+    // result in new function definitions being generated when the equality operator returns false
+    sltl::call(fn1);
+    sltl::call(fn2);
+    sltl::call(fn3);
+  };
+
+  // This test uses make_shader as make_test doesn't output function definitions
+  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring expected = LR"(
+void fn1()
+{
+}
+void fn2()
+{
+}
+void main()
+{
+  fn1();
+  fn2();
+  fn1();
+}
+)";
+
+  ASSERT_EQ(expected, actual);
+}
+
 TEST(call, call_fn_arg_wrong_type)
 {
   sltl::syntax::block blk(sltl::syntax::block::global);

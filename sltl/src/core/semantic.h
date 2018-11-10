@@ -84,6 +84,9 @@ namespace core
     static const semantic_pair none;
   };
 
+  template<semantic S, semantic_index_t N>
+  struct semantic_fail : std::false_type {};
+
   namespace detail
   {
     constexpr auto to_underlying_value(semantic_system s) -> std::underlying_type<semantic_system>::type

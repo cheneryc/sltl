@@ -237,6 +237,9 @@
     <ClInclude Include="src\basic_operators.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\detail\detect.h">
+      <Filter>Header Files\detail</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\scope.cpp">

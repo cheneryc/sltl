@@ -19,7 +19,7 @@ namespace syntax
       matrix
     };
 
-    static const language::type_dimension_t _idx_default = std::numeric_limits<language::type_dimension_t>::max();
+    static constexpr language::type_dimension_t _idx_default = std::numeric_limits<language::type_dimension_t>::max();
 
     virtual language::type get_type(const language::type& type_operand) const = 0;
 

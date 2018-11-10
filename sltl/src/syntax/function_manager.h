@@ -2,10 +2,11 @@
 
 #include "function_definition.h"
 
+#include <detail/comparison.h>
 #include <detail/function_traits.h>
 #include <detail/scoped_singleton.h>
 
-#include <map>
+#include <unordered_map>
 
 
 namespace
@@ -22,6 +23,100 @@ namespace sltl
 {
 namespace syntax
 {
+  class function_key
+  {
+  public:
+    struct hash
+    {
+      size_t operator()(const function_key& fn_key) const
+      {
+        return fn_key.m_impl->hash_code();
+      }
+    };
+
+    template<typename Fn>
+    function_key(Fn fn) : m_impl(std::make_unique<impl<Fn>>(fn)) {}
+
+    friend bool operator==(const function_key& lhs, const function_key& rhs)
+    {
+      return lhs.m_impl->is_equal(*(rhs.m_impl));
+    }
+
+  private:
+    struct impl_base
+    {
+      impl_base(size_t fn_hash) : m_fn_hash(fn_hash)
+      {
+      }
+
+      virtual bool is_equal(const impl_base& other) const = 0;
+
+      size_t hash_code() const
+      {
+        return m_fn_hash;
+      }
+
+      const size_t m_fn_hash;
+    };
+
+    template<typename Fn, bool = detail::is_equality_comparable<Fn>::value>
+    struct impl : impl_base
+    {
+      impl(Fn fn) : impl_base({}), m_fn(fn) {}
+
+      bool is_equal(const impl_base&) const override
+      {
+        return false; // Callable type is not equality comparable
+      }
+
+      Fn m_fn;
+    };
+
+    // Partial specialization for equality comparable callable types
+    template<typename Fn>
+    struct impl<Fn, true> : impl_base
+    {
+      impl(Fn fn) : impl_base({}), m_fn(fn) {}
+
+      bool is_equal(const impl_base& other) const override
+      {
+        if(auto* other_cast = dynamic_cast<const impl<Fn>*>(&other))
+        {
+          return other_cast->m_fn == m_fn; // Call the equality operator on the callable type
+        }
+        else
+        {
+          return false;
+        }
+      }
+
+      Fn m_fn;
+    };
+
+    // Partial specialization for function pointers
+    template<typename R, typename ...P>
+    struct impl<R(*)(P...), true> : impl_base
+    {
+      impl(R(*fn)(P...)) : impl_base(reinterpret_cast<std::intptr_t>(fn)), m_fn(fn) {}
+
+      bool is_equal(const impl_base& other) const override
+      {
+        if(auto* other_cast = dynamic_cast<const impl<R(*)(P...)>*>(&other))
+        {
+          return other_cast->m_fn == m_fn; // Compare the function pointers
+        }
+        else
+        {
+          return false;
+        }
+      }
+
+      R(*m_fn)(P...);
+    };
+
+    std::unique_ptr<impl_base> m_impl;
+  };
+
   class function_manager
   {
   public:
@@ -52,7 +147,7 @@ namespace syntax
     }
 
   private:
-    std::map<void*, function_definition::ptr> _function_map;
+    std::unordered_map<function_key, function_definition::ptr, function_key::hash> _function_map;
   };
 
   typedef detail::scoped_singleton<function_manager, detail::scope_t::thread> function_manager_guard;

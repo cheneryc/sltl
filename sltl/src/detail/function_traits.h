@@ -52,10 +52,10 @@ namespace detail
     static const size_t param_count = sizeof...(P);
   };
 
-  template<typename T, template<typename> class Op, typename = std::void_t<>>
-  struct detect : std::false_type {};
-
-  template<typename T, template<typename> class Op>
-  struct detect<T, Op, std::void_t<Op<T>>> : std::true_type {};
+  template<typename Fn, size_t N>
+  constexpr bool is_function_param_index()
+  {
+    return N < function_traits<Fn>::param_count;
+  }
 }
 }

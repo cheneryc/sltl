@@ -22,22 +22,22 @@ namespace sltl
   public:
     operator proxy_out_t() const &
     {
-      return permuted_t::make_proxy<syntax::operator_component_access>(proxy_in_t(_p).move(), make_accessor());
+      return permuted_t::template make_proxy<syntax::operator_component_access>(proxy_in_t(_p).move(), make_accessor());
     }
 
     operator proxy_out_t() const &&
     {
-      return permuted_t::make_proxy<syntax::operator_component_access>(proxy_in_t(std::move(_p)).move(), make_accessor());
+      return permuted_t::template make_proxy<syntax::operator_component_access>(proxy_in_t(std::move(_p)).move(), make_accessor());
     }
 
     proxy_out_t operator=(proxy_out_t&& p) &
     {
-      return permuted_t::make_proxy<syntax::operator_binary>(language::id_assignment, syntax::expression::make<syntax::operator_component_access>(proxy_in_t(_p).move(), make_accessor()), p.move());
+      return permuted_t::template make_proxy<syntax::operator_binary>(language::id_assignment, syntax::expression::make<syntax::operator_component_access>(proxy_in_t(_p).move(), make_accessor()), p.move());
     }
 
     proxy_out_t operator=(proxy_out_t&& p) &&
     {
-      return permuted_t::make_proxy<syntax::operator_binary>(language::id_assignment, syntax::expression::make<syntax::operator_component_access>(proxy_in_t(std::move(_p)).move(), make_accessor()), p.move());
+      return permuted_t::template make_proxy<syntax::operator_binary>(language::id_assignment, syntax::expression::make<syntax::operator_component_access>(proxy_in_t(std::move(_p)).move(), make_accessor()), p.move());
     }
 
     proxy_out_t operator=(permutation&& p)
@@ -77,22 +77,22 @@ namespace sltl
   public:
     operator proxy_out_t() const &
     {
-      return permuted_t::make_proxy<syntax::operator_component_access>(proxy_in_t(_p).move(), make_accessor());
+      return permuted_t::template make_proxy<syntax::operator_component_access>(proxy_in_t(_p).move(), make_accessor());
     }
 
     operator proxy_out_t() const &&
     {
-      return permuted_t::make_proxy<syntax::operator_component_access>(proxy_in_t(std::move(_p)).move(), make_accessor());
+      return permuted_t::template make_proxy<syntax::operator_component_access>(proxy_in_t(std::move(_p)).move(), make_accessor());
     }
 
     proxy_out_t operator=(proxy_out_t&& p) &
     {
-      return permuted_t::make_proxy<syntax::operator_binary>(language::id_assignment, syntax::expression::make<syntax::operator_component_access>(proxy_in_t(_p).move(), make_accessor()), p.move());
+      return permuted_t::template make_proxy<syntax::operator_binary>(language::id_assignment, syntax::expression::make<syntax::operator_component_access>(proxy_in_t(_p).move(), make_accessor()), p.move());
     }
 
     proxy_out_t operator=(proxy_out_t&& p) &&
     {
-      return permuted_t::make_proxy<syntax::operator_binary>(language::id_assignment, syntax::expression::make<syntax::operator_component_access>(proxy_in_t(std::move(_p)).move(), make_accessor()), p.move());
+      return permuted_t::template make_proxy<syntax::operator_binary>(language::id_assignment, syntax::expression::make<syntax::operator_component_access>(proxy_in_t(std::move(_p)).move(), make_accessor()), p.move());
     }
 
     proxy_out_t operator=(permutation&& p)

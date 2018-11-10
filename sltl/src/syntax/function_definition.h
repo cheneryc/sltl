@@ -72,14 +72,14 @@ namespace syntax
 
     // Parameter declarations have been created - calls the function object by constructing temporary argument instances (void return type)
     template<typename Fn, typename ...P, typename ...D>
-    static void invoke_void_impl(tag<detail::function_traits<Fn>::param_count>, Fn fn, parameter_list&, D&& ...decls)
+    static auto invoke_void_impl(tag<detail::function_traits<Fn>::param_count>, Fn fn, parameter_list&, D&& ...decls) -> void
     {
       fn(P(std::forward<D>(decls))...);
     }
 
     // Recursive function that creates a parameter_declaration for the function's nth parameter (void return type)
     template<typename Fn, typename ...P, typename ...D, size_t N>
-    static void invoke_void_impl(tag<N>, Fn fn, parameter_list& parameters, D&& ...decls)
+    static auto invoke_void_impl(tag<N>, Fn fn, parameter_list& parameters, D&& ...decls) -> typename std::enable_if<detail::is_function_param_index<Fn, N>(), void>::type
     {
       typedef typename detail::get<N, P...>::type param_t;
 
@@ -93,14 +93,14 @@ namespace syntax
 
     // Parameter declarations have been created - calls the function object by constructing temporary argument instances
     template<typename Fn, typename R, typename ...P, typename ...D>
-    static expression::ptr invoke_impl(tag<detail::function_traits<Fn>::param_count>, Fn fn, parameter_list&, D&& ...decls)
+    static auto invoke_impl(tag<detail::function_traits<Fn>::param_count>, Fn fn, parameter_list&, D&& ...decls) -> expression::ptr
     {
-      return R::proxy(fn(P(std::forward<D>(decls))...)).move();
+      return typename R::proxy(fn(P(std::forward<D>(decls))...)).move();
     }
 
     // Recursive function that creates a parameter_declaration for the function's nth parameter
     template<typename Fn, typename R, typename ...P, typename ...D, size_t N>
-    static expression::ptr invoke_impl(tag<N>, Fn fn, parameter_list& parameters, D&& ...decls)
+    static auto invoke_impl(tag<N>, Fn fn, parameter_list& parameters, D&& ...decls) -> typename std::enable_if<detail::is_function_param_index<Fn, N>(), expression::ptr>::type
     {
       typedef typename detail::get<N, P...>::type param_t;
 

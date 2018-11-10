@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "vector.h"
+#include "basic_operators.h"
 #include "shader.h"
 #include "output.h"
 
@@ -54,7 +55,6 @@ TEST(vector, constructor)
     vec3 unpack2(1.0f, v2);
     vec3 unpack3(vec2(1.0f, 1.0f), 1.0f);
     vec3 unpack4(v2, 1.0f);
-
     vec4 unpack5(1.0f, vec3(1.0f, 1.0f, 1.0f));
     vec4 unpack6(vec2(1.0f, 1.0f), vec2(1.0f, 1.0f));
     vec4 unpack7(v2, vec2(1.0f, 1.0f));

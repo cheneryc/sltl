@@ -24,4 +24,4 @@ set(INC src)
 
 add_library(lib_sltl_lib ${SRC})
 
-target_include_directories(lib_sltl_lib PRIVATE ${INC})
+target_include_directories(lib_sltl_lib PUBLIC ${INC})

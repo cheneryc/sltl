@@ -6,6 +6,8 @@ namespace
   namespace ns = sltl::syntax;
 }
 
+constexpr sltl::language::type_dimension_t ns::component_accessor::_idx_default;
+
 ns::component_accessor::ptr ns::component_accessor::make_impl(tag<mode::scalar>, sltl::language::type_dimension_t count)
 {
   return std::unique_ptr<component_accessor_scalar>(new component_accessor_scalar(count));

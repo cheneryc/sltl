@@ -8,6 +8,7 @@
 
 #include "core/shader_stage.h"
 
+#include "detail/detect.h"
 #include "detail/function_traits.h"
 #include "detail/conditional_traits.h"
 
@@ -120,8 +121,8 @@ namespace sltl
   {
     auto fn_wrap = [fn]()
     {
-      fn(detail::function_traits<Fn>::param<0>::type(),
-         detail::function_traits<Fn>::param<1>::type(core::qualifier_storage::in));
+      fn(typename detail::function_traits<Fn>::template param<0>::type(),
+         typename detail::function_traits<Fn>::template param<1>::type(core::qualifier_storage::in));
     };
 
     // Infer the type of shader to be created from the shader type tag parameter.

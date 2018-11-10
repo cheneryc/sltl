@@ -22,6 +22,66 @@ namespace sltl
 
     // Use sltl::element_wise to perform other element-wise arithmetic on matrix and vector operands
 
+    // Addition operators
+
+    // scalar + scalar
+    template<typename T>
+    auto as_proxy_add(expression::expression<scalar, T>&& lhs, expression::expression<scalar, T>&& rhs) -> expression::expression<scalar, T>
+    {
+      return expression::expression<scalar, T>(syntax::expression::make<syntax::operator_binary>(language::id_addition, lhs.move(), rhs.move()));
+    }
+
+    // scalar += scalar
+    template<typename T>
+    auto as_proxy_assignment_add(expression::expression<scalar, T>&& lhs, expression::expression<scalar, T>&& rhs) -> expression::expression<scalar, T>
+    {
+      return expression::expression<scalar, T>(syntax::expression::make<syntax::operator_binary>(language::id_assignment_addition, lhs.move(), rhs.move()));
+    }
+
+    // vector + vector
+    template<typename T, size_t D>
+    auto as_proxy_add(expression::expression<vector, T, D>&& lhs, expression::expression<vector, T, D>&& rhs) -> expression::expression<vector, T, D>
+    {
+      return expression::expression<vector, T, D>(syntax::expression::make<syntax::operator_binary>(language::id_addition, lhs.move(), rhs.move()));
+    }
+
+    // vector += vector
+    template<typename T, size_t D>
+    auto as_proxy_assignment_add(expression::expression<vector, T, D>&& lhs, expression::expression<vector, T, D>&& rhs) -> expression::expression<vector, T, D>
+    {
+      return expression::expression<vector, T, D>(syntax::expression::make<syntax::operator_binary>(language::id_assignment_addition, lhs.move(), rhs.move()));
+    }
+
+    // Subtraction operators
+
+    // scalar - scalar
+    template<typename T>
+    auto as_proxy_sub(expression::expression<scalar, T>&& lhs, expression::expression<scalar, T>&& rhs) -> expression::expression<scalar, T>
+    {
+      return expression::expression<scalar, T>(syntax::expression::make<syntax::operator_binary>(language::id_subtraction, lhs.move(), rhs.move()));
+    }
+
+    // scalar -= scalar
+    template<typename T>
+    auto as_proxy_assignment_sub(expression::expression<scalar, T>&& lhs, expression::expression<scalar, T>&& rhs) -> expression::expression<scalar, T>
+    {
+      return expression::expression<scalar, T>(syntax::expression::make<syntax::operator_binary>(language::id_assignment_subtraction, lhs.move(), rhs.move()));
+    }
+
+    // vector - vector
+    template<typename T, size_t D>
+    auto as_proxy_sub(expression::expression<vector, T, D>&& lhs, expression::expression<vector, T, D>&& rhs) -> expression::expression<vector, T, D>
+    {
+      return expression::expression<vector, T, D>(syntax::expression::make<syntax::operator_binary>(language::id_subtraction, lhs.move(), rhs.move()));
+    }
+
+    // vector -= vector
+    template<typename T, size_t D>
+    auto as_proxy_assignment_sub(expression::expression<vector, T, D>&& lhs, expression::expression<vector, T, D>&& rhs) -> expression::expression<vector, T, D>
+    {
+      return expression::expression<vector, T, D>(syntax::expression::make<syntax::operator_binary>(language::id_assignment_subtraction, lhs.move(), rhs.move()));
+    }
+
     // Multiplication operators
 
     // scalar * scalar
@@ -118,6 +178,44 @@ namespace sltl
     {
       return expression::expression<matrix, T, M, N>(syntax::expression::make<syntax::operator_binary>(language::id_matrix_scalar_division, lhs.move(), rhs.move()));
     }
+  }
+
+  template<typename T1, typename T2>
+  auto operator+(T1&& lhs, T2&& rhs) -> decltype(detail::as_proxy_add(expression::as_expression(std::forward<T1>(lhs)), expression::as_expression(std::forward<T2>(rhs))))
+  {
+    auto lhs_proxy = expression::as_expression(std::forward<T1>(lhs));
+    auto rhs_proxy = expression::as_expression(std::forward<T2>(rhs));
+
+    return detail::as_proxy_add(std::move(lhs_proxy), std::move(rhs_proxy));
+  }
+
+  // lhs operand is an l-value reference to match the behaviour of the += operator for fundamental arithmetic types
+  template<typename T1, typename T2>
+  auto operator+=(T1& lhs, T2&& rhs) -> decltype(detail::as_proxy_assignment_add(expression::as_expression(lhs), expression::as_expression(std::forward<T2>(rhs))))
+  {
+    auto lhs_proxy = expression::as_expression(lhs);
+    auto rhs_proxy = expression::as_expression(std::forward<T2>(rhs));
+
+    return detail::as_proxy_assignment_add(std::move(lhs_proxy), std::move(rhs_proxy));
+  }
+
+  template<typename T1, typename T2>
+  auto operator-(T1&& lhs, T2&& rhs) -> decltype(detail::as_proxy_sub(expression::as_expression(std::forward<T1>(lhs)), expression::as_expression(std::forward<T2>(rhs))))
+  {
+    auto lhs_proxy = expression::as_expression(std::forward<T1>(lhs));
+    auto rhs_proxy = expression::as_expression(std::forward<T2>(rhs));
+
+    return detail::as_proxy_sub(std::move(lhs_proxy), std::move(rhs_proxy));
+  }
+
+  // lhs operand is an l-value reference to match the behaviour of the -= operator for fundamental arithmetic types
+  template<typename T1, typename T2>
+  auto operator-=(T1& lhs, T2&& rhs) -> decltype(detail::as_proxy_assignment_sub(expression::as_expression(lhs), expression::as_expression(std::forward<T2>(rhs))))
+  {
+    auto lhs_proxy = expression::as_expression(lhs);
+    auto rhs_proxy = expression::as_expression(std::forward<T2>(rhs));
+
+    return detail::as_proxy_assignment_sub(std::move(lhs_proxy), std::move(rhs_proxy));
   }
 
   template<typename T1, typename T2>

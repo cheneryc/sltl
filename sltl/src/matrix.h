@@ -24,7 +24,7 @@ namespace sltl
     typedef basic<sltl::matrix, T, M, N> super_t;
 
   public:
-    typedef super_t::proxy proxy;
+    typedef typename super_t::proxy proxy;
 
     matrix(proxy&& p) : super_t(p.move()) {}
     matrix(core::semantic_pair semantic = core::semantic_pair::none) : super_t(semantic) {}
@@ -34,14 +34,14 @@ namespace sltl
 
     explicit matrix(syntax::parameter_declaration* pd) : super_t(pd) {}
 
-    // The T2 argument stops this conflicting with the default constructor
+    // The TArg argument stops this conflicting with the default constructor
     // The disable_if is necessary to stop conflicts with the copy constructor. Ensuring is_empty is false is a good enough requirement as sltl doesn't allow 1x1 matrices
-    template<typename T2, typename ...A, detail::disable_if<detail::is_empty<A...>> = detail::default_tag>
-    explicit matrix(T2&& t, A&&... a) : matrix(proxy(syntax::expression::make<syntax::constructor_call>(language::type_helper<matrix>(), unpack<elements>(std::forward<T2>(t), std::forward<A>(a)...)))) {}
+    template<typename TArg, typename ...A, detail::disable_if<detail::is_empty<A...>> = detail::default_tag>
+    explicit matrix(TArg&& t, A&&... a) : matrix(proxy(syntax::expression::make<syntax::constructor_call>(language::type_helper<matrix>(), unpack<elements>(std::forward<TArg>(t), std::forward<A>(a)...)))) {}
 
     proxy operator=(proxy&& p)
     {
-      return super_t::make_proxy<syntax::operator_binary>(language::id_assignment, make_reference(), p.move());
+      return super_t::template make_proxy<syntax::operator_binary>(language::id_assignment, variable::make_reference(), p.move());
     }
 
     proxy operator=(matrix&& m)
@@ -57,35 +57,35 @@ namespace sltl
     //TODO: add a static const variable (or static function call) for getting the identity matrix?
 
   private:
-    template<int N, typename ...A>
+    template<int NArgs, typename ...A>
     syntax::expression_list unpack(typename scalar<T>::proxy&& p, A&&... a)
     {
-      return syntax::expression_list(p.move(), unpack<N - 1>(std::forward<A>(a)...));
+      return syntax::expression_list(p.move(), unpack<NArgs - 1>(std::forward<A>(a)...));
     }
 
-    template<int N, typename ...A>
+    template<int NArgs, typename ...A>
     syntax::expression_list unpack(typename vector<T, 2>::proxy&& p, A&&... a)
     {
-      return syntax::expression_list(p.move(), unpack<N - 2>(std::forward<A>(a)...));
+      return syntax::expression_list(p.move(), unpack<NArgs - 2>(std::forward<A>(a)...));
     }
 
-    template<int N, typename ...A>
+    template<int NArgs, typename ...A>
     syntax::expression_list unpack(typename vector<T, 3>::proxy&& p, A&&... a)
     {
-      return syntax::expression_list(p.move(), unpack<N - 3>(std::forward<A>(a)...));
+      return syntax::expression_list(p.move(), unpack<NArgs - 3>(std::forward<A>(a)...));
     }
 
-    template<int N, typename ...A>
+    template<int NArgs, typename ...A>
     syntax::expression_list unpack(typename vector<T, 4>::proxy&& p, A&&... a)
     {
-      return syntax::expression_list(p.move(), unpack<N - 4>(std::forward<A>(a)...));
+      return syntax::expression_list(p.move(), unpack<NArgs - 4>(std::forward<A>(a)...));
     }
 
-    template<int N>
+    template<int NArgs>
     syntax::expression_list unpack()
     {
-      static_assert(!(N > 0), "sltl::matrix: too few components provided as arguments");
-      static_assert(!(N < 0), "sltl::matrix: too many components provided as arguments");
+      static_assert(!(NArgs > 0), "sltl::matrix: too few components provided as arguments");
+      static_assert(!(NArgs < 0), "sltl::matrix: too many components provided as arguments");
 
       return syntax::expression_list();
     }

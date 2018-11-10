@@ -13,13 +13,16 @@ namespace sltl
   class permutation_group<P, T, D, 0>
   {
   protected:
-    typedef typename P<T, D> permutable_t;
+    typedef P<T, D> permutable_t;
   };
 
   // Partial specialization for 1D permutations
   template<template<typename, size_t> class P, typename T, size_t D>
   class permutation_group<P, T, D, 1> : public permutation_group<P, T, D, 0>
   {
+  protected:
+    using typename permutation_group<P, T, D, 0>::permutable_t;
+
   public:
     permutation_group(permutable_t& p) : permutation_group<P, T, D, 0>(), x(p) {}
 
@@ -36,6 +39,9 @@ namespace sltl
   template<template<typename, size_t> class P, typename T, size_t D>
   class permutation_group<P, T, D, 2> : public permutation_group<P, T, D, 1>
   {
+  protected:
+    using typename permutation_group<P, T, D, 1>::permutable_t;
+
   public:
     permutation_group(permutable_t& p) : permutation_group<P, T, D, 1>(p), y(p) {}
 
@@ -74,6 +80,9 @@ namespace sltl
   template<template<typename, size_t> class P, typename T, size_t D>
   class permutation_group<P, T, D, 3> : public permutation_group<P, T, D, 2>
   {
+  protected:
+    using typename permutation_group<P, T, D, 2>::permutable_t;
+
   public:
     permutation_group(permutable_t& p) : permutation_group<P, T, D, 2>(p), z(p) {}
 
@@ -176,6 +185,9 @@ namespace sltl
   template<template<typename, size_t> class P, typename T, size_t D>
   class permutation_group<P, T, D, 4> : public permutation_group<P, T, D, 3>
   {
+  protected:
+    using typename permutation_group<P, T, D, 3>::permutable_t;
+
   public:
     permutation_group(permutable_t& p) : permutation_group<P, T, D, 3>(p), w(p) {}
 
