@@ -2,6 +2,9 @@
 
 #include "syntax/function_call.h"
 #include "syntax/function_definition.h"
+#include "syntax/function_manager.h"
+
+#include "expression/expression.h"
 
 #include "detail/function_traits.h"
 

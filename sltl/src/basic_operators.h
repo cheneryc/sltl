@@ -6,9 +6,78 @@
 
 #include "syntax/operator.h"
 
+#include "detail/conditional_traits.h"
+
 
 namespace sltl
 {
+  // Unary Operators
+
+  namespace detail
+  {
+    // ++scalar, ++vector, ++matrix
+    template<template<typename, size_t...> class V, typename T, size_t ...D>
+    auto as_proxy_inc_pre(expression::expression<V, T, D...>&& exp) -> expression::expression<V, T, D...>
+    {
+      static_assert(detail::negate<std::is_same<T, bool>>::value, "sltl::basic: prefix increment and decrement operators are not valid if template parameter T is type bool");
+
+      return expression::expression<V, T, D...>(syntax::expression::make<syntax::operator_unary>(language::id_increment_pre, exp.move()));
+    }
+
+    // --scalar, --vector, --matrix
+    template<template<typename, size_t...> class V, typename T, size_t ...D>
+    auto as_proxy_dec_pre(expression::expression<V, T, D...>&& exp) -> expression::expression<V, T, D...>
+    {
+      static_assert(detail::negate<std::is_same<T, bool>>::value, "sltl::basic: prefix increment and decrement operators are not valid if template parameter T is type bool");
+
+      return expression::expression<V, T, D...>(syntax::expression::make<syntax::operator_unary>(language::id_decrement_pre, exp.move()));
+    }
+
+    // scalar++, vector++, matrix++
+    template<template<typename, size_t...> class V, typename T, size_t ...D>
+    auto as_proxy_inc_post(expression::expression<V, T, D...>&& exp) -> expression::expression<V, T, D...>
+    {
+      static_assert(detail::negate<std::is_same<T, bool>>::value, "sltl::basic: postfix increment and decrement operators are not valid if template parameter T is type bool");
+
+      return expression::expression<V, T, D...>(syntax::expression::make<syntax::operator_unary>(language::id_increment_post, exp.move()));
+    }
+
+    // scalar--, vector--, matrix--
+    template<template<typename, size_t...> class V, typename T, size_t ...D>
+    auto as_proxy_dec_post(expression::expression<V, T, D...>&& exp) -> expression::expression<V, T, D...>
+    {
+      static_assert(detail::negate<std::is_same<T, bool>>::value, "sltl::basic: postfix increment and decrement operators are not valid if template parameter T is type bool");
+
+      return expression::expression<V, T, D...>(syntax::expression::make<syntax::operator_unary>(language::id_decrement_post, exp.move()));
+    }
+  }
+
+  template<typename T>
+  auto operator++(T&& t) -> decltype(detail::as_proxy_inc_pre(expression::as_expression(std::forward<T>(t))))
+  {
+    return detail::as_proxy_inc_pre(expression::as_expression(std::forward<T>(t)));
+  }
+
+  template<typename T>
+  auto operator--(T&& t) -> decltype(detail::as_proxy_dec_pre(expression::as_expression(std::forward<T>(t))))
+  {
+    return detail::as_proxy_dec_pre(expression::as_expression(std::forward<T>(t)));
+  }
+
+  template<typename T>
+  auto operator++(T&& t, int) -> decltype(detail::as_proxy_inc_post(expression::as_expression(std::forward<T>(t))))
+  {
+    return detail::as_proxy_inc_post(expression::as_expression(std::forward<T>(t)));
+  }
+
+  template<typename T>
+  auto operator--(T&& t, int) -> decltype(detail::as_proxy_dec_post(expression::as_expression(std::forward<T>(t))))
+  {
+    return detail::as_proxy_dec_post(expression::as_expression(std::forward<T>(t)));
+  }
+
+  // Binary Operators
+
   namespace detail
   {
     // Arithmetic operator behaviour - '+', '-', '*', '/' ('@' denotes all operators)

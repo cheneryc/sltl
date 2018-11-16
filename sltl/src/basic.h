@@ -3,14 +3,9 @@
 #include "traits.h"
 #include "variable.h"
 
-#include "syntax/operator.h"
-
 #include "expression/expression.h"
 
 #include "core/semantic.h"
-#include "core/qualifier.h"
-
-#include "detail/conditional_traits.h"
 
 
 namespace sltl
@@ -26,36 +21,6 @@ namespace sltl
     // Non-copyable and non-assignable
     basic(const basic&) = delete;
     basic& operator=(const basic&) = delete;
-
-    // unary operator overloads
-
-    friend proxy operator++(proxy&& p)
-    {
-      static_assert(detail::negate<std::is_same<T, bool>>::value, "sltl::basic: prefix increment and decrement operators are not valid if template parameter T is type bool");
-
-      return make_proxy<syntax::operator_unary>(language::id_increment_pre, p.move());
-    }
-
-    friend proxy operator--(proxy&& p)
-    {
-      static_assert(detail::negate<std::is_same<T, bool>>::value, "sltl::basic: prefix increment and decrement operators are not valid if template parameter T is type bool");
-
-      return make_proxy<syntax::operator_unary>(language::id_decrement_pre, p.move());
-    }
-
-    friend proxy operator++(proxy&& p, int)
-    {
-      static_assert(detail::negate<std::is_same<T, bool>>::value, "sltl::basic: postfix increment and decrement operators are not valid if template parameter T is type bool");
-
-      return make_proxy<syntax::operator_unary>(language::id_increment_post, p.move());
-    }
-
-    friend proxy operator--(proxy&& p, int)
-    {
-      static_assert(detail::negate<std::is_same<T, bool>>::value, "sltl::basic: postfix increment and decrement operators are not valid if template parameter T is type bool");
-
-      return make_proxy<syntax::operator_unary>(language::id_decrement_post, p.move());
-    }
 
     // helper functions
 

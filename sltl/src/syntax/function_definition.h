@@ -2,6 +2,7 @@
 
 #include "node.h"
 #include "block.h"
+#include "block_guard.h"
 #include "block_manager.h"
 #include "elide.h"
 #include "action.h"

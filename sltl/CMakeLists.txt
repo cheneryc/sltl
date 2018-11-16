@@ -22,6 +22,6 @@ set(SRC src/element.cpp
 
 set(INC src)
 
-add_library(lib_sltl_lib ${SRC})
+add_library(sltl_lib ${SRC})
 
-target_include_directories(lib_sltl_lib PUBLIC ${INC})
+target_include_directories(sltl_lib PUBLIC ${INC})
