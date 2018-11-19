@@ -399,7 +399,8 @@ TEST(call, call_fn_multiple_lambda)
 {
   auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, io_block_empty) -> void
   {
-    auto fn = []{};
+    // non-empty capture list is necessary to avoid conversion of the lambda to a function pointer
+    auto fn = [value = int()]{};
 
     // Repeated calls to sltl::call with a non equality comparable callable type (e.g. lambda) result in multiple function definitions being generated
     sltl::call(fn);
