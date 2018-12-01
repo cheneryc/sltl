@@ -2,8 +2,8 @@
 
 #include "expression.h"
 
-#include "../traits.h"
-#include "../language.h"
+#include <traits.h>
+#include <language.h>
 
 
 namespace sltl

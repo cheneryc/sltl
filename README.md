@@ -15,7 +15,7 @@ __Advantages:__
 
 ## Getting Started
 
-To build SLTL open the Visual Studio solution file located at the root of the repository. Visual Studio 2015 is currently the only supported development environment.
+To build SLTL either open the Visual Studio solution file located at the root of the repository or use CMake. SLTL has been successfully built, with all unit tests passing, using Visual Studio 2015 and GCC (tested with version 7.3.0) compilers. Visual Studio 2017 is not supported due to a compiler bug (overloading function templates with various enumeration types).
 
 ### Prerequisites
 

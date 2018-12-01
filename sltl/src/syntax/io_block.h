@@ -2,7 +2,7 @@
 
 #include "block_base.h"
 
-#include "../detail/pass_key.h"
+#include <detail/pass_key.h>
 
 
 namespace sltl

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "action.h"
+
 #include <vector>
 #include <algorithm>
 
@@ -10,10 +12,6 @@ namespace sltl
 {
 namespace syntax
 {
-  // Forward declarations - sltl::syntax namespace
-  class action;
-  class const_action;
-
   class node
   {
   public:
@@ -67,7 +65,7 @@ namespace syntax
 
     if(act_result == action_return_t::step_in)
     {
-      is_continuing = std::all_of(it_begin, it_end, [&act](std::iterator_traits<I>::reference child){ return child->apply_action(act); });
+      is_continuing = std::all_of(it_begin, it_end, [&act](typename std::iterator_traits<I>::reference child){ return child->apply_action(act); });
     }
 
     auto fn = [&act](T& t)

@@ -1,5 +1,9 @@
 #pragma once
 
+#include "detect.h"
+
+#include <utility>
+
 
 namespace sltl
 {
@@ -10,5 +14,11 @@ namespace detail
   {
     return t1_lhs < t1_rhs || t1_lhs == t1_rhs && t2_lhs < t2_rhs;
   }
+
+  template<typename T>
+  using is_equality_comparable_op = decltype(std::declval<T>() == std::declval<T>());
+
+  template<typename T>
+  using is_equality_comparable = detect<T, is_equality_comparable_op>;
 }
 }

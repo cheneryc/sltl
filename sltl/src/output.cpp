@@ -62,7 +62,7 @@ namespace
 
   bool is_variable_omitted(const ns::syntax::variable_declaration& vd, ns::output::layout_manager& layout_manager)
   {
-    if(vd._qualifier != ns::core::qualifier_storage::default)
+    if(vd._qualifier != ns::core::qualifier_storage::none)
     {
       bool is_omitted = false;
 
@@ -327,6 +327,8 @@ namespace
   {
     std::wstring value;
 
+    typedef unsigned int uint_t;
+
     switch(type.get_id())
     {
       case ns::language::id_float:
@@ -339,7 +341,7 @@ namespace
         value = to_string(int());
         break;
       case ns::language::id_uint:
-        value = to_string(unsigned int());
+        value = to_string(uint_t());
         break;
       case ns::language::id_bool:
         value = to_string(bool());
@@ -687,7 +689,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_compon
     } fn;
 
     _ss << L'.';
-    _ss << syntax::component_accessor::visit(*oca._accessor, fn);
+    _ss << syntax::visit(*oca._accessor, fn);
 
     return_val = syntax::action_return_t::step_out;
   }

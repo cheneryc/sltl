@@ -10,7 +10,7 @@ namespace detail
   template<typename ...A>
   inline void pass(A&&...) {}
 
-  template<typename ...A2>
+  template<typename ...A>
   struct variadic_guard
   {
   };

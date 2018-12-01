@@ -14,32 +14,38 @@
 namespace sltl
 {
   template<typename T, size_t D>
-  class vector : public basic<sltl::vector, T, D>, public permutation_group<sltl::vector, T, D>
+  class vector : public basic<sltl::vector, T, D>, public permutation_group<sltl::vector, sltl::scalar, T, D>
   {
     static_assert((D >=2) && (D <= 4), "sltl::vector: template parameter D is only valid for values of 2, 3 and 4");
 
     typedef basic<sltl::vector, T, D> super_t;
 
   public:
-    typedef super_t::proxy proxy;
+    typedef typename super_t::proxy proxy;
 
-    vector(proxy&& p) : super_t(p.move()), permutation_group<sltl::vector, T, D>(*this) {}
-    vector(core::semantic_pair semantic = core::semantic_pair::none) : super_t(semantic), permutation_group<sltl::vector, T, D>(*this) {}
+    vector(proxy&& p) : super_t(p.move()), permutation_group<sltl::vector, sltl::scalar, T, D>(*this) {}
+    vector(core::semantic_pair semantic = core::semantic_pair::none) : super_t(semantic), permutation_group<sltl::vector, sltl::scalar, T, D>(*this) {}
 
     vector(vector&& v) : vector(proxy(std::move(v))) {}
     vector(const vector& v) : vector(proxy(v)) {}
 
-    explicit vector(syntax::parameter_declaration* pd) : super_t(pd), permutation_group<sltl::vector, T, D>(*this) {}
+    explicit vector(syntax::parameter_declaration* pd) : super_t(pd), permutation_group<sltl::vector, sltl::scalar, T, D>(*this) {}
 
-    // The T2 argument stops this conflicting with the default constructor
+    // The TArg argument stops this conflicting with the default constructor
     // The disable_if is necessary to stop conflicts with the copy constructor. Ensuring is_empty is false is a good enough requirement as sltl doesn't allow 1D vectors
-    template<typename T2, typename ...A, detail::disable_if<detail::is_empty<A...>> = detail::default_tag>
-    explicit vector(T2&& t, A&&... a) : vector(proxy(syntax::expression::make<syntax::constructor_call>(language::type_helper<vector>(), unpack<D>(std::forward<T2>(t), std::forward<A>(a)...)))) {}
+    template<typename TArg, typename ...A, detail::disable_if<detail::is_empty<A...>> = detail::default_tag>
+    explicit vector(TArg&& t, A&&... a) : vector(proxy(syntax::expression::make<syntax::constructor_call>(language::type_helper<vector>(), unpack<D>(std::forward<TArg>(t), std::forward<A>(a)...)))) {}
+
+    template<size_t DP, size_t ...Args, detail::enable_if<std::integral_constant<bool, D == sizeof...(Args)>> = detail::default_tag>
+    vector(permutation<sltl::vector, sltl::scalar, T, DP, Args...>&& p) : vector(std::move(p).operator proxy()) {}
+
+    template<size_t DP, size_t ...Args, detail::enable_if<std::integral_constant<bool, D == sizeof...(Args)>> = detail::default_tag>
+    vector(const permutation<sltl::vector, sltl::scalar, T, DP, Args...>& p) : vector(p.operator proxy()) {}
 
     proxy operator=(proxy&& p)
     {
       //TODO: this could be called on an r-value? Should use make_reference_or_temporary instead?
-      return super_t::make_proxy<syntax::operator_binary>(language::id_assignment, make_reference(), p.move());
+      return super_t::template make_proxy<syntax::operator_binary>(language::id_assignment, variable::make_reference(), p.move());
     }
 
     proxy operator=(vector&& v)
@@ -50,6 +56,18 @@ namespace sltl
     proxy operator=(const vector& v)
     {
       return this->operator=(proxy(v));
+    }
+
+    template<size_t DP, size_t ...Args>
+    auto operator=(permutation<sltl::vector, sltl::scalar, T, DP, Args...>&& p) -> typename std::enable_if<D == sizeof...(Args), proxy>::type
+    {
+      return this->operator=(std::move(p).operator proxy());
+    }
+
+    template<size_t DP, size_t ...Args>
+    auto operator=(const permutation<sltl::vector, sltl::scalar, T, DP, Args...>& p) -> typename std::enable_if<D == sizeof...(Args), proxy>::type
+    {
+      return this->operator=(p.operator proxy());
     }
 
   private:

@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "scalar.h"
+#include "basic_operators.h"
 #include "shader.h"
 #include "output.h"
 #include "scope.h"

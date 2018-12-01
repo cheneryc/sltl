@@ -2,9 +2,9 @@
 
 #include "parameter_declaration.h"
 
-#include "../language.h"
+#include <language.h>
 
-#include "../core/intrinsic.h"
+#include <core/intrinsic.h>
 
 
 namespace sltl

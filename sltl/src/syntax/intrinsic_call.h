@@ -4,9 +4,9 @@
 #include "intrinsic_declaration.h"
 #include "intrinsic_manager.h"
 
-#include "../language.h"
+#include <language.h>
 
-#include "../core/intrinsic.h"
+#include <core/intrinsic.h>
 
 
 namespace sltl

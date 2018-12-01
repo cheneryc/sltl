@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../language.h"
+#include <language.h>
 
 #include <string>
 

@@ -4,7 +4,7 @@
 #include "action.h"
 #include "component_accessor.h"
 
-#include "../language.h"
+#include <language.h>
 
 
 namespace sltl

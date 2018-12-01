@@ -1,20 +1,19 @@
 #pragma once
 
-#include "syntax/io_block.h"
-#include "syntax/io_block_manager.h"
+#include <syntax/io_block.h>
+#include <syntax/io_block_manager.h>
+#include <syntax/block_guard.h>
 
-#include "syntax/block_guard.h"
-
-#include "core/qualifier.h"
-#include "core/semantic.h"
+#include <core/qualifier.h>
+#include <core/semantic.h>
 
 // These includes are required as variable_system and variable_transform have known
 // types (vector & scalar for system variables and matrix for transform variables)
 //TODO:  as io.h is now dependent on these headers it should no longer be in a separate 'io' folder
-#include "../vector.h"
-#include "../matrix.h"
+#include <vector.h>
+#include <matrix.h>
 
-#include "detail/variadic_algorithm.h"
+#include <detail/variadic_algorithm.h>
 
 #include <map>
 #include <type_traits>
@@ -212,6 +211,28 @@ namespace io
     block& operator=(block&&) = delete;
     block& operator=(const block&) = delete;
 
+    // The io::block::get_impl overloads must be declared before io::block::get
+    // as its return type is deduced from that of io::block::get_impl
+  private:
+    template<core::semantic S, core::semantic_index_t N, typename V, typename ...A2>
+    auto get_impl() const -> typename std::enable_if< detail::is_variable_match<V, S, N>(), typename V::type::proxy>::type
+    {
+      return typename V::type::proxy(_variable_map.at(V::create_key()).template get<typename V::type>());
+    }
+
+    template<core::semantic S, core::semantic_index_t N, typename V, typename ...A2>
+    auto get_impl() const -> typename std::enable_if<!detail::is_variable_match<V, S, N>(), decltype(get_impl<S, N, A2...>())>::type
+    {
+      return get_impl<S, N, A2...>();
+    }
+
+    template<core::semantic S, core::semantic_index_t N>
+    auto get_impl() const -> detail::variable_none_t
+    {
+      static_assert(core::semantic_fail<S, N>::value, "sltl::io::block::get: the specified semantic and/or index is not valid for this io::block");
+    }
+
+  public:
     template<typename T>
     auto get() const -> typename std::enable_if<detail::is_variable<T>::value, typename T::type::proxy>::type
     {
@@ -237,24 +258,6 @@ namespace io
     }
 
   private:
-    template<core::semantic S, core::semantic_index_t N, typename V, typename ...A2>
-    auto get_impl() const -> typename std::enable_if< detail::is_variable_match<V, S, N>(), typename V::type::proxy>::type
-    {
-      return V::type::proxy(_variable_map.at(V::create_key()).get<V::type>());
-    }
-
-    template<core::semantic S, core::semantic_index_t N, typename V, typename ...A2>
-    auto get_impl() const -> typename std::enable_if<!detail::is_variable_match<V, S, N>(), decltype(get_impl<S, N, A2...>())>::type
-    {
-      return get_impl<S, N, A2...>();
-    }
-
-    template<core::semantic S, core::semantic_index_t N>
-    auto get_impl() const -> detail::variable_none_t
-    {
-      static_assert(false, "sltl::io::block::get: the specified semantic and/or index is not valid for this io::block");
-    }
-
     void init()
     {
       // Default construct each io variable's (i.e. the template parameters) type. This
@@ -275,7 +278,7 @@ namespace io
     template<typename T>
     auto init_type() -> typename std::enable_if<T::_semantic == core::semantic::none>::type
     {
-      T::type t;
+      typename T::type t;
     }
 
     template<typename T>
@@ -283,7 +286,7 @@ namespace io
     {
       // Throw an exception if the insertion failed as this means the
       // block has more than one variable bound to the same semantic.
-      if(!_variable_map.emplace(T::create_key(), variable_wrapper::make<T::type>(T::create_semantic_pair())).second)
+      if(!_variable_map.emplace(T::create_key(), variable_wrapper::make<typename T::type>(T::create_semantic_pair())).second)
       {
         throw std::exception();//TODO: exception type and message
       }

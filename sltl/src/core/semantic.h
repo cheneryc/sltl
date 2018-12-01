@@ -3,6 +3,8 @@
 #include <utility>
 #include <exception>
 
+#include <cstdlib>
+
 
 namespace sltl
 {
@@ -81,6 +83,9 @@ namespace core
 
     static const semantic_pair none;
   };
+
+  template<semantic S, semantic_index_t N>
+  struct semantic_fail : std::false_type {};
 
   namespace detail
   {

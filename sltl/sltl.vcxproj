@@ -20,6 +20,7 @@
     <ClInclude Include="src\core\shader_stage.h" />
     <ClInclude Include="src\detail\comparison.h" />
     <ClInclude Include="src\detail\conditional_traits.h" />
+    <ClInclude Include="src\detail\detect.h" />
     <ClInclude Include="src\detail\enum_flags.h" />
     <ClInclude Include="src\detail\function_traits.h" />
     <ClInclude Include="src\detail\numeric.h" />
@@ -138,6 +139,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/Zo %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -154,6 +156,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/Zo %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

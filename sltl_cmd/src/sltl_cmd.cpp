@@ -143,7 +143,7 @@ namespace
     // Geometric Shadowing function
     scalar<float> G_SchlickSmithGGX(scalar<float> dot_NL, scalar<float> dot_NV, scalar<float> material_roughness)
     {
-      scalar<float> r = (material_roughness + 1.0);
+      scalar<float> r = (material_roughness + 1.0f);
       scalar<float> k = (r * r) / 8.0f;
       scalar<float> GL = dot_NL / (dot_NL * (1.0f - k) + k);
       scalar<float> GV = dot_NV / (dot_NV * (1.0f - k) + k);
@@ -207,7 +207,7 @@ namespace
       //TODO: need sltl::for_each and sltl::array support to match the source pbr shader correctly
       for (auto& light : lights)
       {
-        vec3 L = sltl::normalize(light.move() - in.get<semantic::position>());
+        vec3 L = sltl::normalize(std::move(light) - in.get<semantic::position>());
 
         vec3::proxy          material_colour    = uniform.get<semantic::material, 0>();
         scalar<float>::proxy material_metallic  = uniform.get<semantic::material, 1>();

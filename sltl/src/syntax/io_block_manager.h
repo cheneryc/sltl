@@ -2,8 +2,9 @@
 
 #include "statement.h"
 
-#include "../core./qualifier.h"
-#include "../detail/scoped_singleton.h"
+#include <core/qualifier.h>
+
+#include <detail/scoped_singleton.h>
 
 #include <tuple>
 

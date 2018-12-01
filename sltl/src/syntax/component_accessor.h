@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../language.h"
+#include <language.h>
 
 
 namespace sltl
@@ -19,26 +19,7 @@ namespace syntax
       matrix
     };
 
-    static const language::type_dimension_t _idx_default = std::numeric_limits<language::type_dimension_t>::max();
-
-    template<typename Fn>
-    static decltype(auto) visit(const component_accessor& accessor, Fn fn)
-    {
-      switch(accessor._mode)
-      {
-        case mode::scalar:
-          return fn(static_cast<const component_accessor_scalar&>(accessor));
-          break;
-        case mode::vector:
-          return fn(static_cast<const component_accessor_vector&>(accessor));
-          break;
-        case mode::matrix:
-          return fn(static_cast<const component_accessor_matrix&>(accessor));
-          break;
-        default:
-          throw std::exception();//TODO: exception type and message
-      }
-    }
+    static constexpr language::type_dimension_t _idx_default = std::numeric_limits<language::type_dimension_t>::max();
 
     virtual language::type get_type(const language::type& type_operand) const = 0;
 
@@ -159,5 +140,21 @@ namespace syntax
       assert((idx_m != _idx_default) || (idx_n != _idx_default));
     }
   };
+
+  template<typename Fn>
+  decltype(auto) visit(const component_accessor& accessor, Fn fn)
+  {
+    switch(accessor._mode)
+    {
+      case component_accessor::mode::scalar:
+        return fn(static_cast<const component_accessor_scalar&>(accessor));
+      case component_accessor::mode::vector:
+        return fn(static_cast<const component_accessor_vector&>(accessor));
+      case component_accessor::mode::matrix:
+        return fn(static_cast<const component_accessor_matrix&>(accessor));
+      default:
+        throw std::exception();//TODO: exception type and message
+    }
+  }
 }
 }

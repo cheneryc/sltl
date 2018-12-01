@@ -2,7 +2,7 @@
 
 #include "intrinsic_declaration.h"
 
-#include "../detail/scoped_singleton.h"
+#include <detail/scoped_singleton.h>
 
 #include <map>
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../detail/pass_key.h"
-#include "../detail/scoped_singleton.h"
+#include <detail/pass_key.h>
+#include <detail/scoped_singleton.h>
 
 #include <stack>
 #include <functional>

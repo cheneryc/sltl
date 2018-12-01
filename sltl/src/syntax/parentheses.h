@@ -3,7 +3,7 @@
 #include "action.h"
 #include "expression.h"
 
-#include "../language.h"
+#include <language.h>
 
 
 namespace sltl

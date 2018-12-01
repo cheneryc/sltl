@@ -2,7 +2,8 @@
 
 #include "action.h"
 #include "statement.h"
-#include "../language.h"
+
+#include <language.h>
 
 #include <cassert>
 

@@ -12,7 +12,7 @@ namespace
 ns::variable_declaration::variable_declaration(std::wstring&& name, ns::expression::ptr&& initializer) : declaration_statement(std::move(name)),
   _semantic(core::semantic_pair::none._semantic),
   _semantic_index(core::semantic_pair::none._index),
-  _qualifier(core::qualifier_storage::default),
+  _qualifier(core::qualifier_storage::none),
   _type(),
   _initializer(std::move(initializer))
 {

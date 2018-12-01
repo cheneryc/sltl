@@ -6,9 +6,78 @@
 
 #include "syntax/operator.h"
 
+#include "detail/conditional_traits.h"
+
 
 namespace sltl
 {
+  // Unary Operators
+
+  namespace detail
+  {
+    // ++scalar, ++vector, ++matrix
+    template<template<typename, size_t...> class V, typename T, size_t ...D>
+    auto as_proxy_inc_pre(expression::expression<V, T, D...>&& exp) -> expression::expression<V, T, D...>
+    {
+      static_assert(detail::negate<std::is_same<T, bool>>::value, "sltl::basic: prefix increment and decrement operators are not valid if template parameter T is type bool");
+
+      return expression::expression<V, T, D...>(syntax::expression::make<syntax::operator_unary>(language::id_increment_pre, exp.move()));
+    }
+
+    // --scalar, --vector, --matrix
+    template<template<typename, size_t...> class V, typename T, size_t ...D>
+    auto as_proxy_dec_pre(expression::expression<V, T, D...>&& exp) -> expression::expression<V, T, D...>
+    {
+      static_assert(detail::negate<std::is_same<T, bool>>::value, "sltl::basic: prefix increment and decrement operators are not valid if template parameter T is type bool");
+
+      return expression::expression<V, T, D...>(syntax::expression::make<syntax::operator_unary>(language::id_decrement_pre, exp.move()));
+    }
+
+    // scalar++, vector++, matrix++
+    template<template<typename, size_t...> class V, typename T, size_t ...D>
+    auto as_proxy_inc_post(expression::expression<V, T, D...>&& exp) -> expression::expression<V, T, D...>
+    {
+      static_assert(detail::negate<std::is_same<T, bool>>::value, "sltl::basic: postfix increment and decrement operators are not valid if template parameter T is type bool");
+
+      return expression::expression<V, T, D...>(syntax::expression::make<syntax::operator_unary>(language::id_increment_post, exp.move()));
+    }
+
+    // scalar--, vector--, matrix--
+    template<template<typename, size_t...> class V, typename T, size_t ...D>
+    auto as_proxy_dec_post(expression::expression<V, T, D...>&& exp) -> expression::expression<V, T, D...>
+    {
+      static_assert(detail::negate<std::is_same<T, bool>>::value, "sltl::basic: postfix increment and decrement operators are not valid if template parameter T is type bool");
+
+      return expression::expression<V, T, D...>(syntax::expression::make<syntax::operator_unary>(language::id_decrement_post, exp.move()));
+    }
+  }
+
+  template<typename T>
+  auto operator++(T&& t) -> decltype(detail::as_proxy_inc_pre(expression::as_expression(std::forward<T>(t))))
+  {
+    return detail::as_proxy_inc_pre(expression::as_expression(std::forward<T>(t)));
+  }
+
+  template<typename T>
+  auto operator--(T&& t) -> decltype(detail::as_proxy_dec_pre(expression::as_expression(std::forward<T>(t))))
+  {
+    return detail::as_proxy_dec_pre(expression::as_expression(std::forward<T>(t)));
+  }
+
+  template<typename T>
+  auto operator++(T&& t, int) -> decltype(detail::as_proxy_inc_post(expression::as_expression(std::forward<T>(t))))
+  {
+    return detail::as_proxy_inc_post(expression::as_expression(std::forward<T>(t)));
+  }
+
+  template<typename T>
+  auto operator--(T&& t, int) -> decltype(detail::as_proxy_dec_post(expression::as_expression(std::forward<T>(t))))
+  {
+    return detail::as_proxy_dec_post(expression::as_expression(std::forward<T>(t)));
+  }
+
+  // Binary Operators
+
   namespace detail
   {
     // Arithmetic operator behaviour - '+', '-', '*', '/' ('@' denotes all operators)
@@ -21,6 +90,66 @@ namespace sltl
     // matrix * matrix -> linear algebraic multiply between a matrices, yielding a matrix with lhs matrix rows and rhs matrix columns (lhs matrix columns and rhs matrix rows must be equal)
 
     // Use sltl::element_wise to perform other element-wise arithmetic on matrix and vector operands
+
+    // Addition operators
+
+    // scalar + scalar
+    template<typename T>
+    auto as_proxy_add(expression::expression<scalar, T>&& lhs, expression::expression<scalar, T>&& rhs) -> expression::expression<scalar, T>
+    {
+      return expression::expression<scalar, T>(syntax::expression::make<syntax::operator_binary>(language::id_addition, lhs.move(), rhs.move()));
+    }
+
+    // scalar += scalar
+    template<typename T>
+    auto as_proxy_assignment_add(expression::expression<scalar, T>&& lhs, expression::expression<scalar, T>&& rhs) -> expression::expression<scalar, T>
+    {
+      return expression::expression<scalar, T>(syntax::expression::make<syntax::operator_binary>(language::id_assignment_addition, lhs.move(), rhs.move()));
+    }
+
+    // vector + vector
+    template<typename T, size_t D>
+    auto as_proxy_add(expression::expression<vector, T, D>&& lhs, expression::expression<vector, T, D>&& rhs) -> expression::expression<vector, T, D>
+    {
+      return expression::expression<vector, T, D>(syntax::expression::make<syntax::operator_binary>(language::id_addition, lhs.move(), rhs.move()));
+    }
+
+    // vector += vector
+    template<typename T, size_t D>
+    auto as_proxy_assignment_add(expression::expression<vector, T, D>&& lhs, expression::expression<vector, T, D>&& rhs) -> expression::expression<vector, T, D>
+    {
+      return expression::expression<vector, T, D>(syntax::expression::make<syntax::operator_binary>(language::id_assignment_addition, lhs.move(), rhs.move()));
+    }
+
+    // Subtraction operators
+
+    // scalar - scalar
+    template<typename T>
+    auto as_proxy_sub(expression::expression<scalar, T>&& lhs, expression::expression<scalar, T>&& rhs) -> expression::expression<scalar, T>
+    {
+      return expression::expression<scalar, T>(syntax::expression::make<syntax::operator_binary>(language::id_subtraction, lhs.move(), rhs.move()));
+    }
+
+    // scalar -= scalar
+    template<typename T>
+    auto as_proxy_assignment_sub(expression::expression<scalar, T>&& lhs, expression::expression<scalar, T>&& rhs) -> expression::expression<scalar, T>
+    {
+      return expression::expression<scalar, T>(syntax::expression::make<syntax::operator_binary>(language::id_assignment_subtraction, lhs.move(), rhs.move()));
+    }
+
+    // vector - vector
+    template<typename T, size_t D>
+    auto as_proxy_sub(expression::expression<vector, T, D>&& lhs, expression::expression<vector, T, D>&& rhs) -> expression::expression<vector, T, D>
+    {
+      return expression::expression<vector, T, D>(syntax::expression::make<syntax::operator_binary>(language::id_subtraction, lhs.move(), rhs.move()));
+    }
+
+    // vector -= vector
+    template<typename T, size_t D>
+    auto as_proxy_assignment_sub(expression::expression<vector, T, D>&& lhs, expression::expression<vector, T, D>&& rhs) -> expression::expression<vector, T, D>
+    {
+      return expression::expression<vector, T, D>(syntax::expression::make<syntax::operator_binary>(language::id_assignment_subtraction, lhs.move(), rhs.move()));
+    }
 
     // Multiplication operators
 
@@ -118,6 +247,44 @@ namespace sltl
     {
       return expression::expression<matrix, T, M, N>(syntax::expression::make<syntax::operator_binary>(language::id_matrix_scalar_division, lhs.move(), rhs.move()));
     }
+  }
+
+  template<typename T1, typename T2>
+  auto operator+(T1&& lhs, T2&& rhs) -> decltype(detail::as_proxy_add(expression::as_expression(std::forward<T1>(lhs)), expression::as_expression(std::forward<T2>(rhs))))
+  {
+    auto lhs_proxy = expression::as_expression(std::forward<T1>(lhs));
+    auto rhs_proxy = expression::as_expression(std::forward<T2>(rhs));
+
+    return detail::as_proxy_add(std::move(lhs_proxy), std::move(rhs_proxy));
+  }
+
+  // lhs operand is an l-value reference to match the behaviour of the += operator for fundamental arithmetic types
+  template<typename T1, typename T2>
+  auto operator+=(T1& lhs, T2&& rhs) -> decltype(detail::as_proxy_assignment_add(expression::as_expression(lhs), expression::as_expression(std::forward<T2>(rhs))))
+  {
+    auto lhs_proxy = expression::as_expression(lhs);
+    auto rhs_proxy = expression::as_expression(std::forward<T2>(rhs));
+
+    return detail::as_proxy_assignment_add(std::move(lhs_proxy), std::move(rhs_proxy));
+  }
+
+  template<typename T1, typename T2>
+  auto operator-(T1&& lhs, T2&& rhs) -> decltype(detail::as_proxy_sub(expression::as_expression(std::forward<T1>(lhs)), expression::as_expression(std::forward<T2>(rhs))))
+  {
+    auto lhs_proxy = expression::as_expression(std::forward<T1>(lhs));
+    auto rhs_proxy = expression::as_expression(std::forward<T2>(rhs));
+
+    return detail::as_proxy_sub(std::move(lhs_proxy), std::move(rhs_proxy));
+  }
+
+  // lhs operand is an l-value reference to match the behaviour of the -= operator for fundamental arithmetic types
+  template<typename T1, typename T2>
+  auto operator-=(T1& lhs, T2&& rhs) -> decltype(detail::as_proxy_assignment_sub(expression::as_expression(lhs), expression::as_expression(std::forward<T2>(rhs))))
+  {
+    auto lhs_proxy = expression::as_expression(lhs);
+    auto rhs_proxy = expression::as_expression(std::forward<T2>(rhs));
+
+    return detail::as_proxy_assignment_sub(std::move(lhs_proxy), std::move(rhs_proxy));
   }
 
   template<typename T1, typename T2>

@@ -5,7 +5,7 @@
 #include "action.h"
 #include "declaration.h"
 
-#include "../language.h"
+#include <language.h>
 
 #include <memory>
 #include <algorithm>

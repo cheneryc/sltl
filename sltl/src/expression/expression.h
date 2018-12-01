@@ -1,9 +1,11 @@
 #pragma once
 
-#include "../syntax/literal.h"
-#include "../syntax/expression.h"
-#include "../syntax/expression_statement.h"
-#include "../syntax/operator.h"
+#include <syntax/block.h>
+#include <syntax/block_manager.h>
+#include <syntax/literal.h>
+#include <syntax/expression.h>
+#include <syntax/expression_statement.h>
+#include <syntax/operator.h>
 
 #include <cassert>
 
