@@ -11,6 +11,8 @@
 #include "core/qualifier.h"
 #include "core/shader_stage.h"
 
+#include "context.h"
+
 #include <iostream>
 
 
@@ -224,6 +226,15 @@ namespace
   }
 }
 
+#include <locale>
+
+std::string to_string(std::wstring shader_txt)
+{
+  //TODO: should be converting to utf8, not mbcs
+  std::wstring_convert<std::codecvt<wchar_t, char, mbstate_t>> conv1;
+  return conv1.to_bytes(shader_txt);
+}
+
 int main()
 {
   auto shader_vs = sltl::make_shader(&vs::pbr_vs);
@@ -237,6 +248,18 @@ int main()
   std::wcout << L"--- Fragment Shader ---" << L"\n\n";;
   std::wstring shader_fs_txt = shader_fs.apply_action<sltl::output>();
   std::wcout << shader_fs_txt.c_str() << std::endl;
+
+  try
+  {
+    sltl::api::context context;
+    sltl::api::shader gl_vs(to_string(shader_vs_txt).c_str(), sltl::api::shader_stage::vertex);
+    sltl::api::shader gl_fs(to_string(shader_fs_txt).c_str(), sltl::api::shader_stage::fragment);
+    sltl::api::shader_program gl_shader_program(gl_vs, gl_fs);
+  }
+  catch(const std::exception& ex)
+  {
+    std::cout << "Shader Compile Failed: " << ex.what() << std::endl;
+  }
 
   return 0;
 }
