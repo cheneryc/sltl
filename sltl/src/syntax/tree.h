@@ -49,7 +49,6 @@ namespace syntax
   protected:
     tree() = default;
 
-    //TODO: the order of the collection is very important. Maybe assign functions a generation (0, 1, 2 etc.) and use a set instead of a vector?
     std::vector<function_definition::ptr> _functions;
 
     statement::ptr _io_block_in;
@@ -69,10 +68,10 @@ namespace syntax
 
     void move(state& s)
     {
-      s._manager_function->move(_functions);
-      s._manager_intrinsic->move(_intrinsics);
+      _functions = s._manager_function->transfer();
+      _intrinsics = s._manager_intrinsic->transfer();
 
-      std::tie(_io_block_in, _io_block_out, _io_block_uniform) = s._manager_io_block->move();
+      std::tie(_io_block_in, _io_block_out, _io_block_uniform) = s._manager_io_block->transfer();
     }
   };
 
@@ -82,7 +81,12 @@ namespace syntax
     template<typename Fn>
     tree_shader(Fn fn)
     {
-      _functions.emplace_back(std::make_unique<function_definition>(fn, L"main", language::type_helper<void>()));
+      const function_definition& fn_def = syntax::function_manager_guard()->emplace(fn, L"main");
+
+      if(fn_def.get_type() != language::type_helper<void>())
+      {
+        throw std::exception();//TODO: exception type and message
+      }
     }
 
     virtual bool apply_action(action& act) override
@@ -121,8 +125,7 @@ namespace syntax
         return id->apply_action(act);
       });
 
-      // Traverse in reverse order so the main function is processed last
-      is_continuing = is_continuing && std::all_of(type._functions.rbegin(), type._functions.rend(), [&act](const function_definition::ptr& fd)
+      is_continuing = is_continuing && std::all_of(type._functions.begin(), type._functions.end(), [&act](const function_definition::ptr& fd)
       {
         return fd->apply_action(act);
       });

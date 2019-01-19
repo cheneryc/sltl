@@ -41,3 +41,19 @@ void main()
 
   ASSERT_EQ(expected, actual);
 }
+
+TEST(shader, non_void_return_type)
+{
+  // Wrap call to sltl::make_shader in a lambda to avoid compilation errors
+  auto fn = []()
+  {
+    auto test_shader = []() -> sltl::scalar<int>
+    {
+      return {};
+    };
+
+    sltl::make_shader<sltl::core::shader_stage::test, sltl::syntax::tree_shader>(test_shader);
+  };
+
+  ASSERT_THROW(fn(), std::exception);
+}

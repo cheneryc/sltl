@@ -23,8 +23,7 @@ namespace syntax
 
     io_block& add(core::qualifier_storage qualifier);
 
-    //TODO: the returned tuple shouldn't be of type rvalue reference?
-    std::tuple<statement::ptr&&, statement::ptr&&, statement::ptr&&> move();
+    std::tuple<statement::ptr, statement::ptr, statement::ptr> transfer();
 
   private:
     statement::ptr& get_io_block_node(core::qualifier_storage qualifier);

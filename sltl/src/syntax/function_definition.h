@@ -25,7 +25,7 @@ namespace syntax
     typedef std::unique_ptr<function_definition> ptr;
 
     template<typename Fn>
-    function_definition(Fn fn, std::wstring&& name, const language::type& type_return) : declaration(std::move(name)), _type_return(type_return), _function_body(block::global)
+    function_definition(Fn fn, std::wstring&& name, const language::type& type_return) : declaration(std::move(name)), _type_return(type_return), _function_body(block::global), _depth(), _depth_id()
     {
       block_guard(_function_body, [this, &fn](){ call_fn(fn); });
     }
@@ -48,6 +48,26 @@ namespace syntax
     virtual language::type get_type() const override
     {
       return _type_return;
+    }
+
+    void set_depth(size_t depth)
+    {
+      _depth = depth;
+    }
+
+    size_t get_depth() const
+    {
+      return _depth;
+    }
+
+    void set_depth_id(size_t depth_id)
+    {
+      _depth_id = depth_id;
+    }
+
+    size_t get_depth_id() const
+    {
+      return _depth_id;
     }
 
     const parameter_list& get_params() const
@@ -155,6 +175,9 @@ namespace syntax
     parameter_list _parameters;
 
     block _function_body;
+
+    size_t _depth;
+    size_t _depth_id;
   };
 }
 }

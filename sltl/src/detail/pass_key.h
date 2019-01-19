@@ -3,15 +3,15 @@
 
 namespace sltl
 {
-  namespace detail
+namespace detail
+{
+  template<typename T>
+  class pass_key
   {
-    template<typename T>
-    class pass_key
-    {
-      friend T;
+    friend T;
 
-      pass_key() {}
-      pass_key(const pass_key&) {}
-    };
-  }
+    pass_key() {}
+    pass_key(const pass_key&) {}
+  };
+}
 }

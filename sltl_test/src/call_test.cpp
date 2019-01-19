@@ -410,10 +410,10 @@ TEST(call, call_fn_multiple_lambda)
   // This test uses make_shader as make_test doesn't output function definitions
   const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
   const std::wstring expected = LR"(
-void fn1()
+void fn2()
 {
 }
-void fn2()
+void fn1()
 {
 }
 void main()
@@ -434,6 +434,7 @@ TEST(call, call_fn_multiple_functor)
     {
       void operator()() const
       {
+        sltl::scalar<int> i = value;
       }
 
       bool operator==(const fn_type& other) const
@@ -458,11 +459,13 @@ TEST(call, call_fn_multiple_functor)
   // This test uses make_shader as make_test doesn't output function definitions
   const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
   const std::wstring expected = LR"(
-void fn1()
-{
-}
 void fn2()
 {
+  int i1 = 2;
+}
+void fn1()
+{
+  int i1 = 1;
 }
 void main()
 {
@@ -498,4 +501,53 @@ TEST(call, call_fn_arg_wrong_number)
   sltl::matrix<float, 3> m2;
 
   ASSERT_THROW(sltl::call(fn_one_param, m1, m2), std::exception); // Pass the wrong number of function arguments
+}
+
+namespace
+{
+  void fn_order_1st(sltl::scalar<int>) // Called second will be assigned 'fn2' as a name
+  {
+  }
+
+  void fn_order_2nd(sltl::scalar<bool>) // Called third will be assigned 'fn3' as a name
+  {
+    sltl::call(fn_order_1st, sltl::scalar<int>(int())); // Call fn_order_1st from a depth '2' function, re-assign it a depth of '3' (was depth '2')
+  };
+
+  void fn_order_3rd(sltl::scalar<float>) // Called first will be assigned 'fn1' as a name
+  {
+    sltl::call(fn_order_1st, sltl::scalar<int>(int()));  // Call fn_order_1st from a depth '1' function, assign it a depth of '2'
+    sltl::call(fn_order_2nd, sltl::scalar<bool>(bool())); // Call fn_order_2nd from a depth '1' function, assign it a depth of '2'
+  };
+}
+
+TEST(call, call_fn_order)
+{
+  auto test_shader = [](sltl::shader::tag<sltl::core::shader_stage::test>, io_block_empty)
+  {
+    sltl::call(fn_order_3rd, sltl::scalar<float>(float())); // Call fn_order_3rd from a depth '0' function, assign it a depth of '1'
+  };
+
+  // This test uses make_shader as make_test doesn't output function definitions
+  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring expected = LR"(
+void fn2(int p_i1)
+{
+}
+void fn3(bool p_b1)
+{
+  fn2(int(0));
+}
+void fn1(float p_f1)
+{
+  fn2(int(0));
+  fn3(bool(false));
+}
+void main()
+{
+  fn1(float(0.0f));
+}
+)";
+
+  ASSERT_EQ(expected, actual);
 }
