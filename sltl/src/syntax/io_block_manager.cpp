@@ -52,7 +52,7 @@ ns::io_block& ns::io_block_manager::add(sltl::core::qualifier_storage qualifier)
   return static_cast<io_block&>(*io_block_node);
 }
 
-std::tuple<ns::statement::ptr&&, ns::statement::ptr&&, ns::statement::ptr&&> ns::io_block_manager::move()
+std::tuple<ns::statement::ptr, ns::statement::ptr, ns::statement::ptr> ns::io_block_manager::transfer()
 {
   return std::forward_as_tuple(std::move(_io_in), std::move(_io_out), std::move(_io_uniform));
 }

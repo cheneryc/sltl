@@ -18,6 +18,7 @@
     <ClInclude Include="src\core\qualifier.h" />
     <ClInclude Include="src\core\semantic.h" />
     <ClInclude Include="src\core\shader_stage.h" />
+    <ClInclude Include="src\detail\algorithm.h" />
     <ClInclude Include="src\detail\comparison.h" />
     <ClInclude Include="src\detail\conditional_traits.h" />
     <ClInclude Include="src\detail\detect.h" />
@@ -25,6 +26,7 @@
     <ClInclude Include="src\detail\function_traits.h" />
     <ClInclude Include="src\detail\numeric.h" />
     <ClInclude Include="src\detail\pass_key.h" />
+    <ClInclude Include="src\detail\reference.h" />
     <ClInclude Include="src\detail\scoped_singleton.h" />
     <ClInclude Include="src\detail\variadic_algorithm.h" />
     <ClInclude Include="src\detail\variadic_traits.h" />
