@@ -1,7 +1,5 @@
 #include "output_introspector.h"
 
-#include "glsl/glsl_convention.h"
-
 #include <syntax/io_block.h>
 #include <syntax/variable_declaration.h>
 
@@ -48,7 +46,7 @@ ns::syntax::action_return_t ns::output_introspector::operator()(const syntax::va
        (vd._semantic == _semantic) &&
        (vd._semantic_index == _semantic_index))
     {
-      _name = glsl::get_variable_name(vd); return_val = ns::syntax::action_return_t::stop;
+      _name = get_variable_name(vd); return_val = ns::syntax::action_return_t::stop;
     }
   }
 

@@ -25,7 +25,8 @@ set(SRC src/element.cpp
         src/output/output_matrix_order.cpp
         src/output/glsl/glsl_convention.cpp
         src/output/glsl/glsl_language.cpp
-        src/output/glsl/output_glsl.cpp)
+        src/output/glsl/output_glsl.cpp
+        src/output/glsl/output_introspector_glsl.cpp)
 
 set(INC src)
 

@@ -8,7 +8,7 @@
 #include "matrix.h"
 
 #include "output/glsl/output_glsl.h"
-#include "output/output_introspector.h"
+#include "output/glsl/output_introspector_glsl.h"
 
 
 namespace
@@ -268,12 +268,12 @@ TEST(io, uniform_introspection)
 
   auto shader = sltl::make_shader(test_shader);
 
-  const std::wstring actual_texcoord0 = shader.apply_action<sltl::output_introspector, false>(sltl::core::qualifier_storage::uniform, sltl::core::semantic_pair(sltl::core::semantic::texcoord, 0));
+  const std::wstring actual_texcoord0 = shader.apply_action<sltl::glsl::output_introspector_glsl, false>(sltl::core::qualifier_storage::uniform, sltl::core::semantic_pair(sltl::core::semantic::texcoord, 0));
   const std::wstring expected_texcoord0 = L"u_v1";
 
   ASSERT_EQ(expected_texcoord0, actual_texcoord0);
 
-  const std::wstring actual_texcoord1 = shader.apply_action<sltl::output_introspector, false>(sltl::core::qualifier_storage::uniform, sltl::core::semantic_pair(sltl::core::semantic::texcoord, 1));
+  const std::wstring actual_texcoord1 = shader.apply_action<sltl::glsl::output_introspector_glsl, false>(sltl::core::qualifier_storage::uniform, sltl::core::semantic_pair(sltl::core::semantic::texcoord, 1));
   const std::wstring expected_texcoord1 = L"u_v2";
 
   ASSERT_EQ(expected_texcoord1, actual_texcoord1);

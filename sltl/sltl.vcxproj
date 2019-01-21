@@ -35,6 +35,7 @@
     <ClInclude Include="src\expression\expression.h" />
     <ClInclude Include="src\if.h" />
     <ClInclude Include="src\io\io.h" />
+    <ClInclude Include="src\output\glsl\output_introspector_glsl.h" />
     <ClInclude Include="src\type.h" />
     <ClInclude Include="src\matrix.h" />
     <ClInclude Include="src\output\glsl\glsl_convention.h" />
@@ -91,6 +92,7 @@
   <ItemGroup>
     <ClCompile Include="src\core\semantic.cpp" />
     <ClCompile Include="src\element.cpp" />
+    <ClCompile Include="src\output\glsl\output_introspector_glsl.cpp" />
     <ClCompile Include="src\type.cpp" />
     <ClCompile Include="src\output\glsl\glsl_convention.cpp" />
     <ClCompile Include="src\output\glsl\glsl_language.cpp" />

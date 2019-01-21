@@ -282,6 +282,9 @@
     <ClInclude Include="src\type.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\output\glsl\output_introspector_glsl.h">
+      <Filter>Header Files\output\glsl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\scope.cpp">
@@ -361,6 +364,9 @@
     </ClCompile>
     <ClCompile Include="src\type.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\glsl\output_introspector_glsl.cpp">
+      <Filter>Source Files\output\glsl</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

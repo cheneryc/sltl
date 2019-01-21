@@ -1,8 +1,6 @@
 #include "output.h"
 
 #include "language.h"
-#include "glsl/glsl_language.h"
-#include "glsl/glsl_convention.h"
 
 #include <syntax/block.h>
 #include <syntax/io_block.h>
