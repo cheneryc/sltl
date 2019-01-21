@@ -3,6 +3,7 @@
 #include "detail/comparison.h"
 
 #include <cassert>
+#include <cstddef>
 
 
 namespace sltl
