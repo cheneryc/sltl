@@ -5,7 +5,7 @@
 #include "shader.h"
 #include "scope.h"
 
-#include "output/output.h"
+#include "output/glsl/output_glsl.h"
 #include "output/output_matrix_order.h"
 
 
@@ -14,7 +14,7 @@ namespace
   std::wstring to_string(const sltl::shader& shader, sltl::detail::enum_flags<sltl::output_flags> flags = sltl::output_flags::flag_none)
   {
     // Prepend a newline character to exactly match the raw string literals
-    return L'\n' + shader.apply_action<sltl::output>(sltl::output_version::none, flags | sltl::output_flags::flag_indent_space);
+    return L'\n' + shader.apply_action<sltl::glsl::output_glsl>(sltl::glsl::output_version::none, flags | sltl::output_flags::flag_indent_space);
   }
 }
 

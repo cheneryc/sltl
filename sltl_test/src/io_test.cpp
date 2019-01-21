@@ -7,7 +7,7 @@
 #include "vector.h"
 #include "matrix.h"
 
-#include "output/output.h"
+#include "output/glsl/output_glsl.h"
 #include "output/output_introspector.h"
 
 
@@ -16,13 +16,13 @@ namespace
   std::wstring to_string(const sltl::shader& shader)
   {
     // Prepend a newline character to exactly match the raw string literals
-    return L'\n' + shader.apply_action<sltl::output>(sltl::output_version::none, sltl::output_flags::flag_indent_space);
+    return L'\n' + shader.apply_action<sltl::glsl::output_glsl>(sltl::glsl::output_version::none, sltl::output_flags::flag_indent_space);
   }
 
-  std::wstring to_string(const sltl::shader& shader, sltl::detail::enum_flags<sltl::output::layout_flags> layout_flags)
+  std::wstring to_string(const sltl::shader& shader, sltl::detail::enum_flags<sltl::glsl::output_glsl::layout_flags> layout_flags)
   {
     // Prepend a newline character to exactly match the raw string literals
-    return L'\n' + shader.apply_action<sltl::output>(sltl::output::layout_manager(layout_flags), sltl::output_version::none, sltl::output_flags::flag_indent_space);
+    return L'\n' + shader.apply_action<sltl::glsl::output_glsl>(sltl::glsl::output_glsl::layout_manager(layout_flags), sltl::glsl::output_version::none, sltl::output_flags::flag_indent_space);
   }
 }
 
@@ -425,8 +425,8 @@ TEST(io, layout_single)
     return io_block_out();
   };
 
-  const auto flags = sltl::output::layout_flags::flag_in |
-                     sltl::output::layout_flags::flag_out;
+  const auto flags = sltl::glsl::output_glsl::layout_flags::flag_in |
+                     sltl::glsl::output_glsl::layout_flags::flag_out;
 
   const std::wstring actual = ::to_string(sltl::make_shader(test_shader), flags);
   const std::wstring expected = LR"(
@@ -459,8 +459,8 @@ TEST(io, layout_many)
     return io_block_out();
   };
 
-  const auto flags = sltl::output::layout_flags::flag_in |
-                     sltl::output::layout_flags::flag_out;
+  const auto flags = sltl::glsl::output_glsl::layout_flags::flag_in |
+                     sltl::glsl::output_glsl::layout_flags::flag_out;
 
   const std::wstring actual = ::to_string(sltl::make_shader(test_shader), flags);
   const std::wstring expected = LR"(
@@ -499,8 +499,8 @@ TEST(io, layout_many_double)
     return io_block_out();
   };
 
-  const auto flags = sltl::output::layout_flags::flag_in |
-                     sltl::output::layout_flags::flag_out;
+  const auto flags = sltl::glsl::output_glsl::layout_flags::flag_in |
+                     sltl::glsl::output_glsl::layout_flags::flag_out;
 
   const std::wstring actual = ::to_string(sltl::make_shader(test_shader), flags);
   const std::wstring expected = LR"(
@@ -535,7 +535,7 @@ TEST(io, layout_matrix)
   {
   };
 
-  const std::wstring actual = ::to_string(sltl::make_shader(test_shader), sltl::output::layout_flags::flag_in);
+  const std::wstring actual = ::to_string(sltl::make_shader(test_shader), sltl::glsl::output_glsl::layout_flags::flag_in);
   const std::wstring expected = LR"(
 layout(location = 0) in mat2x2 i_m1;
 layout(location = 2) in mat3x2 i_m2;
@@ -567,7 +567,7 @@ TEST(io, layout_matrix_double)
   {
   };
 
-  const std::wstring actual = ::to_string(sltl::make_shader(test_shader), sltl::output::layout_flags::flag_in);
+  const std::wstring actual = ::to_string(sltl::make_shader(test_shader), sltl::glsl::output_glsl::layout_flags::flag_in);
   const std::wstring expected = LR"(
 layout(location = 0) in dmat2x2 i_m1;
 layout(location = 2) in dmat3x2 i_m2;

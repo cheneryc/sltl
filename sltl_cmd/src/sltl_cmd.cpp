@@ -5,7 +5,7 @@
 #include "element_wise.h"
 #include "basic_operators.h"
 
-#include "output/output.h"
+#include "output/glsl/output_glsl.h"
 
 #include "io/io.h"
 
@@ -230,13 +230,13 @@ int main()
   auto shader_vs = sltl::make_shader(&vs::pbr_vs);
 
   std::wcout << L"--- Vertex Shader ---" << L"\n\n";
-  std::wstring shader_vs_txt = shader_vs.apply_action<sltl::output>();
+  std::wstring shader_vs_txt = shader_vs.apply_action<sltl::glsl::output_glsl>();
   std::wcout << shader_vs_txt.c_str() << L"\n\n";//TODO: make sltl::newline<2> to replace std::endl
 
   auto shader_fs = sltl::make_shader(&fs::pbr_fs);
 
   std::wcout << L"--- Fragment Shader ---" << L"\n\n";;
-  std::wstring shader_fs_txt = shader_fs.apply_action<sltl::output>();
+  std::wstring shader_fs_txt = shader_fs.apply_action<sltl::glsl::output_glsl>();
   std::wcout << shader_fs_txt.c_str() << std::endl;
 
   return 0;
