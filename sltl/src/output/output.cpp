@@ -1,5 +1,6 @@
 #include "output.h"
 
+#include "language.h"
 #include "glsl/glsl_language.h"
 #include "glsl/glsl_convention.h"
 
@@ -14,10 +15,11 @@
 #include <syntax/constructor_call.h>
 #include <syntax/function_call.h>
 #include <syntax/function_definition.h>
+#include <syntax/parameter_declaration.h>
 #include <syntax/intrinsic_call.h>
 #include <syntax/intrinsic_declaration.h>
 
-#include <language.h>
+#include <type.h>
 #include <traits.h>
 
 #include <detail/numeric.h>
@@ -138,17 +140,6 @@ namespace
     return nullptr;
   }
 
-  std::wstring get_parameter_name(const ns::syntax::parameter_declaration& pd)
-  {
-    std::wstringstream ss(ns::glsl::to_parameter_prefix_string(pd._qualifier), std::ios::in | std::ios::out | std::ios::ate);
-
-    ss << L'_';
-    ss << ns::glsl::to_type_prefix_string(pd.get_type());
-    ss << pd._name;
-
-    return ss.str();
-  }
-
   std::wstring get_zero_initialization(const ns::language::type& type)
   {
     std::wstring value;
@@ -257,7 +248,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::reference& r)
 {
   if (auto vd = dynamic_cast<const ns::syntax::variable_declaration*>(&r._declaration))
   {
-    _ss << glsl::get_variable_name(*vd);
+    _ss << get_variable_name(*vd);
   }
 
   if(auto pd = dynamic_cast<const ns::syntax::parameter_declaration*>(&r._declaration))
@@ -306,7 +297,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_unary&
   {
     if(language::is_prefix_operator(ou._operator_id))
     {
-      _ss << glsl::to_operator_unary_string(ou._operator_id);
+      _ss << to_operator_unary_string(ou._operator_id);
     }
 
     return_val = syntax::action_return_t::step_in;
@@ -315,7 +306,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_unary&
   {
     if(language::is_postfix_operator(ou._operator_id))
     {
-      _ss << glsl::to_operator_unary_string(ou._operator_id);
+      _ss << to_operator_unary_string(ou._operator_id);
     }
 
     return_val = syntax::action_return_t::step_out;
@@ -348,7 +339,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_binary
       else
       {
         _ss << L' ';
-        _ss << glsl::to_operator_binary_string(ob._operator_id);
+        _ss << to_operator_binary_string(ob._operator_id);
         _ss << L' ';
       }
 
@@ -405,7 +396,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_compon
 
         std::for_each(std::begin(access._indices), it_find, [&ss](language::type_dimension_t idx)
         {
-          ss << glsl::to_component_string(idx);
+          ss << to_component_string(idx);
         });
 
         return ss.str();
@@ -446,7 +437,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::conditional& c,
   if(is_start)
   {
     line_begin();
-    _ss << glsl::to_conditional_string(c._id);
+    _ss << to_conditional_string(c._id);
 
     bool is_continuing = true;
 
@@ -601,7 +592,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::return_statemen
   if(is_start)
   {
     line_begin();
-    _ss << glsl::to_keyword_string(language::id_return) << L' ';
+    _ss << to_keyword_string(language::id_return) << L' ';
   }
   else
   {

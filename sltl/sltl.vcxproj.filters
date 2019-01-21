@@ -63,9 +63,6 @@
     <ClInclude Include="src\scalar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\language.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\syntax\block.h">
       <Filter>Header Files\syntax</Filter>
     </ClInclude>
@@ -279,6 +276,12 @@
     <ClInclude Include="src\output\glsl\glsl_convention.h">
       <Filter>Header Files\output\glsl</Filter>
     </ClInclude>
+    <ClInclude Include="src\output\language.h">
+      <Filter>Header Files\output</Filter>
+    </ClInclude>
+    <ClInclude Include="src\type.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\scope.cpp">
@@ -292,9 +295,6 @@
     </ClCompile>
     <ClCompile Include="src\syntax\block_manager.cpp">
       <Filter>Source Files\syntax</Filter>
-    </ClCompile>
-    <ClCompile Include="src\language.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\variable.cpp">
       <Filter>Source Files</Filter>
@@ -355,6 +355,12 @@
     </ClCompile>
     <ClCompile Include="src\syntax\intrinsic_declaration.cpp">
       <Filter>Source Files\syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\language.cpp">
+      <Filter>Source Files\output</Filter>
+    </ClCompile>
+    <ClCompile Include="src\type.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

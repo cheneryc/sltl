@@ -4,8 +4,9 @@
 #include "glsl_convention.h"
 
 #include <syntax/variable_declaration.h>
+#include <syntax/parameter_declaration.h>
 
-#include <language.h>
+#include <type.h>
 
 #include <core/qualifier.h>
 
@@ -195,6 +196,22 @@ sltl::syntax::action_return_t ns::output_glsl::operator()(const sltl::syntax::va
 std::wstring ns::output_glsl::get_type_name(const sltl::language::type& type) const
 {
   return to_type_string(_flags.has_flag<output_flags::flag_transpose_type>() ? type.transpose() : type);
+}
+
+std::wstring ns::output_glsl::get_variable_name(const sltl::syntax::variable_declaration& vd) const
+{
+  return sltl::glsl::get_variable_name(vd);
+}
+
+std::wstring ns::output_glsl::get_parameter_name(const sltl::syntax::parameter_declaration& pd) const
+{
+  std::wstringstream ss(to_parameter_prefix_string(pd._qualifier), std::ios::in | std::ios::out | std::ios::ate);
+
+  ss << L'_';
+  ss << to_type_prefix_string(pd.get_type());
+  ss << pd._name;
+
+  return ss.str();
 }
 
 // output_glsl::layout_map_key definitions

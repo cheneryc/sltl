@@ -10,7 +10,7 @@
 #include "parameter_declaration.h"
 #include "return_statement.h"
 
-#include <language.h>
+#include <type.h>
 
 #include <detail/function_traits.h>
 

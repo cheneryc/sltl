@@ -3,7 +3,7 @@
 #include "block_manager.h"
 #include "action.h"
 
-#include <output/glsl/glsl_language.h> //TODO: should use a language neutral version of to_qualifier_string function
+#include <output/glsl/glsl_language.h> //TODO: should use a language neutral version of the to_qualifier_string function
 
 #include <sstream>
 

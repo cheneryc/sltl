@@ -3,7 +3,7 @@
 #include "action.h"
 #include "statement.h"
 
-#include <language.h>
+#include <type.h>
 
 #include <cassert>
 

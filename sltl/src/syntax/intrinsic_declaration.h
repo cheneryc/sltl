@@ -2,7 +2,7 @@
 
 #include "parameter_declaration.h"
 
-#include <language.h>
+#include <type.h>
 
 #include <core/intrinsic.h>
 

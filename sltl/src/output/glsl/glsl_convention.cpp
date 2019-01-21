@@ -3,7 +3,7 @@
 
 #include <syntax/variable_declaration.h>
 
-#include <language.h>
+#include <type.h>
 
 #include <sstream>
 

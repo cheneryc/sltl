@@ -35,11 +35,12 @@
     <ClInclude Include="src\expression\expression.h" />
     <ClInclude Include="src\if.h" />
     <ClInclude Include="src\io\io.h" />
-    <ClInclude Include="src\language.h" />
+    <ClInclude Include="src\type.h" />
     <ClInclude Include="src\matrix.h" />
     <ClInclude Include="src\output\glsl\glsl_convention.h" />
     <ClInclude Include="src\output\glsl\glsl_language.h" />
     <ClInclude Include="src\output\glsl\output_glsl.h" />
+    <ClInclude Include="src\output\language.h" />
     <ClInclude Include="src\output\output.h" />
     <ClInclude Include="src\output\output_introspector.h" />
     <ClInclude Include="src\output\output_matrix_order.h" />
@@ -90,10 +91,11 @@
   <ItemGroup>
     <ClCompile Include="src\core\semantic.cpp" />
     <ClCompile Include="src\element.cpp" />
-    <ClCompile Include="src\language.cpp" />
+    <ClCompile Include="src\type.cpp" />
     <ClCompile Include="src\output\glsl\glsl_convention.cpp" />
     <ClCompile Include="src\output\glsl\glsl_language.cpp" />
     <ClCompile Include="src\output\glsl\output_glsl.cpp" />
+    <ClCompile Include="src\output\language.cpp" />
     <ClCompile Include="src\output\output.cpp" />
     <ClCompile Include="src\output\output_introspector.cpp" />
     <ClCompile Include="src\output\output_matrix_order.cpp" />

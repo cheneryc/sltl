@@ -110,6 +110,8 @@ namespace glsl
 
   protected:
     std::wstring get_type_name(const language::type& type) const override;
+    std::wstring get_variable_name(const syntax::variable_declaration& vd) const override;
+    std::wstring get_parameter_name(const syntax::parameter_declaration& pd) const override;
 
   private:
     layout_manager _layout_manager;

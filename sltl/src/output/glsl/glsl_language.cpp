@@ -39,47 +39,6 @@ bool ns::is_variable_built_in(const sltl::syntax::variable_declaration& vd)
   return is_variable_built_in(vd._semantic, vd._semantic_index);
 }
 
-std::wstring ns::to_built_in_string(sltl::core::semantic semantic, sltl::core::semantic_index_t semantic_index)
-{
-  assert(is_variable_built_in(semantic, semantic_index));
-
-  const auto semantic_system_pair = core::detail::to_semantic_system_pair(semantic_index);
-
-  //TODO: validation that the built-in is of the correct type and used in the correct shader stage
-
-  std::wstringstream ss;
-
-  switch(semantic_system_pair.first)
-  {
-  case core::semantic_system::position:
-    //TODO: if the variable is vertex shader output then this is gl_Position
-    //TODO: if the variable is pixel shader input then this is gl_FragCoord
-    //TODO: note that index must be zero for position semantic
-    ss << L"gl_Position";
-    break;
-  case core::semantic_system::depth:
-    //TODO: only valid as a fragment shader output
-    //TODO: note that index must be zero for depth semantic
-    ss << L"gl_FragDepth";
-    break;
-  }
-
-  // Revisit this once built-in variables other than gl_Position & gl_FragDepth are supported
-  assert(semantic_system_pair.second == 0);
-
-  if(semantic_system_pair.second > 0)
-  {
-    ss << L'[' << semantic_system_pair.second << L']';
-  }
-
-  return ss.str();
-}
-
-std::wstring ns::to_built_in_string(const sltl::syntax::variable_declaration& vd)
-{
-  return to_built_in_string(vd._semantic, vd._semantic_index);
-}
-
 std::wstring ns::to_type_string(const sltl::language::type& t)
 {
   std::wstringstream ss;
@@ -168,123 +127,45 @@ std::wstring ns::to_type_string(const sltl::language::type& t)
   return ss.str();
 }
 
-const wchar_t* ns::to_operator_unary_string(sltl::language::operator_unary_id id)
+std::wstring ns::to_built_in_string(sltl::core::semantic semantic, sltl::core::semantic_index_t semantic_index)
 {
-  switch(id)
+  assert(is_variable_built_in(semantic, semantic_index));
+
+  const auto semantic_system_pair = core::detail::to_semantic_system_pair(semantic_index);
+
+  //TODO: validation that the built-in is of the correct type and used in the correct shader stage
+
+  std::wstringstream ss;
+
+  switch(semantic_system_pair.first)
   {
-  case language::id_increment_pre:
-  case language::id_increment_post:
-    return L"++";
-   case language::id_decrement_pre:
-   case language::id_decrement_post:
-    return L"--";
+  case core::semantic_system::position:
+    //TODO: if the variable is vertex shader output then this is gl_Position
+    //TODO: if the variable is pixel shader input then this is gl_FragCoord
+    //TODO: note that index must be zero for position semantic
+    ss << L"gl_Position";
+    break;
+  case core::semantic_system::depth:
+    //TODO: only valid as a fragment shader output
+    //TODO: note that index must be zero for depth semantic
+    ss << L"gl_FragDepth";
+    break;
   }
 
-  return nullptr;
+  // Revisit this once built-in variables other than gl_Position & gl_FragDepth are supported
+  assert(semantic_system_pair.second == 0);
+
+  if(semantic_system_pair.second > 0)
+  {
+    ss << L'[' << semantic_system_pair.second << L']';
+  }
+
+  return ss.str();
 }
 
-const wchar_t* ns::to_operator_binary_string(sltl::language::operator_binary_id id)
+std::wstring ns::to_built_in_string(const sltl::syntax::variable_declaration& vd)
 {
-  switch(id)
-  {
-    case language::id_addition:
-      return L"+";
-    case language::id_subtraction:
-      return L"-";
-    case language::id_multiplication:
-      return L"*";
-    case language::id_division:
-      return L"/";
-    case language::id_element_wise_addition:
-      return L"+";
-    case language::id_element_wise_subtraction:
-      return L"-";
-    case language::id_element_wise_multiplication:
-      return L"*";
-    case language::id_element_wise_division:
-      return L"/";
-    case language::id_assignment:
-      return L"=";
-    case language::id_assignment_addition:
-      return L"+=";
-    case language::id_assignment_subtraction:
-      return L"-=";
-    case language::id_assignment_multiplication:
-      return L"*=";
-    case language::id_assignment_division:
-      return L"/=";
-    case language::id_lt:
-      return L"<";
-    case language::id_lt_eq:
-      return L"<=";
-    case language::id_gt:
-      return L">";
-    case language::id_gt_eq:
-      return L">=";
-    case language::id_matrix_multiplication:
-      return L"*";
-    case language::id_scalar_vector_multiplication:
-      return L"*";
-    case language::id_scalar_vector_division:
-      return L"/";
-    case language::id_scalar_matrix_multiplication:
-      return L"*";
-    case language::id_scalar_matrix_division:
-      return L"/";
-    case language::id_vector_scalar_multiplication:
-      return L"*";
-    case language::id_vector_scalar_division:
-      return L"/";
-    case language::id_matrix_scalar_multiplication:
-      return L"*";
-    case language::id_matrix_scalar_division:
-      return L"/";
-  }
-
-  return nullptr;
-}
-
-const wchar_t* ns::to_conditional_string(sltl::language::conditional_id id)
-{
-  switch(id)
-  {
-  case language::id_if:
-    return L"if";
-  case language::id_else:
-    return L"else";
-  case language::id_else_if:
-    return L"else if";
-  }
-
-  return nullptr;
-}
-
-const wchar_t* ns::to_component_string(sltl::language::type_dimension_t component_idx)
-{
-  switch(component_idx)
-  {
-  case 0:
-    return L"x";
-  case 1:
-    return L"y";
-  case 2:
-    return L"z";
-  case 3:
-    return L"w";
-  }
-
-  return nullptr;
-}
-
-const wchar_t* ns::to_keyword_string(sltl::language::keyword_id id)
-{
-  switch(id)
-  {
-  case language::id_return:
-    return L"return";
-  }
-
-  return nullptr;
+  return to_built_in_string(vd._semantic, vd._semantic_index);
 }
 
 const wchar_t* ns::to_qualifier_string(sltl::core::qualifier_storage id)

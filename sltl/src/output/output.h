@@ -68,6 +68,8 @@ namespace sltl
     syntax::action_return_t get_default(bool is_start) override;
 
     virtual std::wstring get_type_name(const language::type& type) const = 0;
+    virtual std::wstring get_variable_name(const syntax::variable_declaration& vd) const = 0;
+    virtual std::wstring get_parameter_name(const syntax::parameter_declaration& pd) const = 0;
 
     void line_begin();
     void line_end(bool has_semi_colon = true);
