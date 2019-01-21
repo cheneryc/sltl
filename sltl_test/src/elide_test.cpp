@@ -8,7 +8,7 @@
 #include "syntax/temporary.h"
 #include "syntax/variable_declaration.h"
 
-#include "output.h"
+#include "output/output.h"
 
 #include <locale>
 

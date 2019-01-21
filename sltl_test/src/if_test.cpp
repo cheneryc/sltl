@@ -3,7 +3,8 @@
 #include "if.h"
 #include "basic_operators.h"
 #include "shader.h"
-#include "output.h"
+
+#include "output/output.h"
 
 
 namespace

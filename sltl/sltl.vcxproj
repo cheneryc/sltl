@@ -37,7 +37,12 @@
     <ClInclude Include="src\io\io.h" />
     <ClInclude Include="src\language.h" />
     <ClInclude Include="src\matrix.h" />
-    <ClInclude Include="src\output.h" />
+    <ClInclude Include="src\output\glsl\glsl_convention.h" />
+    <ClInclude Include="src\output\glsl\glsl_language.h" />
+    <ClInclude Include="src\output\glsl\output_glsl.h" />
+    <ClInclude Include="src\output\output.h" />
+    <ClInclude Include="src\output\output_introspector.h" />
+    <ClInclude Include="src\output\output_matrix_order.h" />
     <ClInclude Include="src\permutation.h" />
     <ClInclude Include="src\permutation_group.h" />
     <ClInclude Include="src\scalar.h" />
@@ -86,7 +91,12 @@
     <ClCompile Include="src\core\semantic.cpp" />
     <ClCompile Include="src\element.cpp" />
     <ClCompile Include="src\language.cpp" />
-    <ClCompile Include="src\output.cpp" />
+    <ClCompile Include="src\output\glsl\glsl_convention.cpp" />
+    <ClCompile Include="src\output\glsl\glsl_language.cpp" />
+    <ClCompile Include="src\output\glsl\output_glsl.cpp" />
+    <ClCompile Include="src\output\output.cpp" />
+    <ClCompile Include="src\output\output_introspector.cpp" />
+    <ClCompile Include="src\output\output_matrix_order.cpp" />
     <ClCompile Include="src\scope.cpp" />
     <ClCompile Include="src\syntax\block.cpp" />
     <ClCompile Include="src\syntax\block_base.cpp" />
@@ -94,6 +104,7 @@
     <ClCompile Include="src\syntax\component_accessor.cpp" />
     <ClCompile Include="src\syntax\elide.cpp" />
     <ClCompile Include="src\syntax\expression_statement.cpp" />
+    <ClCompile Include="src\syntax\intrinsic_declaration.cpp" />
     <ClCompile Include="src\syntax\io_block.cpp" />
     <ClCompile Include="src\syntax\io_block_manager.cpp" />
     <ClCompile Include="src\syntax\operator.cpp" />

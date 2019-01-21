@@ -7,6 +7,8 @@
 
 #include <language.h>
 
+#include <core/qualifier.h>
+
 #include <memory>
 #include <algorithm>
 

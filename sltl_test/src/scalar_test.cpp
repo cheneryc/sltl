@@ -3,8 +3,9 @@
 #include "scalar.h"
 #include "basic_operators.h"
 #include "shader.h"
-#include "output.h"
 #include "scope.h"
+
+#include "output/output.h"
 
 
 namespace

@@ -1,21 +1,26 @@
 #include "output.h"
-#include "syntax/block.h"
-#include "syntax/io_block.h"
-#include "syntax/variable_declaration.h"
-#include "syntax/reference.h"
-#include "syntax/temporary.h"
-#include "syntax/operator.h"
-#include "syntax/operator_component_access.h"
-#include "syntax/conditional.h"
-#include "syntax/constructor_call.h"
-#include "syntax/function_call.h"
-#include "syntax/function_definition.h"
-#include "syntax/intrinsic_call.h"
-#include "syntax/intrinsic_declaration.h"
-#include "language.h"
-#include "traits.h"
 
-#include "detail/numeric.h"
+#include "glsl/glsl_language.h"
+#include "glsl/glsl_convention.h"
+
+#include <syntax/block.h>
+#include <syntax/io_block.h>
+#include <syntax/variable_declaration.h>
+#include <syntax/reference.h>
+#include <syntax/temporary.h>
+#include <syntax/operator.h>
+#include <syntax/operator_component_access.h>
+#include <syntax/conditional.h>
+#include <syntax/constructor_call.h>
+#include <syntax/function_call.h>
+#include <syntax/function_definition.h>
+#include <syntax/intrinsic_call.h>
+#include <syntax/intrinsic_declaration.h>
+
+#include <language.h>
+#include <traits.h>
+
+#include <detail/numeric.h>
 
 #include <cassert>
 
@@ -31,33 +36,6 @@ namespace
     {
       ss << (is_indent_tab ? L"\t" : L"  ");
     }
-  }
-
-  bool is_variable_built_in(ns::core::semantic semantic, ns::core::semantic_index_t semantic_index)
-  {
-    bool is_built_in = false;
-
-    if(semantic == ns::core::semantic::system)
-    {
-      const auto semantic_system_pair = ns::core::detail::to_semantic_system_pair(semantic_index);
-
-      switch(semantic_system_pair.first)
-      {
-        // Only a built-in variable if the semantic is position or depth
-        // Only a built-in variable if the index is zero
-        case ns::core::semantic_system::position:
-        case ns::core::semantic_system::depth:
-          is_built_in = !semantic_system_pair.second;
-          break;
-      }
-    }
-
-    return is_built_in;
-  }
-
-  bool is_variable_built_in(const ns::syntax::variable_declaration& vd)
-  {
-    return is_variable_built_in(vd._semantic, vd._semantic_index);
   }
 
   bool is_variable_omitted(const ns::syntax::variable_declaration& vd, ns::output::layout_manager& layout_manager)
@@ -77,7 +55,7 @@ namespace
 
         is_omitted = true;
       }
-      else if(is_variable_built_in(vd))
+      else if(ns::glsl::is_variable_built_in(vd))
       {
         is_omitted = true;
       }
@@ -203,42 +181,6 @@ namespace
     return nullptr;
   }
 
-  std::wstring to_built_in_string(ns::core::semantic semantic, ns::core::semantic_index_t semantic_index)
-  {
-    assert(is_variable_built_in(semantic, semantic_index));
-
-    const auto semantic_system_pair = ns::core::detail::to_semantic_system_pair(semantic_index);
-
-    //TODO: validation that the built-in is of the correct type and used in the correct shader stage
-
-    std::wstringstream ss;
-
-    switch(semantic_system_pair.first)
-    {
-    case ns::core::semantic_system::position:
-      //TODO: if the variable is vertex shader output then this is gl_Position
-      //TODO: if the variable is pixel shader input then this is gl_FragCoord
-      //TODO: note that index must be zero for position semantic
-      ss << L"gl_Position";
-      break;
-    case ns::core::semantic_system::depth:
-      //TODO: only valid as a fragment shader output
-      //TODO: note that index must be zero for depth semantic
-      ss << L"gl_FragDepth";
-      break;
-    }
-
-    // Revisit this once built-in variables other than gl_Position & gl_FragDepth are supported
-    assert(semantic_system_pair.second == 0);
-
-    if(semantic_system_pair.second > 0)
-    {
-      ss << L'[' << semantic_system_pair.second << L']';
-    }
-
-    return ss.str();
-  }
-
   const wchar_t* to_version_string(ns::output_version version)
   {
     switch(version)
@@ -254,37 +196,15 @@ namespace
 
   std::wstring get_type_name(const ns::language::type& type, ns::detail::enum_flags<ns::output_flags> flags)
   {
-    return ns::language::to_type_string(flags.has_flag<ns::output_flags::flag_transpose_type>() ? type.transpose() : type);
-  }
-
-  std::wstring get_variable_name(const ns::syntax::variable_declaration& vd)
-  {
-    std::wstringstream ss;
-
-    if(is_variable_built_in(vd))
-    {
-      ss << to_built_in_string(vd._semantic, vd._semantic_index);
-    }
-    else
-    {
-      // Prepend the storage qualifier to the variable name to ensure it is globally unique
-      if(auto qualifier = ns::language::to_qualifier_prefix_string(vd._qualifier))
-      {
-        ss << qualifier << L'_';
-      }
-
-      ss << ns::language::to_type_prefix_string(vd.get_type()) << vd._name;
-    }
-
-    return ss.str();
+    return ns::glsl::to_type_string(flags.has_flag<ns::output_flags::flag_transpose_type>() ? type.transpose() : type);
   }
 
   std::wstring get_parameter_name(const ns::syntax::parameter_declaration& pd)
   {
-    std::wstringstream ss(ns::language::to_parameter_prefix_string(pd._qualifier), std::ios::in | std::ios::out | std::ios::ate);
+    std::wstringstream ss(ns::glsl::to_parameter_prefix_string(pd._qualifier), std::ios::in | std::ios::out | std::ios::ate);
 
     ss << L'_';
-    ss << ns::language::to_type_prefix_string(pd.get_type());
+    ss << ns::glsl::to_type_prefix_string(pd.get_type());
     ss << pd._name;
 
     return ss.str();
@@ -315,12 +235,12 @@ namespace
 
   const wchar_t* get_qualifier_storage(const ns::syntax::variable_declaration& vd)
   {
-    if(is_variable_built_in(vd))
+    if(ns::glsl::is_variable_built_in(vd))
     {
       throw std::exception();//TODO: exception type and message
     }
 
-    return ns::language::to_qualifier_string(vd._qualifier);
+    return ns::glsl::to_qualifier_string(vd._qualifier);
   }
 
   std::wstring get_zero_initialization(const ns::language::type& type)
@@ -447,7 +367,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::variable_declar
         _ss << qualifier_storage << L' ';
       }
 
-      _ss << get_type_name(vd.get_type(), _flags) << L' ' << get_variable_name(vd);
+      _ss << get_type_name(vd.get_type(), _flags) << L' ' << glsl::get_variable_name(vd);
 
       if(vd.has_initializer())
       {
@@ -515,7 +435,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::reference& r)
 {
   if (auto vd = dynamic_cast<const ns::syntax::variable_declaration*>(&r._declaration))
   {
-    _ss << get_variable_name(*vd);
+    _ss << glsl::get_variable_name(*vd);
   }
 
   if(auto pd = dynamic_cast<const ns::syntax::parameter_declaration*>(&r._declaration))
@@ -564,7 +484,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_unary&
   {
     if(language::is_prefix_operator(ou._operator_id))
     {
-      _ss << language::to_operator_unary_string(ou._operator_id);
+      _ss << glsl::to_operator_unary_string(ou._operator_id);
     }
 
     return_val = syntax::action_return_t::step_in;
@@ -573,7 +493,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_unary&
   {
     if(language::is_postfix_operator(ou._operator_id))
     {
-      _ss << language::to_operator_unary_string(ou._operator_id);
+      _ss << glsl::to_operator_unary_string(ou._operator_id);
     }
 
     return_val = syntax::action_return_t::step_out;
@@ -606,7 +526,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_binary
       else
       {
         _ss << L' ';
-        _ss << language::to_operator_binary_string(ob._operator_id);
+        _ss << glsl::to_operator_binary_string(ob._operator_id);
         _ss << L' ';
       }
 
@@ -663,7 +583,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_compon
 
         std::for_each(std::begin(access._indices), it_find, [&ss](language::type_dimension_t idx)
         {
-          ss << language::to_component_string(idx);
+          ss << glsl::to_component_string(idx);
         });
 
         return ss.str();
@@ -704,7 +624,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::conditional& c,
   if(is_start)
   {
     line_begin();
-    _ss << language::to_conditional_string(c._id);
+    _ss << glsl::to_conditional_string(c._id);
 
     bool is_continuing = true;
 
@@ -859,7 +779,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::return_statemen
   if(is_start)
   {
     line_begin();
-    _ss << language::to_keyword_string(language::id_return) << L' ';
+    _ss << glsl::to_keyword_string(language::id_return) << L' ';
   }
   else
   {
@@ -943,175 +863,6 @@ void ns::output::line_end(bool has_semi_colon)
   }
 
   _ss << std::endl;
-}
-
-// output_introspector definitions
-
-ns::output_introspector::output_introspector(core::shader_stage, core::qualifier_storage qualifier, core::semantic_pair semantic) :
-  _semantic(semantic._semantic),
-  _semantic_index(semantic._index),
-  _qualifier(qualifier)
-{
-}
-
-ns::syntax::action_return_t ns::output_introspector::operator()(const syntax::io_block& iob, bool is_start)
-{
-  ns::syntax::action_return_t return_val;
-
-  if(is_start)
-  {
-    return_val = ((iob._qualifier == _qualifier) ?
-      ns::syntax::action_return_t::step_in :
-      ns::syntax::action_return_t::step_over);
-  }
-  else
-  {
-    return_val = ns::syntax::action_return_t::step_out;
-  }
-
-  return return_val;
-}
-
-ns::syntax::action_return_t ns::output_introspector::operator()(const syntax::variable_declaration& vd, bool is_start)
-{
-  ns::syntax::action_return_t return_val = (is_start ?
-    ns::syntax::action_return_t::step_over :
-    ns::syntax::action_return_t::step_out);
-
-  if(is_start)
-  {
-    if((vd._qualifier == _qualifier) &&
-       (vd._semantic == _semantic) &&
-       (vd._semantic_index == _semantic_index))
-    {
-      _name = get_variable_name(vd); return_val = ns::syntax::action_return_t::stop;
-    }
-  }
-
-  return return_val;
-}
-
-std::wstring ns::output_introspector::get_result() const
-{
-  return _name;
-}
-
-ns::syntax::action_return_t ns::output_introspector::get_default(bool is_start)
-{
-  return is_start ? ns::syntax::action_return_t::step_in :
-                    ns::syntax::action_return_t::step_out;
-}
-
-// output_matrix_order definitions
-
-ns::output_matrix_order::output_matrix_order(core::shader_stage)
-{
-}
-
-ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::operator_binary& ob, bool is_start)
-{
-  ns::syntax::action_return_t return_val = ns::syntax::action_return_t::step_out;
-
-  if(is_start)
-  {
-    return_val = ns::syntax::action_return_t::step_in;
-
-    if(ob._operator_id == language::id_matrix_multiplication)
-    {
-      const language::type type_lhs = ob._operand_lhs->get_type();
-      const language::type type_rhs = ob._operand_rhs->get_type();
-
-      // matrix-matrix and vector-matrix multiplication need converting from row-order to column-order
-      if((type_lhs.get_dimensions().is_matrix() || type_lhs.get_dimensions().is_vector()) &&
-         (type_rhs.get_dimensions().is_matrix() || type_rhs.get_dimensions().is_vector()))
-      {
-        // both operands cannot be vectors
-        assert(!(type_lhs.get_dimensions().is_vector() &&
-                 type_rhs.get_dimensions().is_vector()));
-
-        ob.swap_operands();
-      }
-    }
-  }
-
-  return return_val;
-}
-
-ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::operator_component_access& oca, bool is_start)
-{
-  //TODO: implement this...
-  assert(false);
-  return ns::syntax::action_return_t::step_out;
-}
-
-ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::variable_declaration& vd, bool is_start)
-{
-  ns::syntax::action_return_t return_val = ns::syntax::action_return_t::step_out;
-
-  if(is_start)
-  {
-    const bool is_transposable = vd.has_type();
-
-    if(is_transposable)
-    {
-      vd.set_type(vd.get_type().transpose());
-    }
-
-    return_val = is_transposable ?
-      ns::syntax::action_return_t::step_over :
-      ns::syntax::action_return_t::step_in;
-  }
-
-  return return_val;
-}
-
-ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::temporary& t, bool is_start)
-{
-  ns::syntax::action_return_t return_val = ns::syntax::action_return_t::step_out;
-
-  if(is_start)
-  {
-    const bool is_transposable = t.has_type();
-
-    if(is_transposable)
-    {
-      t.set_type(t.get_type().transpose());
-    }
-
-    return_val = is_transposable ?
-      ns::syntax::action_return_t::step_over :
-      ns::syntax::action_return_t::step_in;
-  }
-
-  return return_val;
-}
-
-ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::constructor_call& cc, bool is_start)
-{
-  if(is_start)
-  {
-    cc.set_type(cc.get_type().transpose());
-  }
-
-  return is_start ? ns::syntax::action_return_t::step_in :
-                    ns::syntax::action_return_t::step_out;
-}
-
-ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::function_definition& fd, bool is_start)
-{
-  if(is_start)
-  {
-    fd.set_type(fd.get_type().transpose());
-  }
-
-  return is_start ? ns::syntax::action_return_t::step_in :
-                    ns::syntax::action_return_t::step_out;
-}
-
-ns::syntax::action_return_t ns::output_matrix_order::get_default(bool is_start)
-{
-  return is_start ? ns::syntax::action_return_t::step_in :
-                    ns::syntax::action_return_t::step_out;
 }
 
 // output::layout_map_key definitions

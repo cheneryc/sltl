@@ -1,10 +1,11 @@
 #include "shader.h"
-#include "output.h"
 
 #include "call.h"
 #include "if.h"
 #include "element_wise.h"
 #include "basic_operators.h"
+
+#include "output/output.h"
 
 #include "io/io.h"
 

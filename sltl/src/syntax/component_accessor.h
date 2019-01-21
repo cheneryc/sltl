@@ -2,6 +2,9 @@
 
 #include <language.h>
 
+#include <memory>
+#include <algorithm>
+
 
 namespace sltl
 {

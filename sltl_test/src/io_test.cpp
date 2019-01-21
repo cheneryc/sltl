@@ -3,10 +3,12 @@
 #include "io/io.h"
 
 #include "shader.h"
-#include "output.h"
 #include "scalar.h"
 #include "vector.h"
 #include "matrix.h"
+
+#include "output/output.h"
+#include "output/output_introspector.h"
 
 
 namespace

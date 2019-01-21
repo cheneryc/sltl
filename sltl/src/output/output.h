@@ -1,12 +1,11 @@
 #pragma once
 
-#include "syntax/action.h"
+#include <syntax/action.h>
 
-#include "core/qualifier.h"
-#include "core/semantic.h"
-#include "core/shader_stage.h"
+#include <core/semantic.h>
+#include <core/shader_stage.h>
 
-#include "detail/enum_flags.h"
+#include <detail/enum_flags.h>
 
 #include <map>
 #include <string>
@@ -159,56 +158,6 @@ namespace sltl
     const core::shader_stage _stage;
 
     layout_manager _layout_manager;
-  };
-
-  class output_introspector : public syntax::const_action_result<std::wstring>
-  {
-  public:
-    output_introspector(output_introspector&&) = default;
-    output_introspector(core::shader_stage, core::qualifier_storage qualifier, core::semantic_pair semantic);
-
-    // Non-copyable and non-assignable
-    output_introspector(const output_introspector&) = delete;
-    output_introspector& operator=(output_introspector&&) = delete;
-    output_introspector& operator=(const output_introspector&) = delete;
-
-    virtual syntax::action_return_t operator()(const syntax::io_block&, bool is_start = true) override;
-    virtual syntax::action_return_t operator()(const syntax::variable_declaration& vd, bool is_start = true) override;
-
-    virtual std::wstring get_result() const override;
-
-    const core::semantic _semantic;
-    const core::semantic_index_t _semantic_index;
-
-    const core::qualifier_storage _qualifier;
-
-  protected:
-    virtual syntax::action_return_t get_default(bool is_start) override;
-
-  private:
-    std::wstring _name;
-  };
-
-  class output_matrix_order : public syntax::action
-  {
-  public:
-    output_matrix_order(output_matrix_order&&) = default;
-    output_matrix_order(core::shader_stage);
-
-    // Non-copyable and non-assignable
-    output_matrix_order(const output_matrix_order&) = delete;
-    output_matrix_order& operator=(output_matrix_order&&) = delete;
-    output_matrix_order& operator=(const output_matrix_order&) = delete;
-
-    virtual syntax::action_return_t operator()(syntax::variable_declaration& vd, bool is_start = true) override;
-    virtual syntax::action_return_t operator()(syntax::temporary& t, bool is_start = true) override;
-    virtual syntax::action_return_t operator()(syntax::operator_binary& ob, bool is_start = true) override;
-    virtual syntax::action_return_t operator()(syntax::operator_component_access& oca, bool is_start = true) override;
-    virtual syntax::action_return_t operator()(syntax::constructor_call& cc, bool is_start = true) override;
-    virtual syntax::action_return_t operator()(syntax::function_definition& fd, bool is_start = true) override;
-
-  protected:
-    virtual syntax::action_return_t get_default(bool is_start) override;
   };
 
   // Overloaded bitwise operators make the detail::enum_flags helper class more useful
