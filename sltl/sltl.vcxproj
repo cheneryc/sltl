@@ -28,6 +28,7 @@
     <ClInclude Include="src\detail\pass_key.h" />
     <ClInclude Include="src\detail\reference.h" />
     <ClInclude Include="src\detail\scoped_singleton.h" />
+    <ClInclude Include="src\detail\type_traits.h" />
     <ClInclude Include="src\detail\variadic_algorithm.h" />
     <ClInclude Include="src\detail\variadic_traits.h" />
     <ClInclude Include="src\element.h" />
@@ -36,6 +37,7 @@
     <ClInclude Include="src\if.h" />
     <ClInclude Include="src\io\io.h" />
     <ClInclude Include="src\output\glsl\output_introspector_glsl.h" />
+    <ClInclude Include="src\output\hlsl\output_hlsl.h" />
     <ClInclude Include="src\type.h" />
     <ClInclude Include="src\matrix.h" />
     <ClInclude Include="src\output\glsl\glsl_convention.h" />
@@ -77,7 +79,6 @@
     <ClInclude Include="src\syntax\operator.h" />
     <ClInclude Include="src\syntax\operator_component_access.h" />
     <ClInclude Include="src\syntax\parameter_declaration.h" />
-    <ClInclude Include="src\syntax\parentheses.h" />
     <ClInclude Include="src\syntax\reference.h" />
     <ClInclude Include="src\syntax\return_statement.h" />
     <ClInclude Include="src\syntax\statement.h" />
@@ -85,7 +86,6 @@
     <ClInclude Include="src\syntax\tree.h" />
     <ClInclude Include="src\syntax\variable_declaration.h" />
     <ClInclude Include="src\syntax\variable_info.h" />
-    <ClInclude Include="src\traits.h" />
     <ClInclude Include="src\variable.h" />
     <ClInclude Include="src\vector.h" />
   </ItemGroup>
@@ -93,6 +93,7 @@
     <ClCompile Include="src\core\semantic.cpp" />
     <ClCompile Include="src\element.cpp" />
     <ClCompile Include="src\output\glsl\output_introspector_glsl.cpp" />
+    <ClCompile Include="src\output\hlsl\output_hlsl.cpp" />
     <ClCompile Include="src\type.cpp" />
     <ClCompile Include="src\output\glsl\glsl_convention.cpp" />
     <ClCompile Include="src\output\glsl\glsl_language.cpp" />

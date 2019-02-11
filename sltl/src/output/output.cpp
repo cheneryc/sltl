@@ -3,7 +3,6 @@
 #include "language.h"
 
 #include <syntax/block.h>
-#include <syntax/io_block.h>
 #include <syntax/variable_declaration.h>
 #include <syntax/reference.h>
 #include <syntax/temporary.h>
@@ -18,9 +17,9 @@
 #include <syntax/intrinsic_declaration.h>
 
 #include <type.h>
-#include <traits.h>
 
 #include <detail/numeric.h>
+#include <detail/type_traits.h>
 
 #include <cassert>
 
@@ -169,7 +168,7 @@ namespace
   }
 }
 
-ns::output::output(core::shader_stage stage, detail::enum_flags<output_flags> flags) : _flags(flags), _indent_count(0U), _stage(stage)
+ns::output::output(core::shader_stage stage, detail::enum_flags<output_flags> flags) : _flags(flags), _stage(stage), _indent_count(0U)
 {
 }
 
@@ -180,20 +179,9 @@ std::wstring ns::output::get_result() const
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::block&, bool is_start)
 {
-  wchar_t brace;
-
-  if(is_start)
-  {
-    output_indent(_ss, _indent_count++, !_flags.has_flag<output_flags::flag_indent_space>());
-    brace = L'{';
-  }
-  else
-  {
-    output_indent(_ss, --_indent_count, !_flags.has_flag<output_flags::flag_indent_space>());
-    brace = L'}';
-  }
-
-  _ss << brace << std::endl;
+  line_begin(is_start ? indent_t::increase : indent_t::decrease);
+  operator()(language::bracket_tag<language::id_brace>(), is_start);
+  line_end(false);
 
   return is_start ? ns::syntax::action_return_t::step_in :
                     ns::syntax::action_return_t::step_out;
@@ -244,7 +232,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::parameter_list&
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::reference& r)
 {
-  if (auto vd = dynamic_cast<const ns::syntax::variable_declaration*>(&r._declaration))
+  if(auto vd = dynamic_cast<const ns::syntax::variable_declaration*>(&r._declaration))
   {
     _ss << get_variable_name(*vd);
   }
@@ -265,7 +253,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::temporary& t, b
   {
     const language::type type = t.get_type();
 
-    if(!initializer || !sltl::is_type<syntax::constructor_call>(initializer))
+    if(!initializer || !detail::is_type<syntax::constructor_call>(initializer))
     {
       _ss << get_type_name(type) << L'(';
     }
@@ -277,7 +265,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::temporary& t, b
   }
   else
   {
-    if(!initializer || !sltl::is_type<syntax::constructor_call>(initializer))
+    if(!initializer || !detail::is_type<syntax::constructor_call>(initializer))
     {
       _ss << L')';
     }
@@ -298,10 +286,20 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_unary&
       _ss << to_operator_unary_string(ou._operator_id);
     }
 
+    if(detail::is_type<syntax::operator_binary>(ou._operand.get()))
+    {
+      operator()(language::bracket_tag<language::id_parenthesis>(), true);
+    }
+
     return_val = syntax::action_return_t::step_in;
   }
   else
   {
+    if(detail::is_type<syntax::operator_binary>(ou._operand.get()))
+    {
+      operator()(language::bracket_tag<language::id_parenthesis>(), false);
+    }
+
     if(language::is_postfix_operator(ou._operator_id))
     {
       _ss << to_operator_unary_string(ou._operator_id);
@@ -325,32 +323,55 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_binary
     {
       _ss << intrinsic_op << L'(';
     }
-
-    bool is_continuing = false;
-
-    if(ob._operand_lhs->apply_action(*this))
+    else if(detail::is_type<syntax::operator_binary>(ob._operand_lhs.get()))
     {
-      if(intrinsic_op)
+      operator()(language::bracket_tag<language::id_parenthesis>(), true);
+    }
+
+    bool is_continuing;
+
+    if(!(is_continuing = ob._operand_lhs->apply_action(*this)))
+    {
+      goto stop_label;
+    }
+
+    if(intrinsic_op)
+    {
+      _ss << L", ";
+    }
+    else
+    {
+      if(detail::is_type<syntax::operator_binary>(ob._operand_lhs.get()))
       {
-        _ss << L", ";
-      }
-      else
-      {
-        _ss << L' ';
-        _ss << to_operator_binary_string(ob._operator_id);
-        _ss << L' ';
+        operator()(language::bracket_tag<language::id_parenthesis>(), false);
       }
 
-      is_continuing = ob._operand_rhs->apply_action(*this);
+      _ss << L' ';
+      _ss << to_operator_binary_string(ob._operator_id);
+      _ss << L' ';
+
+      if(detail::is_type<syntax::operator_binary>(ob._operand_rhs.get()))
+      {
+        operator()(language::bracket_tag<language::id_parenthesis>(), true);
+      }
+    }
+
+    if(!(is_continuing = ob._operand_rhs->apply_action(*this)))
+    {
+      goto stop_label;
     }
 
     if(intrinsic_op)
     {
       _ss << L')';
     }
+    else if(detail::is_type<syntax::operator_binary>(ob._operand_rhs.get()))
+    {
+      operator()(language::bracket_tag<language::id_parenthesis>(), false);
+    }
 
     // The 'success' return value is 'step_over' as all child nodes have already been traversed
-    return_val = (is_continuing ?
+    stop_label: return_val = (is_continuing ?
       ns::syntax::action_return_t::step_over :
       ns::syntax::action_return_t::stop);
   }
@@ -434,7 +455,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::conditional& c,
 
   if(is_start)
   {
-    line_begin();
+    line_begin(indent_t::current);
     _ss << to_conditional_string(c._id);
 
     bool is_continuing = true;
@@ -497,7 +518,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::expression_stat
 {
   if(is_start)
   {
-    line_begin();
+    line_begin(indent_t::current);
   }
   else
   {
@@ -538,21 +559,6 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::expression_list
   return return_val;
 }
 
-ns::syntax::action_return_t ns::output::operator()(const syntax::parentheses&, bool is_start)
-{
-  if(is_start)
-  {
-    _ss << L'(';
-  }
-  else
-  {
-    _ss << L')';
-  }
-
-  return is_start ? ns::syntax::action_return_t::step_in :
-                    ns::syntax::action_return_t::step_out;
-}
-
 ns::syntax::action_return_t ns::output::operator()(const syntax::function_call& fc, bool is_start)
 {
   if(is_start)
@@ -572,7 +578,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::function_defini
 {
   if(is_start)
   {
-    line_begin();
+    line_begin(indent_t::current);
     _ss << get_type_name(fd.get_type()) << L' ' << fd._name << L'(';
   }
   else
@@ -589,7 +595,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::return_statemen
 {
   if(is_start)
   {
-    line_begin();
+    line_begin(indent_t::current);
     _ss << to_keyword_string(language::id_return) << L' ';
   }
   else
@@ -653,6 +659,30 @@ ns::syntax::action_return_t ns::output::operator()(bool b)
   return ns::syntax::action_return_t::step_out;
 }
 
+void ns::output::operator()(language::bracket_tag<language::id_brace>, bool is_start)
+{
+  if(is_start)
+  {
+    _ss << L'{';
+  }
+  else
+  {
+    _ss << L'}';
+  }
+}
+
+void ns::output::operator()(language::bracket_tag<language::id_parenthesis>, bool is_start)
+{
+  if(is_start)
+  {
+    _ss << L'(';
+  }
+  else
+  {
+    _ss << L')';
+  }
+}
+
 ns::syntax::action_return_t ns::output::get_default(bool is_start)
 {
   assert(false);
@@ -661,9 +691,21 @@ ns::syntax::action_return_t ns::output::get_default(bool is_start)
                     ns::syntax::action_return_t::step_out;
 }
 
-void ns::output::line_begin()
+void ns::output::line_begin(indent_t indent_op)
 {
-  output_indent(_ss, _indent_count, !_flags.has_flag<output_flags::flag_indent_space>());
+  size_t indent_count = _indent_count;
+
+  switch(indent_op)
+  {
+    case indent_t::increase:
+      indent_count = _indent_count++; // Increase the indent after beginning the line
+      break;
+    case indent_t::decrease:
+      indent_count = --_indent_count; // Decrease the indent before beginning the line
+      break;
+  }
+
+  output_indent(_ss, indent_count, !_flags.has_flag<output_flags::flag_indent_space>());
 }
 
 void ns::output::line_end(bool has_semi_colon)

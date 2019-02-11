@@ -206,7 +206,7 @@ namespace
       vec3 Lo;
 
       //TODO: need sltl::for_each and sltl::array support to match the source pbr shader correctly
-      for (auto& light : lights)
+      for(auto& light : lights)
       {
         vec3 L = sltl::normalize(std::move(light) - in.get<semantic::position>());
 

@@ -20,7 +20,6 @@ namespace syntax
   class constructor_call;
   class expression_statement;
   class expression_list;
-  class parentheses;
   class function_call;
   class function_definition;
   class return_statement;
@@ -55,7 +54,6 @@ namespace syntax
     virtual action_return_t operator()(syntax::constructor_call&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(syntax::expression_statement&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(syntax::expression_list&, bool is_start = true) { return get_default(is_start); }
-    virtual action_return_t operator()(syntax::parentheses&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(syntax::function_call&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(syntax::function_definition&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(syntax::return_statement&, bool is_start = true) { return get_default(is_start); }
@@ -102,7 +100,6 @@ namespace syntax
     virtual action_return_t operator()(const syntax::constructor_call&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(const syntax::expression_statement&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(const syntax::expression_list&, bool is_start = true) { return get_default(is_start); }
-    virtual action_return_t operator()(const syntax::parentheses&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(const syntax::function_call&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(const syntax::function_definition&, bool is_start = true) { return get_default(is_start); }
     virtual action_return_t operator()(const syntax::return_statement&, bool is_start = true) { return get_default(is_start); }

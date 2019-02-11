@@ -26,7 +26,8 @@ set(SRC src/element.cpp
         src/output/glsl/glsl_convention.cpp
         src/output/glsl/glsl_language.cpp
         src/output/glsl/output_glsl.cpp
-        src/output/glsl/output_introspector_glsl.cpp)
+        src/output/glsl/output_introspector_glsl.cpp
+        src/output/hlsl/output_hlsl.cpp)
 
 set(INC src)
 

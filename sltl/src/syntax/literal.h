@@ -3,7 +3,8 @@
 #include "expression.h"
 
 #include <type.h>
-#include <traits.h>
+
+#include <detail/type_traits.h>
 
 
 namespace sltl
@@ -13,7 +14,7 @@ namespace syntax
   template<typename T>
   class literal : public expression
   {
-    static_assert(is_scalar<T>::value, "sltl::literal: Type T is not a valid template parameter type");
+    static_assert(detail::is_scalar<T>::value, "sltl::literal: Type T is not a valid template parameter type");
 
   public:
     literal(T t) : _t(t), _type(language::type_helper<T>()) {}

@@ -151,7 +151,7 @@ sltl::syntax::action_return_t ns::output_glsl::operator()(const sltl::syntax::va
   {
     if(!is_variable_omitted(vd, _layout_manager))
     {
-      line_begin();
+      line_begin(indent_t::current);
 
       const auto qualifier_layout = get_qualifier_layout(vd, _layout_manager);
       const auto qualifier_storage = get_qualifier_storage(vd);

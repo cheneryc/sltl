@@ -91,7 +91,7 @@ TEST(intrinsic, call_intrinsic_dot)
   auto exp_return = sltl::syntax::call_intrinsic_dot(p1.move(), p2.move());
 
   ASSERT_TRUE(exp_return);
-  ASSERT_TRUE(dynamic_cast<sltl::syntax::intrinsic_call*>(exp_return.get()));
+  ASSERT_TRUE(sltl::detail::is_type<sltl::syntax::intrinsic_call>(exp_return.get()));
 }
 
 TEST(intrinsic, call_intrinsic_dot_exceptions)

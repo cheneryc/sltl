@@ -102,7 +102,7 @@ namespace sltl
   namespace expression
   {
     template<typename T>
-    auto as_expression(T t) -> typename std::enable_if<is_scalar<T>::value, expression<sltl::scalar, T>>::type
+    auto as_expression(T t) -> typename std::enable_if<detail::is_scalar<T>::value, expression<sltl::scalar, T>>::type
     {
       return expression<sltl::scalar, T>(t);
     }

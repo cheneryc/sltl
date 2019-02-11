@@ -99,9 +99,6 @@
     <ClInclude Include="src\variable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\traits.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\syntax\statement.h">
       <Filter>Header Files\syntax</Filter>
     </ClInclude>
@@ -121,9 +118,6 @@
       <Filter>Header Files\syntax</Filter>
     </ClInclude>
     <ClInclude Include="src\syntax\declaration.h">
-      <Filter>Header Files\syntax</Filter>
-    </ClInclude>
-    <ClInclude Include="src\syntax\parentheses.h">
       <Filter>Header Files\syntax</Filter>
     </ClInclude>
     <ClInclude Include="src\syntax\function_call.h">
@@ -285,6 +279,12 @@
     <ClInclude Include="src\output\glsl\output_introspector_glsl.h">
       <Filter>Header Files\output\glsl</Filter>
     </ClInclude>
+    <ClInclude Include="src\output\hlsl\output_hlsl.h">
+      <Filter>Header Files\output\hlsl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\detail\type_traits.h">
+      <Filter>Header Files\detail</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\scope.cpp">
@@ -367,6 +367,9 @@
     </ClCompile>
     <ClCompile Include="src\output\glsl\output_introspector_glsl.cpp">
       <Filter>Source Files\output\glsl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\hlsl\output_hlsl.cpp">
+      <Filter>Source Files\output\hlsl</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

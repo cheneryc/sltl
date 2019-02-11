@@ -118,6 +118,8 @@ const wchar_t* ns::to_keyword_string(language::keyword_id id)
 {
   switch(id)
   {
+  case language::id_struct:
+    return L"struct";
   case language::id_return:
     return L"return";
   }

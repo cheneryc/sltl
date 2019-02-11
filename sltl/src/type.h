@@ -307,7 +307,17 @@ namespace language
 
   enum keyword_id
   {
+    id_struct,
     id_return
   };
+
+  enum bracket_id
+  {
+    id_brace,
+    id_parenthesis
+  };
+
+  template<bracket_id>
+  struct bracket_tag {};
 }
 }

@@ -2,6 +2,8 @@
 
 #include <syntax/action.h>
 
+#include <type.h>
+
 #include <core/shader_stage.h>
 
 #include <detail/enum_flags.h>
@@ -12,12 +14,6 @@
 
 namespace sltl
 {
-  // Forward declarations - sltl::language namespace
-  namespace language
-  {
-    class type;
-  }
-
   enum class output_flags
   {
     flag_none           = 0x0,
@@ -49,7 +45,6 @@ namespace sltl
     syntax::action_return_t operator()(const syntax::constructor_call& cc, bool is_start = true) override;
     syntax::action_return_t operator()(const syntax::expression_statement& es, bool is_start = true) override;
     syntax::action_return_t operator()(const syntax::expression_list& el, bool is_start = true) override;
-    syntax::action_return_t operator()(const syntax::parentheses& p, bool is_start = true) override;
     syntax::action_return_t operator()(const syntax::function_call& fc, bool is_start = true) override;
     syntax::action_return_t operator()(const syntax::function_definition& fd, bool is_start = true) override;
     syntax::action_return_t operator()(const syntax::return_statement& rs, bool is_start = true) override;
@@ -65,21 +60,31 @@ namespace sltl
     syntax::action_return_t operator()(unsigned int ui) override;
     syntax::action_return_t operator()(bool b) override;
 
+    void operator()(language::bracket_tag<language::id_brace>, bool is_start);
+    void operator()(language::bracket_tag<language::id_parenthesis>, bool is_start);
+
     syntax::action_return_t get_default(bool is_start) override;
 
     virtual std::wstring get_type_name(const language::type& type) const = 0;
     virtual std::wstring get_variable_name(const syntax::variable_declaration& vd) const = 0;
     virtual std::wstring get_parameter_name(const syntax::parameter_declaration& pd) const = 0;
 
-    void line_begin();
+    enum class indent_t
+    {
+      current,
+      increase,
+      decrease
+    };
+
+    void line_begin(indent_t indent_op);
     void line_end(bool has_semi_colon = true);
 
     std::wstringstream _ss;
 
     const detail::enum_flags<output_flags> _flags;
+    const core::shader_stage _stage;
 
   private:
     size_t _indent_count;
-    const core::shader_stage _stage;
   };
 }

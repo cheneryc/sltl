@@ -65,7 +65,7 @@ std::wstring ns::to_type_prefix_string(const sltl::language::type& t)
     assert(false);
   }
 
-  return std::move(prefix_string);
+  return prefix_string;
 }
 
 const wchar_t* ns::to_qualifier_prefix_string(sltl::core::qualifier_storage id)

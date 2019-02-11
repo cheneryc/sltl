@@ -2,7 +2,6 @@
 
 #include "action.h"
 #include "expression.h"
-#include "parentheses.h"
 
 #include <type.h>
 

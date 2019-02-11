@@ -183,8 +183,8 @@ TEST(matrix, output_matrix_order)
   //
   // (m1 * m2) * m3
   //
-  // Note that sltl will insert parentheses nodes into the syntax tree to make this
-  // explicit. However, when converted to column-major it will be stored as:
+  // Note that sltl will output parentheses to make this explicit. However, when converted
+  // to column-major it will be stored as:
   //
   // m3 * (m2 * m1)
   //

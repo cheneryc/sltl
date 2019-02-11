@@ -10,19 +10,21 @@
 #include "output/glsl/output_glsl.h"
 #include "output/glsl/output_introspector_glsl.h"
 
+#include "output/hlsl/output_hlsl.h"
+
 
 namespace
 {
-  std::wstring to_string(const sltl::shader& shader)
-  {
-    // Prepend a newline character to exactly match the raw string literals
-    return L'\n' + shader.apply_action<sltl::glsl::output_glsl>(sltl::glsl::output_version::none, sltl::output_flags::flag_indent_space);
-  }
-
-  std::wstring to_string(const sltl::shader& shader, sltl::detail::enum_flags<sltl::glsl::output_glsl::layout_flags> layout_flags)
+  std::wstring to_string_glsl(const sltl::shader& shader, sltl::detail::enum_flags<sltl::glsl::output_glsl::layout_flags> layout_flags = sltl::glsl::output_glsl::layout_flags::flag_none)
   {
     // Prepend a newline character to exactly match the raw string literals
     return L'\n' + shader.apply_action<sltl::glsl::output_glsl>(sltl::glsl::output_glsl::layout_manager(layout_flags), sltl::glsl::output_version::none, sltl::output_flags::flag_indent_space);
+  }
+
+  std::wstring to_string_hlsl(const sltl::shader& shader)
+  {
+    // Prepend a newline character to exactly match the raw string literals
+    return L'\n' + shader.apply_action<sltl::hlsl::output_hlsl>(sltl::output_flags::flag_indent_space);
   }
 }
 
@@ -34,15 +36,36 @@ TEST(io, in_single)
   {
   };
 
-  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_shader(test_shader));
+    const std::wstring expected = LR"(
 in float i_f1;
 void main()
 {
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_shader(test_shader));
+    const std::wstring expected = LR"(
+struct input
+{
+  float f1;
+};
+void main(input in)
+{
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(io, in_many)
@@ -61,8 +84,11 @@ TEST(io, in_many)
   {
   };
 
-  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_shader(test_shader));
+    const std::wstring expected = LR"(
 in float i_f1;
 in double i_d2;
 in int i_i3;
@@ -76,7 +102,32 @@ void main()
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_shader(test_shader));
+    const std::wstring expected = LR"(
+struct input
+{
+  float f1;
+  double d2;
+  int i3;
+  uint u4;
+  bool b5;
+  float2 v6;
+  float3 v7;
+  float4 v8;
+};
+void main(input in)
+{
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(io, in_ref_single)
@@ -88,8 +139,11 @@ TEST(io, in_ref_single)
     sltl::vector<float, 2> local = input.get<sltl::core::semantic::texcoord>();
   };
 
-  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_shader(test_shader));
+    const std::wstring expected = LR"(
 in vec2 i_v1;
 void main()
 {
@@ -97,7 +151,26 @@ void main()
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_shader(test_shader));
+    const std::wstring expected = LR"(
+struct input
+{
+  float2 v1;
+};
+void main(input in)
+{
+  float2 v1 = in.v1;
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(io, out_single)
@@ -109,15 +182,36 @@ TEST(io, out_single)
     return io_block_out();
   };
 
-  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_shader(test_shader));
+    const std::wstring expected = LR"(
 out float o_f1;
 void main()
 {
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_shader(test_shader));
+    const std::wstring expected = LR"(
+struct output
+{
+  float f1;
+};
+output main()
+{
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(io, out_many)
@@ -137,8 +231,11 @@ TEST(io, out_many)
     return io_block_out();
   };
 
-  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_shader(test_shader));
+    const std::wstring expected = LR"(
 out float o_f1;
 out double o_d2;
 out int o_i3;
@@ -152,7 +249,32 @@ void main()
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_shader(test_shader));
+    const std::wstring expected = LR"(
+struct output
+{
+  float f1;
+  double d2;
+  int i3;
+  uint u4;
+  bool b5;
+  float2 v6;
+  float3 v7;
+  float4 v8;
+};
+output main()
+{
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(io, out_ref_single)
@@ -166,8 +288,11 @@ TEST(io, out_ref_single)
     return output;
   };
 
-  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_shader(test_shader));
+    const std::wstring expected = LR"(
 out vec2 o_v1;
 void main()
 {
@@ -175,7 +300,26 @@ void main()
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_shader(test_shader));
+    const std::wstring expected = LR"(
+struct output
+{
+  float2 v1;
+};
+output main()
+{
+  out.v1 = float2(0.0f, 0.0f);
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(io, uniform_single)
@@ -187,7 +331,7 @@ TEST(io, uniform_single)
     io_block_uniform uniform(sltl::core::qualifier_storage::uniform);
   };
 
-  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring actual = ::to_string_glsl(sltl::make_shader(test_shader));
   const std::wstring expected = LR"(
 uniform float u_f1;
 void main()
@@ -215,7 +359,7 @@ TEST(io, uniform_many)
     io_block_uniform uniform(sltl::core::qualifier_storage::uniform);
   };
 
-  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring actual = ::to_string_glsl(sltl::make_shader(test_shader));
   const std::wstring expected = LR"(
 uniform float u_f1;
 uniform double u_d2;
@@ -243,7 +387,7 @@ TEST(io, uniform_ref_single)
     sltl::vector<float, 2> local = uniform.get<sltl::core::semantic::texcoord>();
   };
 
-  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
+  const std::wstring actual = ::to_string_glsl(sltl::make_shader(test_shader));
   const std::wstring expected = LR"(
 uniform vec2 u_v1;
 void main()
@@ -289,8 +433,11 @@ TEST(io, inout_single)
     return io_block_out();
   };
 
-  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_shader(test_shader));
+    const std::wstring expected = LR"(
 in float i_f1;
 out float o_f1;
 void main()
@@ -298,7 +445,29 @@ void main()
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_shader(test_shader));
+    const std::wstring expected = LR"(
+struct input
+{
+  float f1;
+};
+struct output
+{
+  float f1;
+};
+output main(input in)
+{
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(io, inout_many)
@@ -328,8 +497,11 @@ TEST(io, inout_many)
     return io_block_out();
   };
 
-  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_shader(test_shader));
+    const std::wstring expected = LR"(
 in float i_f1;
 in double i_d2;
 in int i_i3;
@@ -351,7 +523,43 @@ void main()
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_shader(test_shader));
+    const std::wstring expected = LR"(
+struct input
+{
+  float f1;
+  double d2;
+  int i3;
+  uint u4;
+  bool b5;
+  float2 v6;
+  float3 v7;
+  float4 v8;
+};
+struct output
+{
+  float f1;
+  double d2;
+  int i3;
+  uint u4;
+  bool b5;
+  float2 v6;
+  float3 v7;
+  float4 v8;
+};
+output main(input in)
+{
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(io, inout_ref_single)
@@ -366,8 +574,11 @@ TEST(io, inout_ref_single)
     return output;
   };
 
-  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_shader(test_shader));
+    const std::wstring expected = LR"(
 in vec2 i_v1;
 out vec2 o_v1;
 void main()
@@ -376,7 +587,30 @@ void main()
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_shader(test_shader));
+    const std::wstring expected = LR"(
+struct input
+{
+  float2 v1;
+};
+struct output
+{
+  float2 v1;
+};
+output main(input in)
+{
+  out.v1 = in.v1;
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(io, semantic_built_in)
@@ -393,8 +627,11 @@ TEST(io, semantic_built_in)
     return output;
   };
 
-  const std::wstring actual = ::to_string(sltl::make_shader(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_shader(test_shader));
+    const std::wstring expected = LR"(
 void main()
 {
   gl_Position = vec4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -402,7 +639,28 @@ void main()
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_shader(test_shader));
+    const std::wstring expected = LR"(
+struct output
+{
+  float4 v1 : SV_Position;
+  float f2 : SV_Depth;
+};
+output main()
+{
+  out.v1 = float4(0.0f, 0.0f, 0.0f, 0.0f);
+  out.f2 = 0.0f;
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(io, storage_qualifier_duplicate)
@@ -428,7 +686,7 @@ TEST(io, layout_single)
   const auto flags = sltl::glsl::output_glsl::layout_flags::flag_in |
                      sltl::glsl::output_glsl::layout_flags::flag_out;
 
-  const std::wstring actual = ::to_string(sltl::make_shader(test_shader), flags);
+  const std::wstring actual = ::to_string_glsl(sltl::make_shader(test_shader), flags);
   const std::wstring expected = LR"(
 layout(location = 0) in vec4 i_v1;
 layout(location = 0) out vec4 o_v1;
@@ -462,7 +720,7 @@ TEST(io, layout_many)
   const auto flags = sltl::glsl::output_glsl::layout_flags::flag_in |
                      sltl::glsl::output_glsl::layout_flags::flag_out;
 
-  const std::wstring actual = ::to_string(sltl::make_shader(test_shader), flags);
+  const std::wstring actual = ::to_string_glsl(sltl::make_shader(test_shader), flags);
   const std::wstring expected = LR"(
 layout(location = 0) in float i_f1;
 layout(location = 1) in vec2 i_v2;
@@ -502,7 +760,7 @@ TEST(io, layout_many_double)
   const auto flags = sltl::glsl::output_glsl::layout_flags::flag_in |
                      sltl::glsl::output_glsl::layout_flags::flag_out;
 
-  const std::wstring actual = ::to_string(sltl::make_shader(test_shader), flags);
+  const std::wstring actual = ::to_string_glsl(sltl::make_shader(test_shader), flags);
   const std::wstring expected = LR"(
 layout(location = 0) in double i_d1;
 layout(location = 1) in dvec2 i_v2;
@@ -535,7 +793,7 @@ TEST(io, layout_matrix)
   {
   };
 
-  const std::wstring actual = ::to_string(sltl::make_shader(test_shader), sltl::glsl::output_glsl::layout_flags::flag_in);
+  const std::wstring actual = ::to_string_glsl(sltl::make_shader(test_shader), sltl::glsl::output_glsl::layout_flags::flag_in);
   const std::wstring expected = LR"(
 layout(location = 0) in mat2x2 i_m1;
 layout(location = 2) in mat3x2 i_m2;
@@ -567,7 +825,7 @@ TEST(io, layout_matrix_double)
   {
   };
 
-  const std::wstring actual = ::to_string(sltl::make_shader(test_shader), sltl::glsl::output_glsl::layout_flags::flag_in);
+  const std::wstring actual = ::to_string_glsl(sltl::make_shader(test_shader), sltl::glsl::output_glsl::layout_flags::flag_in);
   const std::wstring expected = LR"(
 layout(location = 0) in dmat2x2 i_m1;
 layout(location = 2) in dmat3x2 i_m2;

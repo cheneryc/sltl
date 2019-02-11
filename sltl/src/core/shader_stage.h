@@ -7,10 +7,10 @@ namespace core
 {
   enum class shader_stage
   {
+    test = 0,
     vertex,
     geometry,
-    fragment,
-    test
+    fragment
   };
 }
 }
