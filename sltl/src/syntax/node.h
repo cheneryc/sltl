@@ -55,7 +55,7 @@ namespace syntax
   template<typename A, typename T, typename I>
   bool apply_action_impl(A& act, T& type, I it_begin, I it_end)
   {
-    const auto act_result = act(type);
+    const auto act_result = act(type, true);
 
     assert(act_result == action_return_t::step_in ||
            act_result == action_return_t::step_over ||

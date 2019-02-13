@@ -207,6 +207,8 @@ struct output
 };
 output main()
 {
+  output out;
+  return out;
 }
 )";
 
@@ -270,6 +272,8 @@ struct output
 };
 output main()
 {
+  output out;
+  return out;
 }
 )";
 
@@ -314,7 +318,9 @@ struct output
 };
 output main()
 {
+  output out;
   out.v1 = float2(0.0f, 0.0f);
+  return out;
 }
 )";
 
@@ -463,6 +469,8 @@ struct output
 };
 output main(input in)
 {
+  output out;
+  return out;
 }
 )";
 
@@ -555,6 +563,8 @@ struct output
 };
 output main(input in)
 {
+  output out;
+  return out;
 }
 )";
 
@@ -605,7 +615,9 @@ struct output
 };
 output main(input in)
 {
+  output out;
   out.v1 = in.v1;
+  return out;
 }
 )";
 
@@ -654,8 +666,10 @@ struct output
 };
 output main()
 {
+  output out;
   out.v1 = float4(0.0f, 0.0f, 0.0f, 0.0f);
   out.f2 = 0.0f;
+  return out;
 }
 )";
 

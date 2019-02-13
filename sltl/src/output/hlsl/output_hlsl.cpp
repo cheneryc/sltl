@@ -356,12 +356,20 @@ sltl::syntax::action_return_t ns::output_hlsl::operator()(const sltl::syntax::fu
     assert(fd.get_type() == language::type_helper<void>());
     assert(fd.get_params().size() == 0U);
 
+    const syntax::block& function_body = fd.get_body();
+
+    std::wstring block_out_type;
+    std::wstring block_out_name;
+
     line_begin(indent_t::current);
 
     // Replace the main function's 'void' return type with the output io_block's type
     if(_block_out)
     {
-      _ss << ::to_type_string(*_block_out, _stage);
+      block_out_type = ::to_type_string(*_block_out, _stage);
+      block_out_name = ::to_qualifier_prefix_string(_block_out->_qualifier);
+
+      _ss << block_out_type;
     }
     else
     {
@@ -376,18 +384,54 @@ sltl::syntax::action_return_t ns::output_hlsl::operator()(const sltl::syntax::fu
       _ss << ::to_type_string(*_block_in, _stage) << L' ' << ::to_qualifier_prefix_string(_block_in->_qualifier);
     }
 
-    //TODO: need to instantiate an instance of the output io_block in the main function
-    //TODO: need to return this instance of the output io_block as the, presumably final, statement of the main function
+    _ss << L')';
+    line_end(false);
 
-    //1. Get the function's block
-    //2. Output an opening brace + newlines and indents
-    //3. Output a variable declaration for the output io_block
-    //4. Manually visit the block's children by calling apply_action directly (like the parameter_list)
-    //5. Output a return statement for the main function
-    //6. Output a closing brace + newlines and indents
-    //7. Return 'step_over'
+    // Output the function body's opening brace
+    syntax::action_return_t return_val_body_start = output::operator()(function_body, true);
 
-    return_val = syntax::action_return_t::step_in;
+    // Output a variable declaration statement for the output io_block
+    if(_block_out)
+    {
+      line_begin(indent_t::current);
+
+      _ss << block_out_type << L' ';
+      _ss << block_out_name;
+
+      line_end(); // Output a semi-colon and newline
+    }
+
+    auto it = function_body.begin();
+    auto it_end = function_body.end();
+
+    if(it != it_end)
+    {
+      while((*it)->apply_action(*this) && (++it != it_end));
+    }
+
+    const bool is_continuing = (it == it_end);
+
+    if(is_continuing)
+    {
+      // Output a return statement for the output io_block
+      if(_block_out)
+      {
+        line_begin(indent_t::current);
+        _ss << to_keyword_string(language::id_return) << L' ' << block_out_name;
+        line_end();
+      }
+
+      // Output the function body's closing brace
+      syntax::action_return_t return_val_body_end = output::operator()(function_body, false);
+
+      assert(return_val_body_start == syntax::action_return_t::step_in);
+      assert(return_val_body_end   == syntax::action_return_t::step_out);
+    }
+
+    // The 'success' return value is 'step_over' as all child nodes have already been traversed
+    return_val = (is_continuing ?
+      syntax::action_return_t::step_over :
+      syntax::action_return_t::stop);
   }
   else
   {

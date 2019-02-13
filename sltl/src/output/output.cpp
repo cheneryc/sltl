@@ -463,18 +463,16 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::conditional& c,
     if(const auto* condition = c.get_condition())
     {
       _ss << L'(';
-      is_continuing = condition->apply_action(*this);
 
-      if(is_continuing)
+      if(!(is_continuing = condition->apply_action(*this)))
       {
-        _ss << L')';
+        goto stop_label;
       }
+
+      _ss << L')';
     }
 
-    if(is_continuing)
-    {
-      line_end(false);
-    }
+    line_end(false);
 
     if(const auto* statement = c.get_statement())
     {
@@ -487,7 +485,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::conditional& c,
     }
 
     // The 'success' return value is 'step_over' as all child nodes have already been traversed
-    return_val = (is_continuing ?
+    stop_label: return_val = (is_continuing ?
       ns::syntax::action_return_t::step_over :
       ns::syntax::action_return_t::stop);
   }
@@ -576,19 +574,41 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::function_call& 
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::function_definition& fd, bool is_start)
 {
+  ns::syntax::action_return_t return_val;
+
   if(is_start)
   {
     line_begin(indent_t::current);
-    _ss << get_type_name(fd.get_type()) << L' ' << fd._name << L'(';
+
+    _ss << get_type_name(fd.get_type()) << L' ' << fd._name;
+    _ss << L'(';
+
+    bool is_continuing;
+
+    if(!(is_continuing = fd.get_params().apply_action(*this)))
+    {
+      goto stop_label;
+    }
+
+    _ss << L')';
+    line_end(false);
+
+    if(!(is_continuing = fd.get_body().apply_action(*this)))
+    {
+      goto stop_label;
+    }
+
+    // The 'success' return value is 'step_over' as all child nodes have already been traversed
+    stop_label: return_val = (is_continuing ?
+      ns::syntax::action_return_t::step_over :
+      ns::syntax::action_return_t::stop);
   }
   else
   {
-    _ss << L')';
-    line_end(false);
+    return_val = ns::syntax::action_return_t::step_out;
   }
 
-  return is_start ? ns::syntax::action_return_t::step_in :
-                    ns::syntax::action_return_t::step_out;
+  return return_val;
 }
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::return_statement&, bool is_start)
