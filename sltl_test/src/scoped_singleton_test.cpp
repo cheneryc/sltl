@@ -100,14 +100,15 @@ TEST(scoped_singleton, process_parallel)
   {
     test_singleton_guard manager_thread;
 
-    EXPECT_EQ(1U, test_singleton<tag>::count_current);
+    const size_t count_pre  = test_singleton<tag>::count_current;
     std::this_thread::yield();
+    const size_t count_post = test_singleton<tag>::count_current;
 
-    return manager_thread->_instance;
+    return std::make_pair(count_pre, count_post);
   };
 
   {
-    std::vector<std::future<size_t>> futures;
+    std::vector<std::future<std::pair<size_t, size_t>>> futures;
 
     for(size_t i = {}; i < 100; ++i)
     {
@@ -116,7 +117,10 @@ TEST(scoped_singleton, process_parallel)
 
     for(auto& future : futures)
     {
-      future.wait();
+      const std::pair<size_t, size_t> counts = future.get();
+
+      EXPECT_EQ(1U, std::get<0>(counts));
+      EXPECT_EQ(1U, std::get<1>(counts));
     }
   }
 
