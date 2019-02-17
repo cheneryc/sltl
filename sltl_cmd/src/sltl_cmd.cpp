@@ -239,7 +239,7 @@ std::string to_string(std::wstring shader_txt)
 
 int main()
 {
-  constexpr bool is_glsl = false;
+  constexpr bool is_glsl = true;
 
   std::wstring shader_vs_text;
   std::wstring shader_fs_text;
@@ -283,8 +283,8 @@ int main()
   try
   {
     sltl::api::context context;
-    sltl::api::shader gl_vs(to_string(shader_vs_txt).c_str(), sltl::api::shader_stage::vertex);
-    sltl::api::shader gl_fs(to_string(shader_fs_txt).c_str(), sltl::api::shader_stage::fragment);
+    sltl::api::shader gl_vs(to_string(shader_vs_text).c_str(), sltl::api::shader_stage::vertex);
+    sltl::api::shader gl_fs(to_string(shader_fs_text).c_str(), sltl::api::shader_stage::fragment);
     sltl::api::shader_program gl_shader_program(gl_vs, gl_fs);
   }
   catch(const std::exception& ex)
