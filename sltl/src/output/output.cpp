@@ -73,61 +73,6 @@ namespace
     return ss.str();
   }
 
-  const wchar_t* to_intrinsic_string(ns::core::intrinsic intrinsic)
-  {
-    switch(intrinsic)
-    {
-      case ns::core::intrinsic::dot:
-        return L"dot";
-      case ns::core::intrinsic::normalize:
-        return L"normalize";
-      case ns::core::intrinsic::clamp:
-        return L"clamp";
-      case ns::core::intrinsic::lerp:
-        return L"mix";
-      case ns::core::intrinsic::pow:
-        return L"pow";
-    }
-
-    return nullptr;
-  }
-
-  const wchar_t* to_intrinsic_operator_string(const ns::syntax::operator_binary& ob)
-  {
-    const ns::language::type& t = ob.get_type();
-    const ns::language::type_id t_id = t.get_id();
-
-    switch(ob._operator_id)
-    {
-      case ns::language::id_element_wise_eq:
-        assert(t.get_dimensions().is_vector());
-        return L"equal";
-      case ns::language::id_element_wise_ne:
-        assert(t.get_dimensions().is_vector());
-        return L"notEqual";
-      case ns::language::id_element_wise_lt:
-        assert(t.get_dimensions().is_vector());
-        assert(t_id != ns::language::id_bool);
-        return L"lessThan";
-      case ns::language::id_element_wise_lt_eq:
-        assert(t.get_dimensions().is_vector());
-        assert(t_id != ns::language::id_bool);
-        return L"lessThanEqual";
-      case ns::language::id_element_wise_gt:
-        assert(t.get_dimensions().is_vector());
-        assert(t_id != ns::language::id_bool);
-        return L"greaterThan";
-      case ns::language::id_element_wise_gt_eq:
-        assert(t.get_dimensions().is_vector());
-        assert(t_id != ns::language::id_bool);
-        return L"greaterThanEqual";
-      case ns::language::id_element_wise_multiplication:
-        return t.get_dimensions().is_matrix() ? L"matrixCompMult" : nullptr;
-    }
-
-    return nullptr;
-  }
-
   std::wstring get_zero_initialization(const ns::language::type& type)
   {
     std::wstring value;
@@ -337,13 +282,25 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_binary
 
   if(is_start)
   {
+    auto fn_is_parentheses_required = [this](const syntax::expression* const exp)
+    {
+      bool is_parentheses_required = false;
+
+      if(const auto* const ob = dynamic_cast<const syntax::operator_binary*>(exp))
+      {
+        is_parentheses_required = !to_intrinsic_operator_string(*ob);
+      }
+
+      return is_parentheses_required;
+    };
+
     const auto* const intrinsic_op = to_intrinsic_operator_string(ob);
 
     if(intrinsic_op)
     {
       _ss << intrinsic_op << L'(';
     }
-    else if(detail::is_type<syntax::operator_binary>(ob._operand_lhs.get()))
+    else if(fn_is_parentheses_required(ob._operand_lhs.get()))
     {
       operator()(language::bracket_tag<language::id_parenthesis>(), true);
     }
@@ -361,14 +318,14 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_binary
     }
     else
     {
-      if(detail::is_type<syntax::operator_binary>(ob._operand_lhs.get()))
+      if(fn_is_parentheses_required(ob._operand_lhs.get()))
       {
         operator()(language::bracket_tag<language::id_parenthesis>(), false);
       }
 
       _ss << L' ' << to_operator_binary_string(ob._operator_id) << L' ';
 
-      if(detail::is_type<syntax::operator_binary>(ob._operand_rhs.get()))
+      if(fn_is_parentheses_required(ob._operand_rhs.get()))
       {
         operator()(language::bracket_tag<language::id_parenthesis>(), true);
       }
@@ -383,7 +340,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_binary
     {
       _ss << L')';
     }
-    else if(detail::is_type<syntax::operator_binary>(ob._operand_rhs.get()))
+    else if(fn_is_parentheses_required(ob._operand_rhs.get()))
     {
       operator()(language::bracket_tag<language::id_parenthesis>(), false);
     }
@@ -660,7 +617,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::intrinsic_call&
 {
   if(is_start)
   {
-    _ss << ::to_intrinsic_string(ic.get_intrinsic());
+    _ss << to_intrinsic_string(ic.get_intrinsic());
   }
 
   operator()(language::bracket_tag<language::id_parenthesis>(), is_start);

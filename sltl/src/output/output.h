@@ -4,6 +4,7 @@
 
 #include <type.h>
 
+#include <core/intrinsic.h>
 #include <core/shader_stage.h>
 
 #include <detail/enum_flags.h>
@@ -69,6 +70,9 @@ namespace sltl
     virtual std::wstring get_type_name(const language::type& type) const = 0;
     virtual std::wstring get_variable_name(const syntax::variable_declaration& vd) const = 0;
     virtual std::wstring get_parameter_name(const syntax::parameter_declaration& pd) const = 0;
+
+    virtual const wchar_t* to_intrinsic_string(core::intrinsic intrinsic) const = 0;
+    virtual const wchar_t* to_intrinsic_operator_string(const syntax::operator_binary& ob) const = 0;
 
     enum class indent_t
     {

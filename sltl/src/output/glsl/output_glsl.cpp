@@ -3,6 +3,7 @@
 #include "glsl_language.h"
 #include "glsl_convention.h"
 
+#include <syntax/operator.h>
 #include <syntax/variable_declaration.h>
 #include <syntax/parameter_declaration.h>
 
@@ -212,6 +213,61 @@ std::wstring ns::output_glsl::get_parameter_name(const sltl::syntax::parameter_d
   ss << pd._name;
 
   return ss.str();
+}
+
+const wchar_t* ns::output_glsl::to_intrinsic_string(sltl::core::intrinsic intrinsic) const
+{
+  switch(intrinsic)
+  {
+    case core::intrinsic::dot:
+      return L"dot";
+    case core::intrinsic::normalize:
+      return L"normalize";
+    case core::intrinsic::clamp:
+      return L"clamp";
+    case core::intrinsic::lerp:
+      return L"mix";
+    case core::intrinsic::pow:
+      return L"pow";
+  }
+
+  return nullptr;
+}
+
+const wchar_t* ns::output_glsl::to_intrinsic_operator_string(const sltl::syntax::operator_binary& ob) const
+{
+  const language::type& t = ob.get_type();
+  const language::type_id t_id = t.get_id();
+
+  switch(ob._operator_id)
+  {
+    case language::id_element_wise_eq:
+      assert(t.get_dimensions().is_vector());
+      return L"equal";
+    case language::id_element_wise_ne:
+      assert(t.get_dimensions().is_vector());
+      return L"notEqual";
+    case language::id_element_wise_lt:
+      assert(t.get_dimensions().is_vector());
+      assert(t_id != language::id_bool);
+      return L"lessThan";
+    case language::id_element_wise_lt_eq:
+      assert(t.get_dimensions().is_vector());
+      assert(t_id != language::id_bool);
+      return L"lessThanEqual";
+    case language::id_element_wise_gt:
+      assert(t.get_dimensions().is_vector());
+      assert(t_id != language::id_bool);
+      return L"greaterThan";
+    case language::id_element_wise_gt_eq:
+      assert(t.get_dimensions().is_vector());
+      assert(t_id != language::id_bool);
+      return L"greaterThanEqual";
+    case language::id_element_wise_multiplication:
+      return t.get_dimensions().is_matrix() ? L"matrixCompMult" : nullptr;
+  }
+
+  return nullptr;
 }
 
 // output_glsl::layout_map_key definitions

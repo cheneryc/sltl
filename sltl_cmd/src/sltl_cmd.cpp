@@ -228,7 +228,7 @@ namespace
 
 int main()
 {
-  constexpr bool is_glsl = true;
+  constexpr bool is_glsl = false;
 
   std::wstring shader_vs_text;
   std::wstring shader_fs_text;

@@ -28,6 +28,9 @@ namespace hlsl
     std::wstring get_variable_name(const syntax::variable_declaration& vd) const override;
     std::wstring get_parameter_name(const syntax::parameter_declaration& pd) const override;
 
+    const wchar_t* to_intrinsic_string(core::intrinsic intrinsic) const override;
+    const wchar_t* to_intrinsic_operator_string(const syntax::operator_binary& ob) const override;
+
   private:
     const syntax::io_block* _block_in;
     const syntax::io_block* _block_out;

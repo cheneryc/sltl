@@ -3,6 +3,7 @@
 #include <syntax/block.h>
 #include <syntax/io_block.h>
 #include <syntax/reference.h>
+#include <syntax/operator.h>
 #include <syntax/function_definition.h>
 #include <syntax/variable_declaration.h>
 #include <syntax/parameter_declaration.h>
@@ -135,37 +136,43 @@ namespace
   {
     std::wstringstream ss;
 
-    switch(stage)
+    if(iob._qualifier == sltl::core::qualifier_storage::uniform)
     {
-      case sltl::core::shader_stage::vertex:
-        ss << L"vs";
-        break;
-      case sltl::core::shader_stage::geometry:
-        ss << L"gs";
-        break;
-      case sltl::core::shader_stage::fragment:
-        ss << L"ps";
-        break;
-      default:
-        assert(stage == sltl::core::shader_stage::test);
+      ss << L"cb";
     }
-
-    if(stage != sltl::core::shader_stage::test)
+    else
     {
-      ss << L'_';
-    }
+      switch(stage)
+      {
+        case sltl::core::shader_stage::vertex:
+          ss << L"vs";
+          break;
+        case sltl::core::shader_stage::geometry:
+          ss << L"gs";
+          break;
+        case sltl::core::shader_stage::fragment:
+          ss << L"ps";
+          break;
+        default:
+          assert(stage == sltl::core::shader_stage::test);
+      }
 
-    switch(iob._qualifier)
-    {
-      case sltl::core::qualifier_storage::in:
-        ss << L"input";
-        break;
-      case sltl::core::qualifier_storage::out:
-        ss << L"output";
-        break;
-      case sltl::core::qualifier_storage::uniform:
-        //TODO: constant buffer...
-        break;
+      if(stage != sltl::core::shader_stage::test)
+      {
+        ss << L'_';
+      }
+
+      switch(iob._qualifier)
+      {
+        case sltl::core::qualifier_storage::in:
+          ss << L"input";
+          break;
+        case sltl::core::qualifier_storage::out:
+          ss << L"output";
+          break;
+        default:
+          assert((iob._qualifier != sltl::core::qualifier_storage::none) && (iob._qualifier != sltl::core::qualifier_storage::uniform));
+      }
     }
 
     return ss.str();
@@ -250,6 +257,8 @@ namespace
       return L"in";
     case sltl::core::qualifier_storage::out:
       return L"out";
+    case sltl::core::qualifier_storage::uniform:
+      return L"cb";
     }
 
     return nullptr;
@@ -283,20 +292,29 @@ sltl::syntax::action_return_t ns::output_hlsl::operator()(const sltl::syntax::io
         _ss << get_newline();
       }
 
+      const wchar_t* keyword = nullptr;
+
       // Store the pointers to the 'in' and 'out' io_blocks for use later while processing the 'main' function definition
       switch(iob._qualifier)
       {
         case core::qualifier_storage::in:
           _block_in = &iob;
+          keyword = to_keyword_string(language::id_struct);
           break;
         case core::qualifier_storage::out:
           _block_out = &iob;
+          keyword = to_keyword_string(language::id_struct);
           break;
+        case core::qualifier_storage::uniform:
+          keyword = L"cbuffer";
+          break;
+        default:
+          assert(iob._qualifier != core::qualifier_storage::none);
       }
 
       // Output the struct keyword followed by the type name
       _ss << get_indent(indent_t::current);
-      _ss << to_keyword_string(language::id_struct) << L' ' << to_type_string(iob, _stage);
+      _ss << keyword << L' ' << to_type_string(iob, _stage);
       _ss << get_newline();
 
       // Output the opening brace
@@ -471,4 +489,34 @@ std::wstring ns::output_hlsl::get_parameter_name(const sltl::syntax::parameter_d
   ss << pd._name;
 
   return ss.str();
+}
+
+const wchar_t* ns::output_hlsl::to_intrinsic_string(sltl::core::intrinsic intrinsic) const
+{
+  switch(intrinsic)
+  {
+    case core::intrinsic::dot:
+      return L"dot";
+    case core::intrinsic::normalize:
+      return L"normalize";
+    case core::intrinsic::clamp:
+      return L"clamp";
+    case core::intrinsic::lerp:
+      return L"lerp";
+    case core::intrinsic::pow:
+      return L"pow";
+  }
+
+  return nullptr;
+}
+
+const wchar_t* ns::output_hlsl::to_intrinsic_operator_string(const sltl::syntax::operator_binary& ob) const
+{
+  switch(ob._operator_id)
+  {
+    case language::id_matrix_multiplication:
+      return L"mul";
+  }
+
+  return nullptr;
 }
