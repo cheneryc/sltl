@@ -40,6 +40,16 @@ namespace syntax
 
     void erase(const statement& s);
 
+    std::vector<statement::ptr>::const_iterator begin() const
+    {
+      return _statements.begin();
+    }
+
+    std::vector<statement::ptr>::const_iterator end() const
+    {
+      return _statements.end();
+    }
+
     bool operator==(const block_base& rhs) const;
     bool operator!=(const block_base& rhs) const;
 

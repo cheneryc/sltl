@@ -8,7 +8,7 @@
 #include "syntax/temporary.h"
 #include "syntax/variable_declaration.h"
 
-#include "output.h"
+#include "output/glsl/output_glsl.h"
 
 #include <locale>
 
@@ -37,7 +37,7 @@ namespace
 
   std::wstring to_string(const sltl::syntax::node& node)
   {
-    sltl::output o(sltl::core::shader_stage::test, sltl::output_version::none, sltl::output_flags::flag_indent_space);
+    sltl::glsl::output_glsl o(sltl::core::shader_stage::test, sltl::glsl::output_version::none, sltl::output_flags::flag_indent_space);
     node.apply_action(o);
 
     std::wstring result = o.get_result();

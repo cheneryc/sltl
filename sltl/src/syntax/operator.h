@@ -2,9 +2,8 @@
 
 #include "action.h"
 #include "expression.h"
-#include "parentheses.h"
 
-#include <language.h>
+#include <type.h>
 
 
 namespace sltl

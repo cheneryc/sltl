@@ -3,7 +3,7 @@
 #include "expression.h"
 #include "function_definition.h"
 
-#include <language.h>
+#include <type.h>
 
 
 namespace sltl
@@ -19,7 +19,7 @@ namespace syntax
     {
       const parameter_list& params = fd.get_params();
 
-      if (_args.size() != params.size())
+      if(_args.size() != params.size())
       {
         throw std::exception();//TODO: exception type and message
       }
@@ -29,7 +29,7 @@ namespace syntax
         return (exp->get_type() == pd->get_type());
       };
 
-      if (!std::equal(_args.begin(), _args.end(), params.begin(), params.end(), fn_equal))
+      if(!std::equal(_args.begin(), _args.end(), params.begin(), params.end(), fn_equal))
       {
         throw std::exception();//TODO: exception type and message
       }

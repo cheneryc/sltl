@@ -3,6 +3,8 @@
 #include "block_manager.h"
 #include "action.h"
 
+#include <output/glsl/glsl_language.h> //TODO: should use a language neutral version of the to_qualifier_string function
+
 #include <sstream>
 
 #include <cassert>
@@ -16,7 +18,7 @@ namespace
   {
     std::wstringstream ss(L"io", std::ios::in | std::ios::out | std::ios::ate);
 
-    if(auto postfix = sltl::language::to_qualifier_string(qualifier))
+    if(auto postfix = sltl::glsl::to_qualifier_string(qualifier))
     {
       ss << L"_" << postfix;
     }

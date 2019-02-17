@@ -34,6 +34,24 @@
     <Filter Include="Header Files\expression">
       <UniqueIdentifier>{61dcc72a-b82c-4b0b-a9f2-cad8f2d638c4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\output">
+      <UniqueIdentifier>{b19ff030-c137-471b-a360-56d0e7f8adbb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\output\glsl">
+      <UniqueIdentifier>{bc55f2a8-fb1f-4a80-8acb-e468ea9868c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\output\hlsl">
+      <UniqueIdentifier>{ca070abe-e82f-4170-9c1b-6e584ee74f91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\output">
+      <UniqueIdentifier>{9bfaf5c3-9a28-4c00-a5f8-c58851835bac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\output\glsl">
+      <UniqueIdentifier>{b77c3e6a-2c95-4ba8-ace0-13aa69994ef5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\output\hlsl">
+      <UniqueIdentifier>{c589984d-d2a2-47d4-a6fd-fdd5241b19a3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\scope.h">
@@ -43,9 +61,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\scalar.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\language.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\syntax\block.h">
@@ -66,9 +81,6 @@
     <ClInclude Include="src\syntax\variable_declaration.h">
       <Filter>Header Files\syntax</Filter>
     </ClInclude>
-    <ClInclude Include="src\output.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\syntax\operator.h">
       <Filter>Header Files\syntax</Filter>
     </ClInclude>
@@ -85,9 +97,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\variable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\traits.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\syntax\statement.h">
@@ -109,9 +118,6 @@
       <Filter>Header Files\syntax</Filter>
     </ClInclude>
     <ClInclude Include="src\syntax\declaration.h">
-      <Filter>Header Files\syntax</Filter>
-    </ClInclude>
-    <ClInclude Include="src\syntax\parentheses.h">
       <Filter>Header Files\syntax</Filter>
     </ClInclude>
     <ClInclude Include="src\syntax\function_call.h">
@@ -246,6 +252,39 @@
     <ClInclude Include="src\detail\algorithm.h">
       <Filter>Header Files\detail</Filter>
     </ClInclude>
+    <ClInclude Include="src\output\output.h">
+      <Filter>Header Files\output</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\glsl\output_glsl.h">
+      <Filter>Header Files\output\glsl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\output_introspector.h">
+      <Filter>Header Files\output</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\output_matrix_order.h">
+      <Filter>Header Files\output</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\glsl\glsl_language.h">
+      <Filter>Header Files\output\glsl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\glsl\glsl_convention.h">
+      <Filter>Header Files\output\glsl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\language.h">
+      <Filter>Header Files\output</Filter>
+    </ClInclude>
+    <ClInclude Include="src\type.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\glsl\output_introspector_glsl.h">
+      <Filter>Header Files\output\glsl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\hlsl\output_hlsl.h">
+      <Filter>Header Files\output\hlsl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\detail\type_traits.h">
+      <Filter>Header Files\detail</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\scope.cpp">
@@ -259,12 +298,6 @@
     </ClCompile>
     <ClCompile Include="src\syntax\block_manager.cpp">
       <Filter>Source Files\syntax</Filter>
-    </ClCompile>
-    <ClCompile Include="src\output.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\language.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\variable.cpp">
       <Filter>Source Files</Filter>
@@ -304,6 +337,39 @@
     </ClCompile>
     <ClCompile Include="src\syntax\parameter_declaration.cpp">
       <Filter>Source Files\syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\output.cpp">
+      <Filter>Source Files\output</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\glsl\output_glsl.cpp">
+      <Filter>Source Files\output\glsl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\output_introspector.cpp">
+      <Filter>Source Files\output</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\output_matrix_order.cpp">
+      <Filter>Source Files\output</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\glsl\glsl_language.cpp">
+      <Filter>Source Files\output\glsl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\glsl\glsl_convention.cpp">
+      <Filter>Source Files\output\glsl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\syntax\intrinsic_declaration.cpp">
+      <Filter>Source Files\syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\language.cpp">
+      <Filter>Source Files\output</Filter>
+    </ClCompile>
+    <ClCompile Include="src\type.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\glsl\output_introspector_glsl.cpp">
+      <Filter>Source Files\output\glsl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\hlsl\output_hlsl.cpp">
+      <Filter>Source Files\output\hlsl</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

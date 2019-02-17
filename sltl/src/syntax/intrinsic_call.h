@@ -4,7 +4,7 @@
 #include "intrinsic_declaration.h"
 #include "intrinsic_manager.h"
 
-#include <language.h>
+#include <type.h>
 
 #include <core/intrinsic.h>
 

@@ -1,16 +1,9 @@
 #pragma once
 
-#include "core/qualifier.h"
-#include "core/intrinsic.h"
-
 #include "detail/comparison.h"
 
-#include <string>
-#include <vector>
-#include <algorithm>
-#include <initializer_list>
-
 #include <cassert>
+#include <cstddef>
 
 
 namespace sltl
@@ -314,20 +307,17 @@ namespace language
 
   enum keyword_id
   {
+    id_struct,
     id_return
   };
 
-  std::wstring to_type_string(const type& t);
-  std::wstring to_type_prefix_string(const type& t);
+  enum bracket_id
+  {
+    id_brace,
+    id_parenthesis
+  };
 
-  const wchar_t* to_operator_unary_string(operator_unary_id id);
-  const wchar_t* to_operator_binary_string(operator_binary_id id);
-  const wchar_t* to_conditional_string(conditional_id id);
-  const wchar_t* to_component_string(language::type_dimension_t component_idx);
-  const wchar_t* to_keyword_string(keyword_id id);
-  const wchar_t* to_qualifier_string(core::qualifier_storage id);
-  const wchar_t* to_qualifier_prefix_string(core::qualifier_storage id);
-  const wchar_t* to_parameter_prefix_string(core::qualifier_param id);
-  const wchar_t* to_intrinsic_string(core::intrinsic id);
+  template<bracket_id>
+  struct bracket_tag {};
 }
 }

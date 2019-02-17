@@ -130,7 +130,7 @@ namespace io
   template<core::semantic_system S = core::semantic_system::none, core::semantic_index_t N = 0U, typename T = float>
   struct variable_system : variable<vector<T, 4>, core::semantic::system, core::detail::to_semantic_index(S, N)>
   {
-    static_assert(is_real<T>::value, "sltl::io::variable_system: Type T is not a valid template parameter type");
+    static_assert(sltl::detail::is_real<T>::value, "sltl::io::variable_system: Type T is not a valid template parameter type");
   };
 
   // Partial specialization for core::semantic_system::none - variable semantic mapped to core::semantic::none
@@ -144,7 +144,7 @@ namespace io
   template<core::semantic_transform S = core::semantic_transform::none, typename T = float>
   struct variable_transform : variable<matrix<T, 4, 4>, core::semantic::transform, core::detail::to_semantic_index(S)>
   {
-    static_assert(is_real<T>::value, "sltl::io::variable_transform: Type T is not a valid template parameter type");
+    static_assert(sltl::detail::is_real<T>::value, "sltl::io::variable_transform: Type T is not a valid template parameter type");
   };
 
   // Partial specialization for core::semantic_transform::none - variable semantic mapped to core::semantic::none

@@ -4,7 +4,7 @@ SLTL is an embedded domain specific language (eDSL) for writing shaders with C++
 
 ## About
 
-SLTL is a C++ library that is used to write meta-shaders. Invoking a SLTL meta-shader creates a data structure similar to an abstract syntax tree (AST). This AST can then be traversed to generate shader source code in a specified shader language (although only GLSL output is currently supported).
+SLTL is a C++ library that is used to write meta-shaders. Invoking a SLTL meta-shader creates a data structure similar to an abstract syntax tree (AST). This tree can then be traversed to generate shader source code in a specified shader language (currently GLSL and HLSL output is supported).
 
 __Advantages:__
 

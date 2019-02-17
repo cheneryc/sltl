@@ -3,7 +3,7 @@
 #include "expression.h"
 #include "declaration_statement.h"
 
-#include <language.h>
+#include <type.h>
 
 #include <core/semantic.h>
 #include <core/qualifier.h>
