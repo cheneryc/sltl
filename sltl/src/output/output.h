@@ -18,7 +18,8 @@ namespace sltl
   {
     flag_none           = 0x0,
     flag_indent_space   = 0x1,
-    flag_transpose_type = flag_indent_space << 1
+    flag_extra_newlines = 0x2,
+    flag_transpose_type = 0x4
   };
 
   class output : public syntax::const_action_result<std::wstring>
@@ -76,8 +77,11 @@ namespace sltl
       decrease
     };
 
-    void line_begin(indent_t indent_op);
-    void line_end(bool has_semi_colon = true);
+    std::wstring get_indent(indent_t indent_op);
+
+    const wchar_t  get_newline() const;
+    const wchar_t  get_terminal() const;
+    const wchar_t* get_terminal_newline() const;
 
     std::wstringstream _ss;
 

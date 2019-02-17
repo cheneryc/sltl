@@ -28,15 +28,6 @@ namespace
 {
   namespace ns = sltl;
 
-  void output_indent(std::wstringstream& ss, const size_t indent_count, const bool is_indent_tab)
-  {
-    //TODO: this should be precomputed when _indent_count is changed for performance reasons
-    for(size_t i = 0; i < indent_count; ++i)
-    {
-      ss << (is_indent_tab ? L"\t" : L"  ");
-    }
-  }
-
   template<typename T>
   auto to_string(T t) -> typename std::enable_if<std::is_floating_point<T>::value, std::wstring>::type
   {
@@ -179,30 +170,59 @@ std::wstring ns::output::get_result() const
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::block&, bool is_start)
 {
-  line_begin(is_start ? indent_t::increase : indent_t::decrease);
-  operator()(language::bracket_tag<language::id_brace>(), is_start);
-  line_end(false);
+  syntax::action_return_t return_val;
 
-  return is_start ? ns::syntax::action_return_t::step_in :
-                    ns::syntax::action_return_t::step_out;
+  if(is_start)
+  {
+    _ss << get_indent(indent_t::increase);
+    operator()(language::bracket_tag<language::id_brace>(), true);
+    _ss << get_newline();
+
+    return_val = syntax::action_return_t::step_in;
+  }
+  else
+  {
+    _ss << get_indent(indent_t::decrease);
+    operator()(language::bracket_tag<language::id_brace>(), false);
+    _ss << get_newline();
+
+    return_val = syntax::action_return_t::step_out;
+  }
+
+  return return_val;
 }
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::io_block&, bool is_start)
 {
-  return is_start ? ns::syntax::action_return_t::step_in :
-                    ns::syntax::action_return_t::step_out;
+  syntax::action_return_t return_val;
+
+  if(is_start)
+  {
+    if(_flags.has_flag<output_flags::flag_extra_newlines>())
+    {
+      _ss << get_newline();
+    }
+
+    return_val = syntax::action_return_t::step_in;
+  }
+  else
+  {
+    return_val = syntax::action_return_t::step_out;
+  }
+
+  return return_val;
 }
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::parameter_declaration& pd)
 {
   _ss << get_type_name(pd.get_type()) << L' ' << get_parameter_name(pd);
 
-  return ns::syntax::action_return_t::step_out;
+  return syntax::action_return_t::step_out;
 }
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::parameter_list& pl, bool is_start)
 {
-  ns::syntax::action_return_t return_val;
+  syntax::action_return_t return_val;
 
   if(is_start)
   {
@@ -219,12 +239,12 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::parameter_list&
 
     // The 'success' return value is 'step_over' as all child nodes have already been traversed
     return_val = ((it == it_end) ?
-      ns::syntax::action_return_t::step_over :
-      ns::syntax::action_return_t::stop);
+      syntax::action_return_t::step_over :
+      syntax::action_return_t::stop);
   }
   else
   {
-    return_val = ns::syntax::action_return_t::step_out;
+    return_val = syntax::action_return_t::step_out;
   }
 
   return return_val;
@@ -232,17 +252,17 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::parameter_list&
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::reference& r)
 {
-  if(auto vd = dynamic_cast<const ns::syntax::variable_declaration*>(&r._declaration))
+  if(auto vd = dynamic_cast<const syntax::variable_declaration*>(&r._declaration))
   {
     _ss << get_variable_name(*vd);
   }
 
-  if(auto pd = dynamic_cast<const ns::syntax::parameter_declaration*>(&r._declaration))
+  if(auto pd = dynamic_cast<const syntax::parameter_declaration*>(&r._declaration))
   {
     _ss << get_parameter_name(*pd);
   }
 
-  return ns::syntax::action_return_t::step_out;
+  return syntax::action_return_t::step_out;
 }
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::temporary& t, bool is_start)
@@ -271,13 +291,13 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::temporary& t, b
     }
   }
 
-  return is_start ? ns::syntax::action_return_t::step_in :
-                    ns::syntax::action_return_t::step_out;
+  return is_start ? syntax::action_return_t::step_in :
+                    syntax::action_return_t::step_out;
 }
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::operator_unary& ou, bool is_start)
 {
-  ns::syntax::action_return_t return_val;
+  syntax::action_return_t return_val;
 
   if(is_start)
   {
@@ -313,7 +333,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_unary&
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::operator_binary& ob, bool is_start)
 {
-  ns::syntax::action_return_t return_val;
+  syntax::action_return_t return_val;
 
   if(is_start)
   {
@@ -346,9 +366,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_binary
         operator()(language::bracket_tag<language::id_parenthesis>(), false);
       }
 
-      _ss << L' ';
-      _ss << to_operator_binary_string(ob._operator_id);
-      _ss << L' ';
+      _ss << L' ' << to_operator_binary_string(ob._operator_id) << L' ';
 
       if(detail::is_type<syntax::operator_binary>(ob._operand_rhs.get()))
       {
@@ -372,12 +390,12 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_binary
 
     // The 'success' return value is 'step_over' as all child nodes have already been traversed
     stop_label: return_val = (is_continuing ?
-      ns::syntax::action_return_t::step_over :
-      ns::syntax::action_return_t::stop);
+      syntax::action_return_t::step_over :
+      syntax::action_return_t::stop);
   }
   else
   {
-    return_val = ns::syntax::action_return_t::step_out;
+    return_val = syntax::action_return_t::step_out;
   }
 
   return return_val;
@@ -385,7 +403,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_binary
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::operator_component_access& oca, bool is_start)
 {
-  ns::syntax::action_return_t return_val;
+  syntax::action_return_t return_val;
 
   if(is_start)
   {
@@ -409,7 +427,10 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_compon
 
       std::wstring operator()(const syntax::component_accessor_vector& access) const
       {
-        const auto it_find = std::find(std::begin(access._indices), std::end(access._indices), syntax::component_accessor::_idx_default);
+        const auto it_find  = std::find(
+          access.begin(),
+          access.end(),
+          syntax::component_accessor::_idx_default);
 
         std::wstringstream ss;
 
@@ -451,28 +472,33 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::operator_compon
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::conditional& c, bool is_start)
 {
-  ns::syntax::action_return_t return_val;
+  syntax::action_return_t return_val;
 
   if(is_start)
   {
-    line_begin(indent_t::current);
+    if(_flags.has_flag<output_flags::flag_extra_newlines>())
+    {
+      _ss << get_newline();
+    }
+
+    _ss << get_indent(indent_t::current);
     _ss << to_conditional_string(c._id);
 
     bool is_continuing = true;
 
     if(const auto* condition = c.get_condition())
     {
-      _ss << L'(';
+      operator()(language::bracket_tag<language::id_parenthesis>(), true);
 
       if(!(is_continuing = condition->apply_action(*this)))
       {
         goto stop_label;
       }
 
-      _ss << L')';
+      operator()(language::bracket_tag<language::id_parenthesis>(), false);
     }
 
-    line_end(false);
+    _ss << get_newline();
 
     if(const auto* statement = c.get_statement())
     {
@@ -486,12 +512,12 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::conditional& c,
 
     // The 'success' return value is 'step_over' as all child nodes have already been traversed
     stop_label: return_val = (is_continuing ?
-      ns::syntax::action_return_t::step_over :
-      ns::syntax::action_return_t::stop);
+      syntax::action_return_t::step_over :
+      syntax::action_return_t::stop);
   }
   else
   {
-    return_val = ns::syntax::action_return_t::step_out;
+    return_val = syntax::action_return_t::step_out;
   }
 
   return return_val;
@@ -501,35 +527,33 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::constructor_cal
 {
   if(is_start)
   {
-    _ss << get_type_name(cc.get_type()) << L'(';
-  }
-  else
-  {
-    _ss << L')';
+    _ss << get_type_name(cc.get_type());
   }
 
-  return is_start ? ns::syntax::action_return_t::step_in :
-                    ns::syntax::action_return_t::step_out;
+  operator()(language::bracket_tag<language::id_parenthesis>(), is_start);
+
+  return is_start ? syntax::action_return_t::step_in :
+                    syntax::action_return_t::step_out;
 }
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::expression_statement&, bool is_start)
 {
   if(is_start)
   {
-    line_begin(indent_t::current);
+    _ss << get_indent(indent_t::current);
   }
   else
   {
-    line_end();
+    _ss << get_terminal_newline();
   }
 
-  return is_start ? ns::syntax::action_return_t::step_in :
-                    ns::syntax::action_return_t::step_out;
+  return is_start ? syntax::action_return_t::step_in :
+                    syntax::action_return_t::step_out;
 }
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::expression_list& el, bool is_start)
 {
-  ns::syntax::action_return_t return_val;
+  syntax::action_return_t return_val;
 
   if(is_start)
   {
@@ -546,12 +570,12 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::expression_list
 
     // The 'success' return value is 'step_over' as all child nodes have already been traversed
     return_val = ((it == it_end) ?
-      ns::syntax::action_return_t::step_over :
-      ns::syntax::action_return_t::stop);
+      syntax::action_return_t::step_over :
+      syntax::action_return_t::stop);
   }
   else
   {
-    return_val = ns::syntax::action_return_t::step_out;
+    return_val = syntax::action_return_t::step_out;
   }
 
   return return_val;
@@ -561,27 +585,28 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::function_call& 
 {
   if(is_start)
   {
-    _ss << fc.get_function_name() << L'(';
-  }
-  else
-  {
-    _ss << L')';
+    _ss << fc.get_function_name();
   }
 
-  return is_start ? ns::syntax::action_return_t::step_in :
-                    ns::syntax::action_return_t::step_out;
+  operator()(language::bracket_tag<language::id_parenthesis>(), is_start);
+
+  return is_start ? syntax::action_return_t::step_in :
+                    syntax::action_return_t::step_out;
 }
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::function_definition& fd, bool is_start)
 {
-  ns::syntax::action_return_t return_val;
+  syntax::action_return_t return_val;
 
   if(is_start)
   {
-    line_begin(indent_t::current);
+    if(_flags.has_flag<output_flags::flag_extra_newlines>())
+    {
+      _ss << get_newline();
+    }
 
-    _ss << get_type_name(fd.get_type()) << L' ' << fd._name;
-    _ss << L'(';
+    _ss << get_indent(indent_t::current);
+    _ss << get_type_name(fd.get_type()) << L' ' << fd._name << L'(';
 
     bool is_continuing;
 
@@ -590,8 +615,7 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::function_defini
       goto stop_label;
     }
 
-    _ss << L')';
-    line_end(false);
+    _ss << L')' << get_newline();
 
     if(!(is_continuing = fd.get_body().apply_action(*this)))
     {
@@ -600,12 +624,12 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::function_defini
 
     // The 'success' return value is 'step_over' as all child nodes have already been traversed
     stop_label: return_val = (is_continuing ?
-      ns::syntax::action_return_t::step_over :
-      ns::syntax::action_return_t::stop);
+      syntax::action_return_t::step_over :
+      syntax::action_return_t::stop);
   }
   else
   {
-    return_val = ns::syntax::action_return_t::step_out;
+    return_val = syntax::action_return_t::step_out;
   }
 
   return return_val;
@@ -615,68 +639,71 @@ ns::syntax::action_return_t ns::output::operator()(const syntax::return_statemen
 {
   if(is_start)
   {
-    line_begin(indent_t::current);
+    if(_flags.has_flag<output_flags::flag_extra_newlines>())
+    {
+      _ss << get_newline();
+    }
+
+    _ss << get_indent(indent_t::current);
     _ss << to_keyword_string(language::id_return) << L' ';
   }
   else
   {
-    line_end();
+    _ss << get_terminal_newline();
   }
 
-  return is_start ? ns::syntax::action_return_t::step_in :
-                    ns::syntax::action_return_t::step_out;
+  return is_start ? syntax::action_return_t::step_in :
+                    syntax::action_return_t::step_out;
 }
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::intrinsic_call& ic, bool is_start)
 {
   if(is_start)
   {
-    _ss << ::to_intrinsic_string(ic.get_intrinsic()) << L'(';
-  }
-  else
-  {
-    _ss << L')';
+    _ss << ::to_intrinsic_string(ic.get_intrinsic());
   }
 
-  return is_start ? ns::syntax::action_return_t::step_in :
-                    ns::syntax::action_return_t::step_out;
+  operator()(language::bracket_tag<language::id_parenthesis>(), is_start);
+
+  return is_start ? syntax::action_return_t::step_in :
+                    syntax::action_return_t::step_out;
 }
 
 ns::syntax::action_return_t ns::output::operator()(const syntax::intrinsic_declaration& id, bool is_start)
 {
   // The initial return value is 'step_over' as there is no need to traverse any child nodes
-  return is_start ? ns::syntax::action_return_t::step_over :
-                    ns::syntax::action_return_t::step_out;
+  return is_start ? syntax::action_return_t::step_over :
+                    syntax::action_return_t::step_out;
 }
 
 ns::syntax::action_return_t ns::output::operator()(float f)
 {
   _ss << to_string(f);
-  return ns::syntax::action_return_t::step_out;
+  return syntax::action_return_t::step_out;
 }
 
 ns::syntax::action_return_t ns::output::operator()(double d)
 {
   _ss << to_string(d);
-  return ns::syntax::action_return_t::step_out;
+  return syntax::action_return_t::step_out;
 }
 
 ns::syntax::action_return_t ns::output::operator()(int i)
 {
   _ss << to_string(i);
-  return ns::syntax::action_return_t::step_out;
+  return syntax::action_return_t::step_out;
 }
 
 ns::syntax::action_return_t ns::output::operator()(unsigned int ui)
 {
   _ss << to_string(ui);
-  return ns::syntax::action_return_t::step_out;
+  return syntax::action_return_t::step_out;
 }
 
 ns::syntax::action_return_t ns::output::operator()(bool b)
 {
   _ss << to_string(b);
-  return ns::syntax::action_return_t::step_out;
+  return syntax::action_return_t::step_out;
 }
 
 void ns::output::operator()(language::bracket_tag<language::id_brace>, bool is_start)
@@ -707,11 +734,11 @@ ns::syntax::action_return_t ns::output::get_default(bool is_start)
 {
   assert(false);
 
-  return is_start ? ns::syntax::action_return_t::step_in :
-                    ns::syntax::action_return_t::step_out;
+  return is_start ? syntax::action_return_t::step_in :
+                    syntax::action_return_t::step_out;
 }
 
-void ns::output::line_begin(indent_t indent_op)
+std::wstring ns::output::get_indent(indent_t indent_op)
 {
   size_t indent_count = _indent_count;
 
@@ -725,15 +752,31 @@ void ns::output::line_begin(indent_t indent_op)
       break;
   }
 
-  output_indent(_ss, indent_count, !_flags.has_flag<output_flags::flag_indent_space>());
-}
+  wchar_t indent_character = L' ';
 
-void ns::output::line_end(bool has_semi_colon)
-{
-  if(has_semi_colon)
+  if(_flags.has_flag<output_flags::flag_indent_space>())
   {
-    _ss << L';';
+    indent_count <<= 1U; // Two space characters per indent
+  }
+  else
+  {
+    indent_character = L'\t';
   }
 
-  _ss << std::endl;
+  return std::wstring(indent_count, indent_character);
+}
+
+const wchar_t ns::output::get_newline() const
+{
+  return L'\n';
+}
+
+const wchar_t ns::output::get_terminal() const
+{
+  return L';';
+}
+
+const wchar_t* ns::output::get_terminal_newline() const
+{
+  return L";\n";
 }

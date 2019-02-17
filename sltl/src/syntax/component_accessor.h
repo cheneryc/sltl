@@ -101,6 +101,16 @@ namespace syntax
 
     const language::type_dimension_t _indices[language::type_dimensions::max_dimensions];
 
+    auto begin() const -> decltype(std::begin(_indices))
+    {
+      return std::begin(_indices);
+    }
+
+    auto end() const -> decltype(std::end(_indices))
+    {
+      return std::end(_indices);
+    }
+
   private:
     component_accessor_vector(language::type_dimension_t idx0,
                               language::type_dimension_t idx1,

@@ -6,6 +6,7 @@
 #include "basic_operators.h"
 
 #include "output/glsl/output_glsl.h"
+#include "output/hlsl/output_hlsl.h"
 
 #include "io/io.h"
 
@@ -227,17 +228,46 @@ namespace
 
 int main()
 {
-  auto shader_vs = sltl::make_shader(&vs::pbr_vs);
+  constexpr bool is_glsl = true;
+
+  std::wstring shader_vs_text;
+  std::wstring shader_fs_text;
+
+  //TODO: make sltl::newline<2> to replace "\n\n"
 
   std::wcout << L"--- Vertex Shader ---" << L"\n\n";
-  std::wstring shader_vs_txt = shader_vs.apply_action<sltl::glsl::output_glsl>();
-  std::wcout << shader_vs_txt.c_str() << L"\n\n";//TODO: make sltl::newline<2> to replace std::endl
 
-  auto shader_fs = sltl::make_shader(&fs::pbr_fs);
+  {
+    auto shader_vs = sltl::make_shader(&vs::pbr_vs);
 
-  std::wcout << L"--- Fragment Shader ---" << L"\n\n";;
-  std::wstring shader_fs_txt = shader_fs.apply_action<sltl::glsl::output_glsl>();
-  std::wcout << shader_fs_txt.c_str() << std::endl;
+    if(is_glsl)
+    {
+      shader_vs_text = shader_vs.apply_action<sltl::glsl::output_glsl>(sltl::glsl::output_version::v330, sltl::output_flags::flag_extra_newlines);
+    }
+    else
+    {
+      shader_vs_text = shader_vs.apply_action<sltl::hlsl::output_hlsl>(sltl::output_flags::flag_extra_newlines);
+    }
+
+    std::wcout << shader_vs_text.c_str() << L"\n\n";
+  }
+
+  std::wcout << L"--- Fragment Shader ---" << L"\n\n";
+
+  {
+    auto shader_fs = sltl::make_shader(&fs::pbr_fs);
+
+    if(is_glsl)
+    {
+      shader_fs_text = shader_fs.apply_action<sltl::glsl::output_glsl>(sltl::glsl::output_version::v330, sltl::output_flags::flag_extra_newlines);
+    }
+    else
+    {
+      shader_fs_text = shader_fs.apply_action<sltl::hlsl::output_hlsl>(sltl::output_flags::flag_extra_newlines);
+    }
+
+    std::wcout << shader_fs_text.c_str() << std::endl;
+  }
 
   return 0;
 }

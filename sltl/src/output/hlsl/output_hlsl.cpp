@@ -278,6 +278,11 @@ sltl::syntax::action_return_t ns::output_hlsl::operator()(const sltl::syntax::io
   {
     if(is_start)
     {
+      if(_flags.has_flag<output_flags::flag_extra_newlines>())
+      {
+        _ss << get_newline();
+      }
+
       // Store the pointers to the 'in' and 'out' io_blocks for use later while processing the 'main' function definition
       switch(iob._qualifier)
       {
@@ -289,17 +294,23 @@ sltl::syntax::action_return_t ns::output_hlsl::operator()(const sltl::syntax::io
           break;
       }
 
-      line_begin(indent_t::current);
+      // Output the struct keyword followed by the type name
+      _ss << get_indent(indent_t::current);
+      _ss << to_keyword_string(language::id_struct) << L' ' << to_type_string(iob, _stage);
+      _ss << get_newline();
 
-      _ss << to_keyword_string(language::id_struct) << L' ';
-      _ss << to_type_string(iob, _stage);
-
-      line_end(false);
+      // Output the opening brace
+      _ss << get_indent(indent_t::increase);
+      output::operator()(language::bracket_tag<language::id_brace>(), true);
+      _ss << get_newline();
     }
-
-    line_begin(is_start ? indent_t::increase : indent_t::decrease);
-    output::operator()(language::bracket_tag<language::id_brace>(), is_start);
-    line_end(!is_start);
+    else
+    {
+      // Output the closing brace
+      _ss << get_indent(indent_t::decrease);
+      output::operator()(language::bracket_tag<language::id_brace>(), false);
+      _ss << get_terminal_newline();
+    }
   }
 
   return is_start ? syntax::action_return_t::step_in :
@@ -324,10 +335,8 @@ sltl::syntax::action_return_t ns::output_hlsl::operator()(const sltl::syntax::va
 {
   if(is_start)
   {
-    line_begin(indent_t::current);
-
-    _ss << get_type_name(vd.get_type()) << L' ';
-    _ss << get_variable_name(vd);
+    _ss << get_indent(indent_t::current);
+    _ss << get_type_name(vd.get_type()) << L' ' << get_variable_name(vd);
 
     if(::is_system_value_semantic(vd))
     {
@@ -340,7 +349,7 @@ sltl::syntax::action_return_t ns::output_hlsl::operator()(const sltl::syntax::va
   }
   else
   {
-    line_end();
+    _ss << get_terminal_newline();
   }
 
   return is_start ? syntax::action_return_t::step_in :
@@ -353,6 +362,11 @@ sltl::syntax::action_return_t ns::output_hlsl::operator()(const sltl::syntax::fu
 
   if((fd._name == L"main") && is_start)
   {
+    if(_flags.has_flag<output_flags::flag_extra_newlines>())
+    {
+      _ss << get_newline();
+    }
+
     assert(fd.get_type() == language::type_helper<void>());
     assert(fd.get_params().size() == 0U);
 
@@ -361,7 +375,7 @@ sltl::syntax::action_return_t ns::output_hlsl::operator()(const sltl::syntax::fu
     std::wstring block_out_type;
     std::wstring block_out_name;
 
-    line_begin(indent_t::current);
+    _ss << get_indent(indent_t::current);
 
     // Replace the main function's 'void' return type with the output io_block's type
     if(_block_out)
@@ -385,7 +399,7 @@ sltl::syntax::action_return_t ns::output_hlsl::operator()(const sltl::syntax::fu
     }
 
     _ss << L')';
-    line_end(false);
+    _ss << get_newline();
 
     // Output the function body's opening brace
     syntax::action_return_t return_val_body_start = output::operator()(function_body, true);
@@ -393,12 +407,9 @@ sltl::syntax::action_return_t ns::output_hlsl::operator()(const sltl::syntax::fu
     // Output a variable declaration statement for the output io_block
     if(_block_out)
     {
-      line_begin(indent_t::current);
-
-      _ss << block_out_type << L' ';
-      _ss << block_out_name;
-
-      line_end(); // Output a semi-colon and newline
+      _ss << get_indent(indent_t::current);
+      _ss << block_out_type << L' ' << block_out_name;
+      _ss << get_terminal_newline();
     }
 
     auto it = function_body.begin();
@@ -416,9 +427,9 @@ sltl::syntax::action_return_t ns::output_hlsl::operator()(const sltl::syntax::fu
       // Output a return statement for the output io_block
       if(_block_out)
       {
-        line_begin(indent_t::current);
+        _ss << get_indent(indent_t::current);
         _ss << to_keyword_string(language::id_return) << L' ' << block_out_name;
-        line_end();
+        _ss << get_terminal_newline();
       }
 
       // Output the function body's closing brace

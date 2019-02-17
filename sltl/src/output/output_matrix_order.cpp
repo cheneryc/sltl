@@ -18,11 +18,11 @@ ns::output_matrix_order::output_matrix_order(core::shader_stage)
 
 ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::operator_binary& ob, bool is_start)
 {
-  ns::syntax::action_return_t return_val = ns::syntax::action_return_t::step_out;
+  syntax::action_return_t return_val = syntax::action_return_t::step_out;
 
   if(is_start)
   {
-    return_val = ns::syntax::action_return_t::step_in;
+    return_val = syntax::action_return_t::step_in;
 
     if(ob._operator_id == language::id_matrix_multiplication)
     {
@@ -49,12 +49,12 @@ ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::operator
 {
   //TODO: implement this...
   assert(false);
-  return ns::syntax::action_return_t::step_out;
+  return syntax::action_return_t::step_out;
 }
 
 ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::variable_declaration& vd, bool is_start)
 {
-  ns::syntax::action_return_t return_val = ns::syntax::action_return_t::step_out;
+  syntax::action_return_t return_val = syntax::action_return_t::step_out;
 
   if(is_start)
   {
@@ -66,8 +66,8 @@ ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::variable
     }
 
     return_val = is_transposable ?
-      ns::syntax::action_return_t::step_over :
-      ns::syntax::action_return_t::step_in;
+      syntax::action_return_t::step_over :
+      syntax::action_return_t::step_in;
   }
 
   return return_val;
@@ -75,7 +75,7 @@ ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::variable
 
 ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::temporary& t, bool is_start)
 {
-  ns::syntax::action_return_t return_val = ns::syntax::action_return_t::step_out;
+  syntax::action_return_t return_val = syntax::action_return_t::step_out;
 
   if(is_start)
   {
@@ -87,8 +87,8 @@ ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::temporar
     }
 
     return_val = is_transposable ?
-      ns::syntax::action_return_t::step_over :
-      ns::syntax::action_return_t::step_in;
+      syntax::action_return_t::step_over :
+      syntax::action_return_t::step_in;
   }
 
   return return_val;
@@ -101,8 +101,8 @@ ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::construc
     cc.set_type(cc.get_type().transpose());
   }
 
-  return is_start ? ns::syntax::action_return_t::step_in :
-                    ns::syntax::action_return_t::step_out;
+  return is_start ? syntax::action_return_t::step_in :
+                    syntax::action_return_t::step_out;
 }
 
 ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::function_definition& fd, bool is_start)
@@ -112,12 +112,12 @@ ns::syntax::action_return_t ns::output_matrix_order::operator()(syntax::function
     fd.set_type(fd.get_type().transpose());
   }
 
-  return is_start ? ns::syntax::action_return_t::step_in :
-                    ns::syntax::action_return_t::step_out;
+  return is_start ? syntax::action_return_t::step_in :
+                    syntax::action_return_t::step_out;
 }
 
 ns::syntax::action_return_t ns::output_matrix_order::get_default(bool is_start)
 {
-  return is_start ? ns::syntax::action_return_t::step_in :
-                    ns::syntax::action_return_t::step_out;
+  return is_start ? syntax::action_return_t::step_in :
+                    syntax::action_return_t::step_out;
 }
