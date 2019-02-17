@@ -22,6 +22,11 @@ namespace syntax
     void push() override;
     void pop() override;
 
+    bool is_empty() const
+    {
+      return _statements.empty();
+    }
+
     bool apply_action(action& act) override;
     bool apply_action(const_action& cact) const override;
 

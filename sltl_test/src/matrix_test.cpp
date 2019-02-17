@@ -3,16 +3,25 @@
 #include "matrix.h"
 #include "basic_operators.h"
 #include "shader.h"
-#include "output.h"
 #include "scope.h"
+
+#include "output/glsl/output_glsl.h"
+#include "output/hlsl/output_hlsl.h"
+#include "output/output_matrix_order.h"
 
 
 namespace
 {
-  std::wstring to_string(const sltl::shader& shader, sltl::detail::enum_flags<sltl::output_flags> flags = sltl::output_flags::flag_none)
+  std::wstring to_string_glsl(const sltl::shader& shader, sltl::detail::enum_flags<sltl::output_flags> flags = sltl::output_flags::flag_none)
   {
     // Prepend a newline character to exactly match the raw string literals
-    return L'\n' + shader.apply_action<sltl::output>(sltl::output_version::none, flags | sltl::output_flags::flag_indent_space);
+    return L'\n' + shader.apply_action<sltl::glsl::output_glsl>(sltl::glsl::output_version::none, flags | sltl::output_flags::flag_indent_space);
+  }
+
+  std::wstring to_string_hlsl(const sltl::shader& shader)
+  {
+    // Prepend a newline character to exactly match the raw string literals
+    return L'\n' + shader.apply_action<sltl::hlsl::output_hlsl>(sltl::output_flags::flag_indent_space);
   }
 }
 
@@ -36,8 +45,11 @@ TEST(matrix, constructor)
     //TODO: add constructor test cases equivalent to those in vector/scalar_test.cpp
   };
 
-  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
 {
   mat2x2 m1;
   mat3x2 m2;
@@ -53,7 +65,31 @@ TEST(matrix, constructor)
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
+{
+  float2x2 m1;
+  float2x3 m2;
+  float2x4 m3;
+  float3x2 m4;
+  float3x3 m5;
+  float3x4 m6;
+  float4x2 m7;
+  float4x3 m8;
+  float4x4 m9;
+  float2x2 m10 = float2x2(1.0f, 1.0f, 1.0f, 1.0f);
+  float2x2 m11 = m10;
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(matrix, variable_naming)
@@ -69,8 +105,11 @@ TEST(matrix, variable_naming)
     }
   };
 
-  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
 {
   mat4x4 m1;
   dmat4x4 m2;
@@ -80,7 +119,25 @@ TEST(matrix, variable_naming)
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
+{
+  float4x4 m1;
+  double4x4 m2;
+  {
+    float4x4 m3_1;
+  }
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(matrix, operator_multiplication)
@@ -97,8 +154,11 @@ TEST(matrix, operator_multiplication)
     sltl::matrix<float, 2, 3> m8 = sltl::matrix<float, 2, 3>() * sltl::matrix<float, 3, 3>();
   };
 
-  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
 {
   mat3x4 m1;
   mat2x3 m2;
@@ -111,7 +171,28 @@ TEST(matrix, operator_multiplication)
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
+{
+  float4x3 m1;
+  float3x2 m2;
+  float4x2 m3 = mul(m1, m2);
+  float2x3 m4;
+  float4x3 m5 = mul(mul(m1, m2), m4);
+  float4x2 m6 = mul(mul(m1, m2), mul(m4, m2));
+  float4x4 m8 = mul(mul(m1, m2), float2x4(0.0f));
+  float2x3 m11 = mul(float2x3(0.0f), float3x3(0.0f));
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(matrix, operator_multiplication_vector)
@@ -124,8 +205,11 @@ TEST(matrix, operator_multiplication_vector)
     sltl::vector<float, 3> v3 = sltl::vector<float, 4>() * m1;
   };
 
-  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
 {
   mat3x4 m1;
   vec4 v2;
@@ -134,7 +218,24 @@ TEST(matrix, operator_multiplication_vector)
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
+{
+  float4x3 m1;
+  float4 v2;
+  float3 v3 = mul(v2, m1);
+  float3 v5 = mul(float4(0.0f), m1);
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(matrix, operator_multiplication_associativity)
@@ -146,8 +247,11 @@ TEST(matrix, operator_multiplication_associativity)
     sltl::vector<float, 4> v2 = v1 * m1 * m2 * m3;
   };
 
-  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
 {
   mat4x4 m1;
   mat4x4 m2;
@@ -157,7 +261,25 @@ TEST(matrix, operator_multiplication_associativity)
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
+{
+  float4x4 m1;
+  float4x4 m2;
+  float4x4 m3;
+  float4 v4;
+  float4 v5 = mul(mul(mul(v4, m1), m2), m3);
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(matrix, output_matrix_order)
@@ -181,8 +303,8 @@ TEST(matrix, output_matrix_order)
   //
   // (m1 * m2) * m3
   //
-  // Note that sltl will insert parentheses nodes into the syntax tree to make this
-  // explicit. However, when converted to column-major it will be stored as:
+  // Note that sltl will output parentheses to make this explicit. However, when converted
+  // to column-major it will be stored as:
   //
   // m3 * (m2 * m1)
   //
@@ -200,7 +322,7 @@ TEST(matrix, output_matrix_order)
 
   shader.apply_action<sltl::output_matrix_order>();
 
-  const std::wstring actual = ::to_string(shader, sltl::output_flags::flag_transpose_type);
+  const std::wstring actual = ::to_string_glsl(shader, sltl::output_flags::flag_transpose_type);
   const std::wstring expected = LR"(
 {
   mat3x4 m1;

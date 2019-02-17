@@ -3,15 +3,23 @@
 #include "vector.h"
 #include "basic_operators.h"
 #include "shader.h"
-#include "output.h"
+
+#include "output/glsl/output_glsl.h"
+#include "output/hlsl/output_hlsl.h"
 
 
 namespace
 {
-  std::wstring to_string(const sltl::shader& shader)
+  std::wstring to_string_glsl(const sltl::shader& shader)
   {
     // Prepend a newline character to exactly match the raw string literals
-    return L'\n' + shader.apply_action<sltl::output>(sltl::output_version::none, sltl::output_flags::flag_indent_space);
+    return L'\n' + shader.apply_action<sltl::glsl::output_glsl>(sltl::glsl::output_version::none, sltl::output_flags::flag_indent_space);
+  }
+
+  std::wstring to_string_hlsl(const sltl::shader& shader)
+  {
+    // Prepend a newline character to exactly match the raw string literals
+    return L'\n' + shader.apply_action<sltl::hlsl::output_hlsl>(sltl::output_flags::flag_indent_space);
   }
 }
 
@@ -62,8 +70,11 @@ TEST(vector, constructor)
     vec4 unpack9(v2 + v2, v2 + v2);
   };
 
-  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
 {
   vec2 v1;
   vec3 v2;
@@ -96,7 +107,48 @@ TEST(vector, constructor)
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
+{
+  float2 v1;
+  float3 v2;
+  float4 v3;
+  float2 v4 = float2(1.0f, 1.0f);
+  float3 v5 = float3(1.0f, 1.0f, 1.0f);
+  float4 v6 = float4(1.0f, 1.0f, 1.0f, 1.0f);
+  float2 v7 = float2(1.0f, 1.0f);
+  float3 v8 = float3(1.0f, 1.0f, 1.0f);
+  float4 v9 = float4(1.0f, 1.0f, 1.0f, 1.0f);
+  float2 v10 = v7;
+  float3 v11 = v8;
+  float4 v12 = v9;
+  float2 v13 = v10;
+  float3 v14 = v11;
+  float4 v15 = v12;
+  float2 v16 = float2(1.0f, 1.0f);
+  float3 v17 = float3(1.0f, 1.0f, 1.0f);
+  float4 v18 = float4(1.0f, 1.0f, 1.0f, 1.0f);
+  float2 v19;
+  float3 v21 = float3(1.0f, float2(1.0f, 1.0f));
+  float3 v22 = float3(1.0f, v19);
+  float3 v24 = float3(float2(1.0f, 1.0f), 1.0f);
+  float3 v25 = float3(v19, 1.0f);
+  float4 v27 = float4(1.0f, float3(1.0f, 1.0f, 1.0f));
+  float4 v30 = float4(float2(1.0f, 1.0f), float2(1.0f, 1.0f));
+  float4 v32 = float4(v19, float2(1.0f, 1.0f));
+  float4 v33 = float4(v19, v19);
+  float4 v34 = float4(v19 + v19, v19 + v19);
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(vector, variable_naming)
@@ -144,8 +196,11 @@ TEST(vector, variable_naming)
     bvec4 test_bvec4;
   };
 
-  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
 {
   vec2 v1;
   vec3 v2;
@@ -165,7 +220,35 @@ TEST(vector, variable_naming)
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
+{
+  float2 v1;
+  float3 v2;
+  float4 v3;
+  double2 v4;
+  double3 v5;
+  double4 v6;
+  int2 v7;
+  int3 v8;
+  int4 v9;
+  uint2 v10;
+  uint3 v11;
+  uint4 v12;
+  bool2 v13;
+  bool3 v14;
+  bool4 v15;
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(vector, assignment_operator)
@@ -183,8 +266,11 @@ TEST(vector, assignment_operator)
     test1 = test2++;
   };
 
-  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
 {
   vec2 v1;
   vec2 v2;
@@ -196,7 +282,27 @@ TEST(vector, assignment_operator)
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
+{
+  float2 v1;
+  float2 v2;
+  v1 = v2;
+  v1 = float2(0.0f);
+  v1 = float2(1.0f, 1.0f);
+  v1 = (v2 = v1);
+  v1 = v2++;
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(vector, addition_operator)
@@ -222,8 +328,11 @@ TEST(vector, addition_operator)
     test1 += (test2 + test3) + test4;
   };
 
-  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
 {
   vec2 v1;
   vec2 v2;
@@ -242,7 +351,34 @@ TEST(vector, addition_operator)
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
+{
+  float2 v1;
+  float2 v2;
+  float2 v3;
+  float2 v4;
+  v1 += v2;
+  v1 += float2(0.0f);
+  v1 += float2(1.0f, 1.0f);
+  v1 + v2;
+  v1 + float2(0.0f);
+  float2(0.0f) + v1;
+  v1 += (v2 + float2(0.0f));
+  v1 += (float2(0.0f) + float2(0.0f));
+  v1 += (v2 + v3);
+  v1 += ((v2 + v3) + v4);
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(vector, subtraction_operator)
@@ -268,8 +404,11 @@ TEST(vector, subtraction_operator)
     test1 -= (test2 - test3) - test4;
   };
 
-  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
 {
   vec2 v1;
   vec2 v2;
@@ -288,7 +427,34 @@ TEST(vector, subtraction_operator)
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
+{
+  float2 v1;
+  float2 v2;
+  float2 v3;
+  float2 v4;
+  v1 -= v2;
+  v1 -= float2(0.0f);
+  v1 -= float2(1.0f, 1.0f);
+  v1 - v2;
+  v1 - float2(0.0f);
+  float2(0.0f) - v1;
+  v1 -= (v2 - float2(0.0f));
+  v1 -= (float2(0.0f) - float2(0.0f));
+  v1 -= (v2 - v3);
+  v1 -= ((v2 - v3) - v4);
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(vector, prefix_operators)
@@ -314,8 +480,11 @@ TEST(vector, prefix_operators)
     --(itest1 - itest2);
   };
 
-  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
 {
   vec4 v1;
   vec4 v2 = ++v1;
@@ -334,7 +503,34 @@ TEST(vector, prefix_operators)
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
+{
+  float4 v1;
+  float4 v2 = ++v1;
+  float4 v3 = --v2;
+  ++v3;
+  ++(v1 + v2);
+  --v3;
+  --(v1 - v2);
+  int4 v4;
+  int4 v5 = ++v4;
+  int4 v6 = --v5;
+  ++v6;
+  ++(v4 + v5);
+  --v6;
+  --(v4 - v5);
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(vector, postfix_operators)
@@ -360,8 +556,11 @@ TEST(vector, postfix_operators)
     (itest1 - itest2)--;
   };
 
-  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
 {
   vec4 v1;
   vec4 v2 = v1++;
@@ -380,5 +579,32 @@ TEST(vector, postfix_operators)
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
+{
+  float4 v1;
+  float4 v2 = v1++;
+  float4 v3 = v2--;
+  v3++;
+  (v1 + v2)++;
+  v3--;
+  (v1 - v2)--;
+  int4 v4;
+  int4 v5 = v4++;
+  int4 v6 = v5--;
+  v6++;
+  (v4 + v5)++;
+  v6--;
+  (v4 - v5)--;
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }

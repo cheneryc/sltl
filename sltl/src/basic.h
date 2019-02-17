@@ -1,11 +1,12 @@
 #pragma once
 
-#include "traits.h"
 #include "variable.h"
 
 #include "expression/expression.h"
 
 #include "core/semantic.h"
+
+#include "detail/type_traits.h"
 
 
 namespace sltl
@@ -13,7 +14,7 @@ namespace sltl
   template<template<typename, size_t...> class V, typename T, size_t ...D>
   class basic : public variable
   {
-    static_assert(is_scalar<T>::value, "sltl::basic: Type T is not a valid template parameter type");
+    static_assert(detail::is_scalar<T>::value, "sltl::basic: Type T is not a valid template parameter type");
 
   public:
     typedef expression::expression<V, T, D...> proxy;

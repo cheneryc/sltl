@@ -3,7 +3,7 @@
 #include "action.h"
 #include "statement.h"
 
-#include <language.h>
+#include <type.h>
 
 #include <cassert>
 
@@ -71,7 +71,7 @@ namespace syntax
       assert(((type._id == language::id_else) && !type._condition) ||
              ((type._id != language::id_else) &&  type._condition));
 
-      const auto act_result = act(type);
+      const auto act_result = act(type, true);
 
       assert(act_result == action_return_t::step_in ||
              act_result == action_return_t::step_over ||

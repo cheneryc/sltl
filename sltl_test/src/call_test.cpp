@@ -2,10 +2,11 @@
 
 #include "call.h"
 #include "shader.h"
-#include "output.h"
 #include "scalar.h"
 #include "vector.h"
 #include "basic_operators.h"
+
+#include "output/glsl/output_glsl.h"
 
 #include "io/io.h"
 
@@ -17,7 +18,7 @@ namespace
   std::wstring to_string(const sltl::shader& shader)
   {
     // Prepend a newline character to exactly match the raw string literals
-    return L'\n' + shader.apply_action<sltl::output>(sltl::output_version::none, sltl::output_flags::flag_indent_space);
+    return L'\n' + shader.apply_action<sltl::glsl::output_glsl>(sltl::glsl::output_version::none, sltl::output_flags::flag_indent_space);
   }
 
   void fn_empty_returns_void() {}

@@ -2,7 +2,8 @@
 
 #include "vector.h"
 #include "shader.h"
-#include "output.h"
+
+#include "output/glsl/output_glsl.h"
 
 
 namespace
@@ -10,7 +11,7 @@ namespace
   std::wstring to_string(const sltl::shader& shader)
   {
     // Prepend a newline character to exactly match the raw string literals
-    return L'\n' + shader.apply_action<sltl::output>(sltl::output_version::none, sltl::output_flags::flag_indent_space);
+    return L'\n' + shader.apply_action<sltl::glsl::output_glsl>(sltl::glsl::output_version::none, sltl::output_flags::flag_indent_space);
   }
 }
 
@@ -90,7 +91,7 @@ TEST(intrinsic, call_intrinsic_dot)
   auto exp_return = sltl::syntax::call_intrinsic_dot(p1.move(), p2.move());
 
   ASSERT_TRUE(exp_return);
-  ASSERT_TRUE(dynamic_cast<sltl::syntax::intrinsic_call*>(exp_return.get()));
+  ASSERT_TRUE(sltl::detail::is_type<sltl::syntax::intrinsic_call>(exp_return.get()));
 }
 
 TEST(intrinsic, call_intrinsic_dot_exceptions)

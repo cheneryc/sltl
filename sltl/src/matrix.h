@@ -17,7 +17,7 @@ namespace sltl
   template<typename T, size_t M, size_t N = M>
   class matrix : public basic<sltl::matrix, T, M, N>
   {
-    static_assert(is_real<T>::value, "sltl::matrix: Type T is not a valid template parameter type");
+    static_assert(detail::is_real<T>::value, "sltl::matrix: Type T is not a valid template parameter type");
     static_assert((M >=2) && (M <= 4), "sltl::matrix: template parameter M is only valid for values of 2, 3 and 4");
     static_assert((N >=2) && (N <= 4), "sltl::matrix: template parameter N is only valid for values of 2, 3 and 4");
 

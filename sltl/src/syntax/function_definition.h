@@ -10,7 +10,7 @@
 #include "parameter_declaration.h"
 #include "return_statement.h"
 
-#include <language.h>
+#include <type.h>
 
 #include <detail/function_traits.h>
 
@@ -75,11 +75,34 @@ namespace syntax
       return _parameters;
     }
 
+    const block& get_body() const
+    {
+      return _function_body;
+    }
+
   private:
     template<typename A, typename T>
     static auto apply_action(A& act, T& type) -> typename std::enable_if<std::is_same<typename std::remove_const<T>::type, function_definition>::value, bool>::type
     {
-      return (apply_action_impl(act, type, &(type._parameters)) && type._function_body.apply_action(act));
+      const auto act_result = act(type, true);
+
+      assert(act_result == action_return_t::step_in ||
+             act_result == action_return_t::step_over ||
+             act_result == action_return_t::stop);
+
+      bool is_continuing = act_result != action_return_t::stop;
+
+      if(act_result == action_return_t::step_in)
+      {
+        is_continuing = type._parameters.apply_action(act) && type._function_body.apply_action(act);
+      }
+
+      auto fn = [&act](T& t)
+      {
+        return act(t, false);
+      };
+
+      return is_continuing && apply_action_impl(fn, type);
     }
 
     template<size_t>

@@ -3,16 +3,24 @@
 #include "scalar.h"
 #include "basic_operators.h"
 #include "shader.h"
-#include "output.h"
 #include "scope.h"
+
+#include "output/glsl/output_glsl.h"
+#include "output/hlsl/output_hlsl.h"
 
 
 namespace
 {
-  std::wstring to_string(const sltl::shader& shader)
+  std::wstring to_string_glsl(const sltl::shader& shader)
   {
     // Prepend a newline character to exactly match the raw string literals
-    return L'\n' + shader.apply_action<sltl::output>(sltl::output_version::none, sltl::output_flags::flag_indent_space);
+    return L'\n' + shader.apply_action<sltl::glsl::output_glsl>(sltl::glsl::output_version::none, sltl::output_flags::flag_indent_space);
+  }
+
+  std::wstring to_string_hlsl(const sltl::shader& shader)
+  {
+    // Prepend a newline character to exactly match the raw string literals
+    return L'\n' + shader.apply_action<sltl::hlsl::output_hlsl>(sltl::output_flags::flag_indent_space);
   }
 }
 
@@ -29,8 +37,11 @@ TEST(scalar, constructor)
     sltl::scalar<float> test_construct7(sltl::scalar<float>(1.0f));// Temporary object eliminated by copy elision optimisation
   };
 
-  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
 {
   float f1;
   float f2 = 1.0f;
@@ -42,7 +53,27 @@ TEST(scalar, constructor)
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
+{
+  float f1;
+  float f2 = 1.0f;
+  float f3 = 1.0f;
+  float f4 = 1.0f;
+  float f5 = f4;
+  float f6 = f5;
+  float f7 = 1.0f;
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(scalar, variable_naming)
@@ -61,8 +92,11 @@ TEST(scalar, variable_naming)
     }
   };
 
-  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
 {
   float f1;
   double d2;
@@ -75,7 +109,28 @@ TEST(scalar, variable_naming)
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
+{
+  float f1;
+  double d2;
+  int i3;
+  uint u4;
+  bool b5;
+  {
+    float f6_1;
+  }
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(scalar, assignment_operator)
@@ -92,8 +147,11 @@ TEST(scalar, assignment_operator)
     test1 = test2++;
   };
 
-  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
 {
   float f1;
   float f2;
@@ -106,7 +164,28 @@ TEST(scalar, assignment_operator)
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
+{
+  float f1;
+  float f2;
+  f1 = 1.0f;
+  f1 = f2;
+  f1 = float(0.0f);
+  f1 = float(1.0f);
+  f1 = (f2 = f1);
+  f1 = f2++;
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(scalar, addition_operator)
@@ -133,8 +212,11 @@ TEST(scalar, addition_operator)
     test1 += (test2 + 1.0f) + test3;
   };
 
-  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
 {
   float f1;
   float f2;
@@ -155,7 +237,36 @@ TEST(scalar, addition_operator)
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
+{
+  float f1;
+  float f2;
+  float f3;
+  f1 += 1.0f;
+  f1 += f2;
+  f1 += float(0.0f);
+  f1 += float(1.0f);
+  f1 + 1.0f;
+  f1 + f2;
+  f1 + float(0.0f);
+  1.0f + f1;
+  float(0.0f) + f1;
+  f1 += (f2 + 1.0f);
+  f1 += (f2 + float(0.0f));
+  f1 += (f2 + f3);
+  f1 += ((f2 + 1.0f) + f3);
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(scalar, subtraction_operator)
@@ -182,8 +293,11 @@ TEST(scalar, subtraction_operator)
     test1 -= (test2 - 1.0f) - test3;
   };
 
-  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
 {
   float f1;
   float f2;
@@ -204,7 +318,36 @@ TEST(scalar, subtraction_operator)
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
+{
+  float f1;
+  float f2;
+  float f3;
+  f1 -= 1.0f;
+  f1 -= f2;
+  f1 -= float(0.0f);
+  f1 -= float(1.0f);
+  f1 - 1.0f;
+  f1 - f2;
+  f1 - float(0.0f);
+  1.0f - f1;
+  float(0.0f) - f1;
+  f1 -= (f2 - 1.0f);
+  f1 -= (f2 - float(0.0f));
+  f1 -= (f2 - f3);
+  f1 -= ((f2 - 1.0f) - f3);
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(scalar, prefix_operators)
@@ -230,8 +373,11 @@ TEST(scalar, prefix_operators)
     --(itest1 - itest2);
   };
 
-  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
 {
   float f1;
   float f2 = ++f1;
@@ -250,7 +396,34 @@ TEST(scalar, prefix_operators)
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
+{
+  float f1;
+  float f2 = ++f1;
+  float f3 = --f2;
+  ++f3;
+  ++(f1 + f2);
+  --f3;
+  --(f1 - f2);
+  int i4;
+  int i5 = ++i4;
+  int i6 = --i5;
+  ++i6;
+  ++(i4 + i5);
+  --i6;
+  --(i4 - i5);
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
 
 TEST(scalar, postfix_operators)
@@ -276,8 +449,11 @@ TEST(scalar, postfix_operators)
     (itest1 - itest2)--;
   };
 
-  const std::wstring actual = ::to_string(sltl::make_test(test_shader));
-  const std::wstring expected = LR"(
+  // GLSL
+
+  {
+    const std::wstring actual = ::to_string_glsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
 {
   float f1;
   float f2 = f1++;
@@ -296,5 +472,32 @@ TEST(scalar, postfix_operators)
 }
 )";
 
-  ASSERT_EQ(expected, actual);
+    EXPECT_EQ(expected, actual);
+  }
+
+  // HLSL
+
+  {
+    const std::wstring actual = ::to_string_hlsl(sltl::make_test(test_shader));
+    const std::wstring expected = LR"(
+{
+  float f1;
+  float f2 = f1++;
+  float f3 = f2--;
+  f3++;
+  (f1 + f2)++;
+  f3--;
+  (f1 - f2)--;
+  int i4;
+  int i5 = i4++;
+  int i6 = i5--;
+  i6++;
+  (i4 + i5)++;
+  i6--;
+  (i4 - i5)--;
+}
+)";
+
+    EXPECT_EQ(expected, actual);
+  }
 }
