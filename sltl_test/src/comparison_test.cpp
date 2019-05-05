@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "detail/comparison.h"
-#include "detail/variadic_traits.h"
+#include "detail/variadic_algorithm.h"
 
 #include <vector>
 

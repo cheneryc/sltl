@@ -1,5 +1,7 @@
 #pragma once
 
+#include "assert.h"
+
 #include <type_traits>
 
 
@@ -35,9 +37,7 @@ namespace detail
 
   // Gets the nth type template parameter from the specified templated type
   template<size_t N, typename T>
-  struct get_param
-  {
-  };
+  struct get_param;
 
   template<size_t N, template<typename...> class T, typename ...A>
   struct get_param<N, T<A...>>
@@ -47,14 +47,33 @@ namespace detail
 
   // Gets the nth value template parameter from the specified templated type
   template<size_t N, typename T1, typename T2>
-  struct get_value_param
-  {
-  };
+  struct get_value_param;
 
   template<size_t N, typename T1, template<T1...> class T2, T1 ...V>
   struct get_value_param<N, T1, T2<V...>>
   {
     static const T1 value = get_value<N, T1, V...>::value;
+  };
+
+  template<typename T, typename ...A>
+  struct get_index;
+
+  template<typename T>
+  struct get_index<T>
+  {
+    static_assert(fail<T>::value, "sltl::detail::get_index: template parameter T doesn't match any of the variadic template parameters");
+  };
+
+  template<typename T, typename ...A>
+  struct get_index<T, T, A...>
+  {
+    static const size_t value = 0U;
+  };
+
+  template<typename T, typename T2, typename ...A>
+  struct get_index<T, T2, A...>
+  {
+    static const size_t value = get_index<T, A...>::value + 1U; // Increment the value by one each time this specialization is used to get the correct index
   };
 
   template<typename ...A>
@@ -79,26 +98,6 @@ namespace detail
   struct is_empty_values<>
   {
     static const bool value = true;
-  };
-
-  template<typename ...A>
-  struct all : std::true_type
-  {
-  };
-
-  template<typename T, typename ...A>
-  struct all<T, A...> : std::conditional<T::value, all<A...>, std::false_type>::type
-  {
-  };
-
-  template<typename ...A>
-  struct any : std::false_type
-  {
-  };
-
-  template<typename T, typename ...A>
-  struct any<T, A...> : std::conditional<T::value, std::true_type, any<A...>>::type
-  {
   };
 }
 }

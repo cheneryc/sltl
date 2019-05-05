@@ -13,7 +13,8 @@
 #include "core/qualifier.h"
 #include "core/shader_stage.h"
 
-#include "context.h"
+#include "gl/context.h"
+#include "gl/shader_gl.h"
 
 #include <iostream>
 
@@ -282,10 +283,10 @@ int main()
 
   try
   {
-    sltl::api::context context;
-    sltl::api::shader gl_vs(to_string(shader_vs_text).c_str(), sltl::api::shader_stage::vertex);
-    sltl::api::shader gl_fs(to_string(shader_fs_text).c_str(), sltl::api::shader_stage::fragment);
-    sltl::api::shader_program gl_shader_program(gl_vs, gl_fs);
+    sltl::api::gl::context gl_context;
+    sltl::api::gl::shader gl_vs(to_string(shader_vs_text).c_str(), sltl::api::shader_stage::vertex);
+    sltl::api::gl::shader gl_fs(to_string(shader_fs_text).c_str(), sltl::api::shader_stage::fragment);
+    sltl::api::gl::shader_program gl_shader_program(gl_vs, gl_fs);
   }
   catch(const std::exception& ex)
   {

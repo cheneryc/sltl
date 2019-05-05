@@ -18,6 +18,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sltl_test", "sltl_test\sltl
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sltl_api", "sltl_api\sltl_api.vcxproj", "{8BA3260E-60ED-4934-AA1D-96F0B8FC2B1F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sltl_api_test", "sltl_api_test\sltl_api_test.vcxproj", "{231CA192-B0A0-4068-942F-28428E4CE4BC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8BA3260E-60ED-4934-AA1D-96F0B8FC2B1F} = {8BA3260E-60ED-4934-AA1D-96F0B8FC2B1F}
+		{53BA074C-FA2B-479A-9581-AE2FE3AC6A4C} = {53BA074C-FA2B-479A-9581-AE2FE3AC6A4C}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -40,6 +46,10 @@ Global
 		{8BA3260E-60ED-4934-AA1D-96F0B8FC2B1F}.Debug|Win32.Build.0 = Debug|Win32
 		{8BA3260E-60ED-4934-AA1D-96F0B8FC2B1F}.Release|Win32.ActiveCfg = Release|Win32
 		{8BA3260E-60ED-4934-AA1D-96F0B8FC2B1F}.Release|Win32.Build.0 = Release|Win32
+		{231CA192-B0A0-4068-942F-28428E4CE4BC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{231CA192-B0A0-4068-942F-28428E4CE4BC}.Debug|Win32.Build.0 = Debug|Win32
+		{231CA192-B0A0-4068-942F-28428E4CE4BC}.Release|Win32.ActiveCfg = Release|Win32
+		{231CA192-B0A0-4068-942F-28428E4CE4BC}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

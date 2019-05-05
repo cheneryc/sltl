@@ -21,7 +21,7 @@ namespace sltl
     using has_get_result_op = decltype(std::declval<T>().get_result());
 
     template<typename T>
-    using has_get_result = detect<T, has_get_result_op>;
+    using has_get_result = detect<void, has_get_result_op, T>;
   }
 
   class shader

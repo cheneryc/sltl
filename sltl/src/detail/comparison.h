@@ -19,6 +19,6 @@ namespace detail
   using is_equality_comparable_op = decltype(std::declval<T>() == std::declval<T>());
 
   template<typename T>
-  using is_equality_comparable = detect<T, is_equality_comparable_op>;
+  using is_equality_comparable = detect<void, is_equality_comparable_op, T>;
 }
 }

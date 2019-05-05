@@ -1,15 +1,14 @@
 #pragma once
 
+#include "../shader_stage.h"
+
+
 namespace sltl
 {
 namespace api
 {
-  enum class shader_stage
-  {
-    vertex,
-    fragment
-  };
-
+namespace gl
+{
   class shader final
   {
   public:
@@ -24,6 +23,7 @@ namespace api
     impl* _impl;
   };
 
+  //TODO: move shader_program class into its own .h/cpp (requires removal of the pimpl idiom)
   class shader_program final
   {
   public:
@@ -35,17 +35,6 @@ namespace api
     struct impl;
     impl* _impl;
   };
-
-  class context final
-  {
-  public:
-    context();
-
-    ~context();
-
-  private:
-    struct impl;
-    impl* _impl;
-  };
+}
 }
 }
