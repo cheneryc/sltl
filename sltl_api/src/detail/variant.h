@@ -22,7 +22,7 @@ namespace api
 {
 namespace detail
 {
-  //TODO: use std::is_constructible instead?
+  // Note that std::is_constructible doesn't seem to have the exact desired behaviour (accepts implicit conversions that result in various warnings)
   template<typename T, typename ...A>
   using is_constructible_op = decltype(T{ std::declval<A>()... });
 
@@ -31,7 +31,11 @@ namespace detail
 
   struct variant_index
   {
-    size_t _index = 0U;
+    variant_index(size_t index) : _index(index)
+    {
+    }
+
+    const size_t _index;
   };
 
   template<typename T>
@@ -78,23 +82,39 @@ namespace detail
       visit(construct_functor(), std::forward<A>(a)...);
     }
 
-    template<typename TEmp, typename ...A>
-    auto construct_type(A&& ...a) -> TEmp*
+    template<typename TCon, typename ...A>
+    auto construct_type(A&& ...a) -> TCon*
     {
-      return construct_type_impl<TEmp>(sltl::detail::priority<2U>(), std::forward<A>(a)...);
+#ifdef _DEBUG
+      constexpr static size_t index_type = sltl::detail::get_index<TCon, T...>::value;
+#endif
+
+      assert(!_is_constructed);
+      assert(_index == index_type);
+
+      return construct_type_impl(variant_tag<TCon>(), sltl::detail::priority<2U>(), std::forward<A>(a)...);
     }
 
     void destruct()
     {
-      assert(_is_constructed);
-
       visit(destruct_functor());
     }
 
     template<typename TDes>
     void destruct_type()
     {
+#ifdef _DEBUG
+      constexpr static size_t index_type = sltl::detail::get_index<TDes, T...>::value;
+#endif
+
+      assert(_is_constructed);
+      assert(_index == index_type);
+
       static_cast<TDes*>(get_ptr())->~TDes();
+
+#ifdef _DEBUG
+      _is_constructed = false;
+#endif
     }
 
     template<typename Fn, typename ...A>
@@ -107,10 +127,11 @@ namespace detail
     const TGet& get_type() const
     {
 #ifdef _DEBUG
-      constexpr static size_t type_index = sltl::detail::get_index<TGet, T...>::value;
+      constexpr static size_t index_type = sltl::detail::get_index<TGet, T...>::value;
 #endif
 
-      assert(_index == type_index);
+      assert(_is_constructed);
+      assert(_index == index_type);
 
       return *static_cast<const TGet*>(get_ptr());
     }
@@ -134,28 +155,28 @@ namespace detail
       }
     };
 
-    template<typename TEmp, typename ...A>
-    auto construct_type_impl(sltl::detail::priority<2U>, A&& ...a) -> typename std::enable_if<detail::is_constructible<TEmp, A...>::value, TEmp*>::type
+    template<typename TCon, typename ...A>
+    auto construct_type_impl(variant_tag<TCon>, sltl::detail::priority<2U>, A&& ...a) -> typename std::enable_if<is_constructible<TCon, A...>::value, TCon*>::type
     {
-      assert(!_is_constructed);
-
-      return new(get_ptr()) TEmp(std::forward<A>(a)...);
+      TCon* const typed_ptr = new(get_ptr()) TCon{std::forward<A>(a)...};
 
 #ifdef _DEBUG
       _is_constructed = true;
 #endif
+
+      return typed_ptr;
     }
 
-    template<typename TEmp, typename ...A>
-    auto construct_type_impl(sltl::detail::priority<1U>, A&& ...a) -> typename std::enable_if<sltl::detail::any<detail::is_constructible<T, A...>...>::value, TEmp*>::type
+    template<typename TCon, typename ...A>
+    auto construct_type_impl(variant_tag<TCon>, sltl::detail::priority<1U>, A&& ...a) -> typename std::enable_if<sltl::detail::any<is_constructible<T, A...>...>::value, TCon*>::type
     {
       throw std::exception();//TODO: exception type and message
     }
 
-    template<typename TEmp, typename ...A>
-    auto construct_type_impl(sltl::detail::priority<0U>, A&& ...a) -> TEmp*
+    template<typename TCon, typename ...A>
+    auto construct_type_impl(variant_tag<TCon>, sltl::detail::priority<0U>, A&& ...a) -> TCon*
     {
-      static_assert(sltl::detail::fail<TEmp>::value, "sltl::api::variant::construct_type: specified argument types cannot be used to construct any of the variant's class template parameters");
+      static_assert(sltl::detail::fail<TCon>::value, "sltl::api::variant::construct_type: specified argument types cannot be used to construct any of the variant's class template parameters");
     }
 
     template<typename Fn, size_t N, typename ...A>
