@@ -57,9 +57,9 @@ void main()
     const std::wstring expected = LR"(
 struct input
 {
-  float f1;
+  float f1 : USER;
 };
-void main(input in)
+void main(input i)
 {
 }
 )";
@@ -112,16 +112,16 @@ void main()
     const std::wstring expected = LR"(
 struct input
 {
-  float f1;
-  double d2;
-  int i3;
-  uint u4;
-  bool b5;
-  float2 v6;
-  float3 v7;
-  float4 v8;
+  float f1 : USER;
+  double d2 : USER1;
+  int i3 : USER2;
+  uint u4 : USER3;
+  bool b5 : USER4;
+  float2 v6 : USER5;
+  float3 v7 : USER6;
+  float4 v8 : USER7;
 };
-void main(input in)
+void main(input i)
 {
 }
 )";
@@ -161,11 +161,11 @@ void main()
     const std::wstring expected = LR"(
 struct input
 {
-  float2 v1;
+  float2 v1 : TEXCOORD;
 };
-void main(input in)
+void main(input i)
 {
-  float2 v1 = in.v1;
+  float2 v1 = i.v1;
 }
 )";
 
@@ -203,12 +203,12 @@ void main()
     const std::wstring expected = LR"(
 struct output
 {
-  float f1;
+  float f1 : USER;
 };
 output main()
 {
-  output out;
-  return out;
+  output o;
+  return o;
 }
 )";
 
@@ -261,19 +261,19 @@ void main()
     const std::wstring expected = LR"(
 struct output
 {
-  float f1;
-  double d2;
-  int i3;
-  uint u4;
-  bool b5;
-  float2 v6;
-  float3 v7;
-  float4 v8;
+  float f1 : USER;
+  double d2 : USER1;
+  int i3 : USER2;
+  uint u4 : USER3;
+  bool b5 : USER4;
+  float2 v6 : USER5;
+  float3 v7 : USER6;
+  float4 v8 : USER7;
 };
 output main()
 {
-  output out;
-  return out;
+  output o;
+  return o;
 }
 )";
 
@@ -314,13 +314,13 @@ void main()
     const std::wstring expected = LR"(
 struct output
 {
-  float2 v1;
+  float2 v1 : TEXCOORD;
 };
 output main()
 {
-  output out;
-  out.v1 = float2(0.0f, 0.0f);
-  return out;
+  output o;
+  o.v1 = float2(0.0f, 0.0f);
+  return o;
 }
 )";
 
@@ -358,7 +358,7 @@ void main()
     const std::wstring expected = LR"(
 cbuffer cb
 {
-  float f1;
+  float c_f1;
 };
 void main()
 {
@@ -414,14 +414,14 @@ void main()
     const std::wstring expected = LR"(
 cbuffer cb
 {
-  float f1;
-  double d2;
-  int i3;
-  uint u4;
-  bool b5;
-  float2 v6;
-  float3 v7;
-  float4 v8;
+  float c_f1;
+  double c_d2;
+  int c_i3;
+  uint c_u4;
+  bool c_b5;
+  float2 c_v6;
+  float3 c_v7;
+  float4 c_v8;
 };
 void main()
 {
@@ -464,11 +464,11 @@ void main()
     const std::wstring expected = LR"(
 cbuffer cb
 {
-  float2 v1;
+  float2 c_v1;
 };
 void main()
 {
-  float2 v1 = cb.v1;
+  float2 v1 = c_v1;
 }
 )";
 
@@ -532,16 +532,16 @@ void main()
     const std::wstring expected = LR"(
 struct input
 {
-  float f1;
+  float f1 : USER;
 };
 struct output
 {
-  float f1;
+  float f1 : USER;
 };
-output main(input in)
+output main(input i)
 {
-  output out;
-  return out;
+  output o;
+  return o;
 }
 )";
 
@@ -612,30 +612,30 @@ void main()
     const std::wstring expected = LR"(
 struct input
 {
-  float f1;
-  double d2;
-  int i3;
-  uint u4;
-  bool b5;
-  float2 v6;
-  float3 v7;
-  float4 v8;
+  float f1 : USER;
+  double d2 : USER1;
+  int i3 : USER2;
+  uint u4 : USER3;
+  bool b5 : USER4;
+  float2 v6 : USER5;
+  float3 v7 : USER6;
+  float4 v8 : USER7;
 };
 struct output
 {
-  float f1;
-  double d2;
-  int i3;
-  uint u4;
-  bool b5;
-  float2 v6;
-  float3 v7;
-  float4 v8;
+  float f1 : USER;
+  double d2 : USER1;
+  int i3 : USER2;
+  uint u4 : USER3;
+  bool b5 : USER4;
+  float2 v6 : USER5;
+  float3 v7 : USER6;
+  float4 v8 : USER7;
 };
-output main(input in)
+output main(input i)
 {
-  output out;
-  return out;
+  output o;
+  return o;
 }
 )";
 
@@ -678,17 +678,17 @@ void main()
     const std::wstring expected = LR"(
 struct input
 {
-  float2 v1;
+  float2 v1 : TEXCOORD;
 };
 struct output
 {
-  float2 v1;
+  float2 v1 : TEXCOORD;
 };
-output main(input in)
+output main(input i)
 {
-  output out;
-  out.v1 = in.v1;
-  return out;
+  output o;
+  o.v1 = i.v1;
+  return o;
 }
 )";
 
@@ -737,10 +737,10 @@ struct output
 };
 output main()
 {
-  output out;
-  out.v1 = float4(0.0f, 0.0f, 0.0f, 0.0f);
-  out.f2 = 0.0f;
-  return out;
+  output o;
+  o.v1 = float4(0.0f, 0.0f, 0.0f, 0.0f);
+  o.f2 = 0.0f;
+  return o;
 }
 )";
 

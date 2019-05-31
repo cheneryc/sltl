@@ -15,10 +15,7 @@ namespace dx
   class shader final
   {
   public:
-    static detail::blob compile(const char* shader_src, shader_stage stage)
-    {
-      return { 0 };//TODO: implement
-    }
+    static detail::blob compile(const char* shader_src, shader_stage stage);
 
     shader(detail::blob_view shader_blob_view, shader_stage stage)
     {

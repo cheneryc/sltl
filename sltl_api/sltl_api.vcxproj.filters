@@ -25,6 +25,9 @@
     <Filter Include="Header Files\dx">
       <UniqueIdentifier>{bc78574a-4877-4f1d-9f07-353cd9e6b96b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\dx">
+      <UniqueIdentifier>{56dc7c4b-ec1c-4207-88c6-2304c1357960}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\detail\variant.h">
@@ -57,6 +60,9 @@
     <ClInclude Include="src\detail\byte.h">
       <Filter>Header Files\detail</Filter>
     </ClInclude>
+    <ClInclude Include="src\sltl_api.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\shader.cpp">
@@ -70,6 +76,9 @@
     </ClCompile>
     <ClCompile Include="src\gl\shader_gl.cpp">
       <Filter>Source Files\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dx\shader_dx.cpp">
+      <Filter>Source Files\dx</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

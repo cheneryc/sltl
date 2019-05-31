@@ -20,6 +20,13 @@ namespace detail
     {
     }
 
+    blob(void* const byte_buffer, size_t byte_length) :
+      _byte_length(byte_length),
+      _byte_buffer(std::make_unique<byte[]>(byte_length))
+    {
+      memcpy(_byte_buffer.get(), byte_buffer, _byte_length);
+    }
+
     operator blob_view() const
     {
       return {

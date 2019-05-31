@@ -27,11 +27,12 @@ namespace
 
       switch(semantic_system_pair.first)
       {
-        // Only a built-in variable if the semantic is position or depth
-        // Only a built-in variable if the index is zero
         case sltl::core::semantic_system::position:
         case sltl::core::semantic_system::depth:
-          is_system_value = !semantic_system_pair.second;
+          is_system_value = !semantic_system_pair.second; // Only a system value if the index is zero
+          break;
+        case sltl::core::semantic_system::target:
+          is_system_value = true;
           break;
       }
     }
@@ -44,19 +45,15 @@ namespace
     return is_system_value_semantic(vd._semantic, vd._semantic_index);
   }
 
-  std::wstring to_system_value_semantic_string(sltl::core::semantic semantic, sltl::core::semantic_index_t semantic_index)
+  std::wstring to_system_value_semantic_string(sltl::core::semantic_system semantic_system, sltl::core::semantic_index_t semantic_index)
   {
-    assert(is_system_value_semantic(semantic, semantic_index));
-
-    const auto semantic_system_pair = sltl::core::detail::to_semantic_system_pair(semantic_index);
-
     //TODO: validation that the built-in is of the correct type and used in the correct shader stage
 
     std::wstringstream ss;
 
     ss << L"SV_";
 
-    switch(semantic_system_pair.first)
+    switch(semantic_system)
     {
     case sltl::core::semantic_system::position:
       //TODO: note that index must be zero for position semantic
@@ -67,14 +64,75 @@ namespace
       //TODO: note that index must be zero for depth semantic
       ss << L"Depth";
       break;
+    case sltl::core::semantic_system::target:
+      //TODO: only valid as a fragment shader output
+      ss << L"Target";
+      break;
     }
 
     return ss.str();
   }
 
-  std::wstring to_system_value_semantic_string(const sltl::syntax::variable_declaration& vd)
+  std::wstring to_semantic_string(sltl::core::semantic semantic, sltl::core::semantic_index_t semantic_index)
   {
-    return to_system_value_semantic_string(vd._semantic, vd._semantic_index);
+    std::wstring semantic_string;
+
+    if(is_system_value_semantic(semantic, semantic_index))
+    {
+      const auto semantic_system_pair = sltl::core::detail::to_semantic_system_pair(semantic_index);
+
+      semantic_string = to_system_value_semantic_string(semantic_system_pair.first,
+                                                        semantic_system_pair.second);
+    }
+    else
+    {
+      std::wstringstream ss;
+
+      switch(semantic)
+      {
+      case sltl::core::semantic::position:
+        ss << L"POSITION";
+        break;
+      case sltl::core::semantic::depth:
+        ss << L"DEPTH";
+        break;
+      case sltl::core::semantic::normal:
+        ss << L"NORMAL";
+        break;
+      case sltl::core::semantic::texcoord:
+        ss << L"TEXCOORD";
+        break;
+      case sltl::core::semantic::colour:
+        ss << L"COLOR";
+        break;
+      case sltl::core::semantic::material:
+        ss << L"MATERIAL";
+        break;
+      case sltl::core::semantic::transform:
+        ss << L"TRANSFORM";
+        break;
+      case sltl::core::semantic::camera:
+        ss << L"CAMERA";
+        break;
+      case sltl::core::semantic::light:
+        ss << L"LIGHT";
+        break;
+      case sltl::core::semantic::user:
+        ss << L"USER";
+        break;
+      default:
+        assert(false);
+      }
+
+      if(semantic_index)
+      {
+        ss << semantic_index;
+      }
+
+      semantic_string = ss.str();
+    }
+
+    return semantic_string;
   }
 
   std::wstring to_type_string(const sltl::language::type& t)
@@ -254,11 +312,11 @@ namespace
     switch(id)
     {
     case sltl::core::qualifier_storage::in:
-      return L"in";
+      return L"i";
     case sltl::core::qualifier_storage::out:
-      return L"out";
+      return L"o";
     case sltl::core::qualifier_storage::uniform:
-      return L"cb";
+      return L"c";
     }
 
     return nullptr;
@@ -339,10 +397,10 @@ sltl::syntax::action_return_t ns::output_hlsl::operator()(const sltl::syntax::re
 {
   if(auto vd = dynamic_cast<const syntax::variable_declaration*>(&r._declaration))
   {
-    // Prefix input, output and uniform variables with a struct or cbuffer name (followed by a period)
+    // Prefix input, output and uniform variables with a struct or cbuffer name (followed by a period or underscore)
     if(auto prefix = ::to_qualifier_prefix_string(vd->_qualifier))
     {
-      _ss << prefix << L'.';
+      _ss << prefix << ((vd->_qualifier == core::qualifier_storage::uniform) ? L'_' : L'.');
     }
   }
 
@@ -354,11 +412,24 @@ sltl::syntax::action_return_t ns::output_hlsl::operator()(const sltl::syntax::va
   if(is_start)
   {
     _ss << get_indent(indent_t::current);
-    _ss << get_type_name(vd.get_type()) << L' ' << get_variable_name(vd);
+    _ss << get_type_name(vd.get_type()) << L' ';
 
-    if(::is_system_value_semantic(vd))
+    if(vd._qualifier == core::qualifier_storage::uniform)
     {
-      _ss << L" : " << ::to_system_value_semantic_string(vd);
+      _ss << to_qualifier_prefix_string(vd._qualifier) << L'_';
+    }
+
+    _ss << get_variable_name(vd);
+
+    if(vd._qualifier == core::qualifier_storage::in ||
+       vd._qualifier == core::qualifier_storage::out)
+    {
+      const std::wstring semantic_string = ::to_semantic_string(vd._semantic, vd._semantic_index);
+
+      if(!semantic_string.empty())
+      {
+        _ss << L" : " << semantic_string;
+      }
     }
     else if(vd.has_initializer())
     {
@@ -445,6 +516,11 @@ sltl::syntax::action_return_t ns::output_hlsl::operator()(const sltl::syntax::fu
       // Output a return statement for the output io_block
       if(_block_out)
       {
+        if(_flags.has_flag<output_flags::flag_extra_newlines>())
+        {
+          _ss << get_newline();
+        }
+
         _ss << get_indent(indent_t::current);
         _ss << to_keyword_string(language::id_return) << L' ' << block_out_name;
         _ss << get_terminal_newline();

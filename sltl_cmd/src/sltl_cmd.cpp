@@ -13,8 +13,9 @@
 #include "core/qualifier.h"
 #include "core/shader_stage.h"
 
+#include "sltl_api.h"
+
 #include "gl/context.h"
-#include "gl/shader_gl.h"
 
 #include <iostream>
 
@@ -174,7 +175,7 @@ namespace
       scalar<float> dot_LH = sltl::clamp(sltl::dot(L, H), 0.0f, 1.0f);
       scalar<float> dot_NH = sltl::clamp(sltl::dot(N, H), 0.0f, 1.0f);
 
-      vec3 colour;
+      vec3 colour(0.0f, 0.0f, 0.0f);
       vec3 colour_light(1.0f, 1.0f, 1.0f); //TODO: vec(1.0f) & mat(1.0f) constructors?
 
       sltl::if_then(dot_NL > 0.0f, [&]()
@@ -207,7 +208,7 @@ namespace
         uniform.get<semantic::light, 2>()
       };
 
-      vec3 Lo;
+      vec3 Lo(0.0f, 0.0f, 0.0f);
 
       //TODO: need sltl::for_each and sltl::array support to match the source pbr shader correctly
       for(auto& light : lights)
@@ -240,8 +241,6 @@ std::string to_string(std::wstring shader_txt)
 
 int main()
 {
-  constexpr bool is_glsl = true;
-
   std::wstring shader_vs_text;
   std::wstring shader_fs_text;
 
@@ -251,15 +250,7 @@ int main()
 
   {
     auto shader_vs = sltl::make_shader(&vs::pbr_vs);
-
-    if(is_glsl)
-    {
-      shader_vs_text = shader_vs.apply_action<sltl::glsl::output_glsl>(sltl::glsl::output_version::v330, sltl::output_flags::flag_extra_newlines);
-    }
-    else
-    {
-      shader_vs_text = shader_vs.apply_action<sltl::hlsl::output_hlsl>(sltl::output_flags::flag_extra_newlines);
-    }
+    shader_vs_text = shader_vs.apply_action<sltl::glsl::output_glsl>(sltl::glsl::output_version::v330, sltl::output_flags::flag_extra_newlines);
 
     std::wcout << shader_vs_text.c_str() << L"\n\n";
   }
@@ -268,15 +259,7 @@ int main()
 
   {
     auto shader_fs = sltl::make_shader(&fs::pbr_fs);
-
-    if(is_glsl)
-    {
-      shader_fs_text = shader_fs.apply_action<sltl::glsl::output_glsl>(sltl::glsl::output_version::v330, sltl::output_flags::flag_extra_newlines);
-    }
-    else
-    {
-      shader_fs_text = shader_fs.apply_action<sltl::hlsl::output_hlsl>(sltl::output_flags::flag_extra_newlines);
-    }
+    shader_fs_text = shader_fs.apply_action<sltl::glsl::output_glsl>(sltl::glsl::output_version::v330, sltl::output_flags::flag_extra_newlines);
 
     std::wcout << shader_fs_text.c_str() << std::endl;
   }
@@ -284,9 +267,37 @@ int main()
   try
   {
     sltl::api::gl::context gl_context;
-    sltl::api::gl::shader gl_vs(to_string(shader_vs_text).c_str(), sltl::api::shader_stage::vertex);
-    sltl::api::gl::shader gl_fs(to_string(shader_fs_text).c_str(), sltl::api::shader_stage::fragment);
-    sltl::api::gl::shader_program gl_shader_program(gl_vs, gl_fs);
+    sltl::api::shader gl_vs(0U, to_string(shader_vs_text).c_str(), sltl::api::shader_stage::vertex);
+    sltl::api::shader gl_fs(0U, to_string(shader_fs_text).c_str(), sltl::api::shader_stage::fragment);
+    sltl::api::shader_program gl_shader_program(0U, gl_vs, gl_fs);
+  }
+  catch(const std::exception& ex)
+  {
+    std::cout << "Shader Compile Failed: " << ex.what() << std::endl;
+  }
+
+  std::wcout << L"--- Vertex Shader ---" << L"\n\n";
+
+  {
+    auto shader_vs = sltl::make_shader(&vs::pbr_vs);
+    shader_vs_text = shader_vs.apply_action<sltl::hlsl::output_hlsl>(sltl::output_flags::flag_extra_newlines);
+
+    std::wcout << shader_vs_text.c_str() << L"\n\n";
+  }
+
+  std::wcout << L"--- Fragment Shader ---" << L"\n\n";
+
+  {
+    auto shader_fs = sltl::make_shader(&fs::pbr_fs);
+    shader_fs_text = shader_fs.apply_action<sltl::hlsl::output_hlsl>(sltl::output_flags::flag_extra_newlines);
+
+    std::wcout << shader_fs_text.c_str() << std::endl;
+  }
+
+  try
+  {
+    sltl::api::shader dx_vs(1U, to_string(shader_vs_text).c_str(), sltl::api::shader_stage::vertex);
+    sltl::api::shader dx_fs(1U, to_string(shader_fs_text).c_str(), sltl::api::shader_stage::fragment);
   }
   catch(const std::exception& ex)
   {
